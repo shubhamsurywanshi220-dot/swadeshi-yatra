@@ -1,0 +1,11 @@
+ services:
+  - type: web
+    name: swadeshi-yatra-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        value: mongodb+srv://Shubham:Shubham%402314@cluster0.usubzr3.mongodb.net/swadeshi-yatra?retryWrites=true&w=majority
