@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ReviewCard({ review, onHelpful }) {
+    const { theme, isDarkMode } = useTheme();
+    const styles = createStyles(theme, isDarkMode);
+
     const renderStars = (rating) => {
         return (
             <View style={styles.starsContainer}>
@@ -12,7 +15,7 @@ export default function ReviewCard({ review, onHelpful }) {
                         key={star}
                         name={star <= rating ? 'star' : 'star-outline'}
                         size={14}
-                        color={theme.colors.accent}
+                        color={isDarkMode ? '#FFD700' : theme.colors.accent}
                     />
                 ))}
             </View>
@@ -68,20 +71,21 @@ export default function ReviewCard({ review, onHelpful }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme, isDarkMode) => StyleSheet.create({
     card: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.m,
-        padding: theme.spacing.m,
-        marginBottom: theme.spacing.m,
+        padding: 16,
+        marginBottom: 16,
         borderWidth: 1,
         borderColor: theme.colors.border,
+        ...theme.shadows.soft,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: theme.spacing.m,
+        marginBottom: 12,
     },
     userInfo: {
         flexDirection: 'row',
@@ -89,24 +93,24 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: theme.colors.primary + '15',
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: isDarkMode ? '#212121' : theme.colors.primary + '15',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: theme.spacing.s,
+        marginRight: 12,
     },
     userDetails: {
         flex: 1,
     },
     userName: {
         fontSize: 15,
-        fontWeight: '600',
+        fontWeight: 'bold',
         color: theme.colors.text.primary,
     },
     date: {
-        fontSize: 12,
+        fontSize: 11,
         color: theme.colors.text.tertiary,
         marginTop: 2,
     },
@@ -116,23 +120,25 @@ const styles = StyleSheet.create({
     },
     comment: {
         fontSize: 14,
-        color: theme.colors.text.primary,
-        lineHeight: 20,
-        marginBottom: theme.spacing.m,
+        color: theme.colors.text.secondary,
+        lineHeight: 22,
+        marginBottom: 12,
     },
     footer: {
         flexDirection: 'row',
         alignItems: 'center',
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        paddingTop: 10,
     },
     helpfulButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.spacing.xs,
-        paddingVertical: theme.spacing.xs,
-        paddingHorizontal: theme.spacing.s,
+        gap: 6,
     },
     helpfulText: {
         fontSize: 13,
         color: theme.colors.text.secondary,
+        fontWeight: '500',
     },
 });

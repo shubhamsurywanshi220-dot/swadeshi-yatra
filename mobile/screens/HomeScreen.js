@@ -1,251 +1,507 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Image, StatusBar } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Image, StatusBar, Animated, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+import api from '../utils/api';
+import ImageWithFallback from '../components/ImageWithFallback';
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function HomeScreen({ navigation }) {
+    const { theme, isDarkMode } = useTheme();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [popularPlaces, setPopularPlaces] = useState([]);
+    const [loadingPopular, setLoadingPopular] = useState(true);
+    const scaleAnim = useRef(new Animated.Value(1)).current;
+
+    const styles = createStyles(theme);
+
+    // Micro-animations for card entry
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(30)).current;
+
+    React.useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 600,
+                useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                tension: 20,
+                friction: 7,
+                useNativeDriver: true,
+            })
+        ]).start();
+
+        fetchPopularPlaces();
+    }, []);
+
+    const fetchPopularPlaces = async () => {
+        setLoadingPopular(true);
+        try {
+            const response = await api.get('/places');
+            // Mocking "Popular Near You" by filtering Karnataka or just trending ones
+            const karnataka = response.data.filter(p => p.state === 'Karnataka').slice(0, 6);
+            // If no Karnataka places (unlikely), take any top rated
+            const places = karnataka.length > 0 ? karnataka : response.data.slice(0, 6);
+            setPopularPlaces(places);
+        } catch (error) {
+            console.error("Error fetching popular places:", error);
+        } finally {
+            setLoadingPopular(false);
+        }
+    };
+
+    const handlePressIn = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 0.97,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handlePressOut = () => {
+        Animated.spring(scaleAnim, {
+            toValue: 1,
+            friction: 3,
+            tension: 40,
+            useNativeDriver: true,
+        }).start();
+    };
+
+    const handleSearch = (query) => {
+        const text = query || searchQuery;
+        if (text.trim()) {
+            navigation.navigate('Places', {
+                category: 'destinations',
+                search: text.trim(),
+                focusSearch: false
+            });
+            setSearchQuery('');
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor={theme.colors.background} />
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} />
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greeting}>Namaste,</Text>
-                        <Text style={styles.title}>Swadeshi Yatra</Text>
+                        <Text style={styles.greetingText}>Welcome,</Text>
+                        <Text style={styles.brandTitle}>Swadeshi Yatra</Text>
                     </View>
-                    {/* Profile Icon */}
-                    <TouchableOpacity style={styles.profileIcon} onPress={() => navigation.navigate('Profile')}>
-                        <Ionicons name="person-circle" size={40} color={theme.colors.primary} />
+                    {/* Profile Icon with Shadow */}
+                    <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate('Profile')}>
+                        <View style={styles.avatarShadow}>
+                            <Ionicons name="person-circle" size={44} color={theme.colors.primary} />
+                        </View>
                     </TouchableOpacity>
                 </View>
 
-                {/* Search Bar */}
-                <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color={theme.colors.text.tertiary} style={{ marginRight: theme.spacing.s }} />
+                {/* Floating Search Bar */}
+                <View style={styles.searchFloating}>
+                    <TouchableOpacity onPress={() => handleSearch()}>
+                        <Ionicons name="search" size={22} color={theme.colors.text.tertiary} style={{ marginRight: 12 }} />
+                    </TouchableOpacity>
                     <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search destinations, stays, culture..."
+                        style={styles.searchTextInput}
+                        placeholder="Search destinations, stays & culture"
                         placeholderTextColor={theme.colors.text.secondary}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        onSubmitEditing={() => handleSearch()}
+                        returnKeyType="search"
                     />
-                </View>
-
-                {/* Emergency SOS - Integrated but distinct */}
-                <TouchableOpacity
-                    style={styles.sosCard}
-                    onPress={() => navigation.navigate('SOS')}
-                >
-                    <View style={styles.sosContent}>
-                        <View style={styles.sosIconContainer}>
-                            <MaterialCommunityIcons name="alert-circle" size={28} color={theme.colors.error} />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.sosText}>Emergency SOS</Text>
-                            <Text style={styles.sosSubtext}>Tap for immediate help</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={24} color={theme.colors.error} />
+                    <View style={styles.searchIconsLeft}>
+                        {searchQuery.length > 0 ? (
+                            <TouchableOpacity onPress={() => setSearchQuery('')}>
+                                <Ionicons name="close-circle" size={20} color={theme.colors.text.tertiary} />
+                            </TouchableOpacity>
+                        ) : (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Ionicons name="options-outline" size={20} color={theme.colors.text.tertiary} />
+                            </View>
+                        )}
                     </View>
-                </TouchableOpacity>
+                </View>
 
                 {/* Categories Grid */}
-                <Text style={styles.sectionTitle}>Explore</Text>
-                <View style={styles.grid}>
-                    <TouchableOpacity
-                        style={[styles.card, { backgroundColor: theme.colors.surface }]}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionHeading}>Explore</Text>
+                    <View style={styles.sectionDivider} />
+                </View>
+
+                <Animated.View style={[styles.categoryGrid, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+                    <AnimatedTouchableOpacity
+                        style={[styles.premiumCard, { transform: [{ scale: scaleAnim }] }]}
+                        activeOpacity={0.9}
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
                         onPress={() => navigation.navigate('Places', { category: 'destinations' })}
                     >
-                        <View style={[styles.cardIcon, styles.iconDestinations]}>
-                            <MaterialCommunityIcons name="temple-hindu" size={32} color={theme.colors.accent} />
+                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332300' : '#FFF3E0' }]}>
+                            <MaterialCommunityIcons name="temple-hindu" size={30} color={isDarkMode ? '#FFB74D' : '#F57C00'} />
                         </View>
-                        <Text style={styles.cardTitle}>Destinations</Text>
-                        <Text style={styles.cardDesc}>Heritage & Culture</Text>
-                    </TouchableOpacity>
+                        <Text style={styles.premiumCardTitle}>Destinations</Text>
+                        <Text style={styles.premiumCardSubtitle}>Heritage & Culture</Text>
+                    </AnimatedTouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.card, { backgroundColor: theme.colors.surface }]}
+                    <AnimatedTouchableOpacity
+                        style={[styles.premiumCard, { transform: [{ scale: scaleAnim }] }]}
+                        activeOpacity={0.9}
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
                         onPress={() => navigation.navigate('Places', { category: 'business' })}
                     >
-                        <View style={[styles.cardIcon, styles.iconBusiness]}>
-                            <MaterialCommunityIcons name="store" size={32} color={theme.colors.secondary} />
+                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#002622' : '#E0F2F1' }]}>
+                            <MaterialCommunityIcons name="store" size={30} color={isDarkMode ? '#4DB6AC' : '#00796B'} />
                         </View>
-                        <Text style={styles.cardTitle}>Local Biz</Text>
-                        <Text style={styles.cardDesc}>Vocal for Local</Text>
-                    </TouchableOpacity>
+                        <Text style={styles.premiumCardTitle}>Local Biz</Text>
+                        <Text style={styles.premiumCardSubtitle}>Vocal for Local</Text>
+                    </AnimatedTouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.card, { backgroundColor: theme.colors.surface }]}
-                        onPress={() => navigation.navigate('Places', { category: 'stays' })}
+                    <AnimatedTouchableOpacity
+                        style={[styles.premiumCard, { transform: [{ scale: scaleAnim }] }]}
+                        activeOpacity={0.9}
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
+                        onPress={() => navigation.navigate('Places', { category: 'hidden-gems' })}
                     >
-                        <View style={[styles.cardIcon, styles.iconStays]}>
-                            <Ionicons name="bed" size={32} color={theme.colors.primary} />
+                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332C00' : '#FFF9C4' }]}>
+                            <Ionicons name="sparkles" size={30} color={isDarkMode ? '#FFF176' : '#FBC02D'} />
                         </View>
-                        <Text style={styles.cardTitle}>Stays</Text>
-                        <Text style={styles.cardDesc}>Authentic homestays</Text>
-                    </TouchableOpacity>
+                        <Text style={styles.premiumCardTitle}>Hidden Gems</Text>
+                        <Text style={styles.premiumCardSubtitle}>Offbeat escapes</Text>
+                    </AnimatedTouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.card, { backgroundColor: theme.colors.surface }]}
-                        onPress={() => navigation.navigate('Places', { category: 'transport' })}
+                    <AnimatedTouchableOpacity
+                        style={[styles.premiumCard, { transform: [{ scale: scaleAnim }] }]}
+                        activeOpacity={0.9}
+                        onPressIn={handlePressIn}
+                        onPressOut={handlePressOut}
+                        onPress={() => navigation.navigate('Places', { category: 'crafts' })}
                     >
-                        <View style={[styles.cardIcon, styles.iconTransport]}>
-                            <Ionicons name="bus" size={32} color={theme.colors.primary} />
+                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#240033' : '#F3E5F5' }]}>
+                            <MaterialCommunityIcons name="hammer-wrench" size={30} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
                         </View>
-                        <Text style={styles.cardTitle}>Transport</Text>
-                        <Text style={styles.cardDesc}>Local connect</Text>
+                        <Text style={styles.premiumCardTitle}>Traditional Crafts</Text>
+                        <Text style={styles.premiumCardSubtitle}>Local Artisans</Text>
+                    </AnimatedTouchableOpacity>
+                </Animated.View>
+
+                {/* Popular Section */}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionHeading}>Popular Near You</Text>
+                    <View style={styles.sectionDivider} />
+                    <TouchableOpacity onPress={() => navigation.navigate('Places')}>
+                        <Text style={styles.seeAllText}>See All</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* Inspiration / Featured (Placeholder for future) */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.popularScroll}>
+                    {loadingPopular ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color={theme.colors.primary} />
+                        </View>
+                    ) : (
+                        popularPlaces.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                style={styles.popularCard}
+                                onPress={() => navigation.navigate('PlaceDetails', { place: item })}
+                            >
+                                <ImageWithFallback
+                                    source={{ uri: item.imageUrl }}
+                                    style={styles.popularImage}
+                                    resizeMode="cover"
+                                />
+                                <View style={styles.popularInfo}>
+                                    <Text style={styles.popularName} numberOfLines={1}>{item.name}</Text>
+                                    <View style={styles.popularLocationRow}>
+                                        <Ionicons name="location" size={12} color={theme.colors.text.tertiary} />
+                                        <Text style={styles.popularLocation} numberOfLines={1}>{item.city || item.location}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
+                </ScrollView>
+
+                {/* Featured Banner */}
                 <View style={styles.bannerContainer}>
-                    <Text style={styles.bannerText}>🇮🇳 Atmanirbhar Bharat Initiative</Text>
+                    <View style={styles.banner}>
+                        <View style={styles.bannerContent}>
+                            <Text style={styles.bannerTag}>PROMOTING SWADESHI</Text>
+                            <Text style={styles.bannerTitle}>Dekho Apna Desh</Text>
+                            <Text style={styles.bannerDesc}>Explore 50+ heritage sites this season</Text>
+                            <TouchableOpacity
+                                style={styles.bannerButton}
+                                onPress={() => navigation.navigate('Initiatives')}
+                            >
+                                <Text style={styles.bannerButtonText}>Learn More</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.bannerCircle} />
+                    </View>
                 </View>
 
-                {/* Spacer for Bottom Tabs */}
-                <View style={{ height: 80 }} />
+                {/* SOS / Assistance Card */}
+                <TouchableOpacity
+                    style={styles.sosCard}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('SOS')}
+                >
+                    <View style={styles.sosIconContainer}>
+                        <Ionicons name="shield-checkmark" size={24} color="#FFF" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.sosTitle}>Travel Safe</Text>
+                        <Text style={styles.sosSubtitle}>Quick access to emergency services</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
+                </TouchableOpacity>
 
+                <View style={{ height: 100 }} />
             </ScrollView>
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
-    scrollContent: { padding: theme.spacing.l },
-
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+        paddingHorizontal: theme.padding.screen,
+        paddingTop: 10,
+    },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: theme.spacing.l
+        marginTop: 10,
+        marginBottom: 20,
     },
-    greeting: {
-        fontSize: 16,
+    greetingText: {
+        ...theme.typography.greeting,
         color: theme.colors.text.secondary,
-        fontWeight: '500'
+        fontWeight: '400',
     },
-    title: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        color: theme.colors.primary,
-        letterSpacing: 0.5
+    brandTitle: {
+        ...theme.typography.greeting,
+        color: theme.colors.text.primary,
+        marginTop: -4,
     },
-    profileIcon: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
+    profileContainer: {
+        position: 'relative',
     },
-
-    searchContainer: {
-        flexDirection: 'row',
+    avatarShadow: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.l, // Pill shape
-        paddingHorizontal: theme.spacing.m,
-        paddingVertical: 12,
+        borderRadius: 22,
+        ...theme.shadows.soft,
+    },
+    // Floating Search Bar
+    searchFloating: {
+        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: theme.spacing.l,
+        backgroundColor: theme.colors.surface,
+        height: 56,
+        paddingHorizontal: 16,
+        borderRadius: theme.radius.m,
+        ...theme.shadows.search,
+        marginBottom: 28,
         borderWidth: 1,
         borderColor: theme.colors.border,
-        ...theme.shadows.card,
     },
-    searchInput: { flex: 1, fontSize: 16, color: theme.colors.text.primary },
-
-    sosCard: {
-        backgroundColor: theme.colors.error + '10', // Error color with 10% opacity
-        borderRadius: theme.radius.l,
-        padding: theme.spacing.m,
-        marginBottom: theme.spacing.xl,
-        borderWidth: 1,
-        borderColor: theme.colors.error + '30',
+    searchTextInput: {
+        flex: 1,
+        fontSize: 15,
+        color: theme.colors.text.primary,
     },
-    sosContent: {
+    searchIconsLeft: {
+        marginLeft: 10,
+    },
+    // Section Headers
+    sectionHeaderRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: 16,
     },
-    sosIconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: theme.colors.error + '20',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: theme.spacing.m,
-    },
-    sosText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: theme.colors.error,
-    },
-    sosSubtext: {
-        fontSize: 12,
-        color: theme.colors.error,
-        opacity: 0.8,
-    },
-
-    sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+    sectionHeading: {
+        ...theme.typography.sectionTitle,
         color: theme.colors.text.primary,
-        marginBottom: theme.spacing.m,
+        marginRight: 12,
     },
-
-    grid: {
+    sectionDivider: {
+        flex: 1,
+        height: 1,
+        backgroundColor: theme.colors.border,
+        opacity: 0.6,
+    },
+    seeAllText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.primary,
+        marginLeft: 12,
+    },
+    // Categories Grid
+    categoryGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        marginBottom: 30,
     },
-    card: {
+    premiumCard: {
         width: '48%',
-        padding: theme.spacing.m,
+        backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
-        marginBottom: theme.spacing.m,
-        alignItems: 'center',
+        padding: 20,
+        marginBottom: 16,
         ...theme.shadows.card,
     },
-    inactive: { opacity: 0.7 },
-    cardIcon: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+    premiumIconContainer: {
+        width: 52,
+        height: 52,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.spacing.s,
+        marginBottom: 14,
     },
-    iconDestinations: {
-        backgroundColor: theme.colors.accent + '20', // Warm orange tint
+    premiumCardTitle: {
+        ...theme.typography.cardTitle,
+        color: theme.colors.text.primary,
+        marginBottom: 4,
     },
-    iconBusiness: {
-        backgroundColor: theme.colors.secondary + '20', // Teal tint
+    premiumCardSubtitle: {
+        ...theme.typography.cardSubtitle,
+        color: theme.colors.text.secondary,
     },
-    iconStays: {
-        backgroundColor: theme.colors.primary + '15', // Saffron tint
+    // Popular horizontal scroll
+    popularScroll: {
+        paddingBottom: 20,
+        paddingLeft: 4,
     },
-    iconTransport: {
-        backgroundColor: theme.colors.primary + '10', // Light saffron
+    loadingContainer: {
+        padding: 40,
+        alignItems: 'center',
+        width: 300,
     },
-    cardTitle: {
+    popularCard: {
+        width: 170,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.m,
+        marginRight: 16,
+        ...theme.shadows.card,
+        overflow: 'hidden',
+    },
+    popularImage: {
+        width: '100%',
+        height: 110,
+    },
+    popularInfo: {
+        padding: 12,
+    },
+    popularName: {
+        ...theme.typography.cardTitle,
+        fontSize: 14,
+        color: theme.colors.text.primary,
+        marginBottom: 4,
+    },
+    popularLocationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    popularLocation: {
+        fontSize: 11,
+        color: theme.colors.text.tertiary,
+        marginLeft: 4,
+    },
+    // Banner
+    bannerContainer: {
+        marginBottom: 30,
+    },
+    banner: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.l,
+        padding: 24,
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    bannerContent: {
+        zIndex: 2,
+    },
+    bannerTag: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: 'rgba(255,255,255,0.7)',
+        letterSpacing: 1.5,
+        marginBottom: 8,
+    },
+    bannerTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 4,
+    },
+    bannerDesc: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.9)',
+        marginBottom: 18,
+    },
+    bannerButton: {
+        backgroundColor: '#FFF',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20,
+        alignSelf: 'flex-start',
+    },
+    bannerButtonText: {
+        color: theme.colors.primary,
+        fontWeight: '700',
+        fontSize: 13,
+    },
+    bannerCircle: {
+        position: 'absolute',
+        right: -30,
+        bottom: -30,
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        zIndex: 1,
+    },
+    // SOS Card
+    sosCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.m,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(244, 81, 30, 0.1)',
+        ...theme.shadows.soft,
+    },
+    sosIconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: theme.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    sosTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         color: theme.colors.text.primary,
-        marginBottom: 4
     },
-    cardDesc: {
+    sosSubtitle: {
         fontSize: 12,
         color: theme.colors.text.secondary,
-        textAlign: 'center'
     },
-
-    bannerContainer: {
-        marginTop: theme.spacing.l,
-        backgroundColor: theme.colors.secondary,
-        padding: theme.spacing.m,
-        borderRadius: theme.radius.m,
-        alignItems: 'center',
-    },
-    bannerText: {
-        color: theme.colors.surface, // Text on primary background
-        fontWeight: 'bold',
-    }
 });

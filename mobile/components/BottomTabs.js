@@ -1,91 +1,105 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
+
+const TabItem = ({ tab, isActive, onPress, theme }) => {
+    const scaleAnim = React.useRef(new Animated.Value(isActive ? 1.15 : 1)).current;
+
+    React.useEffect(() => {
+        Animated.spring(scaleAnim, {
+            toValue: isActive ? 1.15 : 1,
+            useNativeDriver: true,
+            friction: 4,
+        }).start();
+    }, [isActive]);
+
+    return (
+        <TouchableOpacity
+            style={styles.tab}
+            onPress={onPress}
+            activeOpacity={0.7}
+        >
+            <Animated.View style={[
+                styles.iconCircle,
+                isActive && { backgroundColor: theme.colors.primary + '20' },
+                { transform: [{ scale: scaleAnim }] }
+            ]}>
+                {tab.iconLibrary === 'Ionicons' ? (
+                    <Ionicons
+                        name={isActive ? tab.iconName : `${tab.iconName}-outline`}
+                        size={24}
+                        color={isActive ? theme.colors.primary : theme.colors.text.tertiary}
+                    />
+                ) : (
+                    <MaterialCommunityIcons
+                        name={isActive ? tab.iconName : `${tab.iconName}-outline`}
+                        size={24}
+                        color={isActive ? theme.colors.primary : theme.colors.text.tertiary}
+                    />
+                )}
+            </Animated.View>
+        </TouchableOpacity>
+    );
+};
 
 export default function BottomTabs({ currentScreen, navigate }) {
+    const { theme, isDarkMode } = useTheme();
     const tabs = [
         { key: 'Home', label: 'Home', iconName: 'home', iconLibrary: 'Ionicons' },
-        { key: 'Places', label: 'Explore', iconName: 'earth', iconLibrary: 'Ionicons', params: { category: 'destinations' } },
+        { key: 'Explore', label: 'Explore', iconName: 'earth', iconLibrary: 'Ionicons', params: { category: 'destinations' } },
         { key: 'SOS', label: 'SOS', iconName: 'alert-circle', iconLibrary: 'MaterialCommunityIcons' },
         { key: 'Profile', label: 'Profile', iconName: 'person', iconLibrary: 'Ionicons' },
     ];
 
+    const styles = createStyles(theme, isDarkMode);
+
     return (
         <View style={styles.container}>
-            {tabs.map((tab) => {
-                const isActive = currentScreen === tab.key || (currentScreen === 'Places' && tab.key === 'Places'); // Handle Places sub-categories better later if needed
-
-                return (
-                    <TouchableOpacity
-                        key={tab.key}
-                        style={styles.tab}
-                        onPress={() => navigate(tab.key, tab.params)}
-                    >
-                        {tab.iconLibrary === 'Ionicons' ? (
-                            <Ionicons
-                                name={isActive ? tab.iconName : `${tab.iconName}-outline`}
-                                size={24}
-                                color={isActive ? theme.colors.primary : theme.colors.text.secondary}
-                                style={styles.icon}
-                            />
-                        ) : (
-                            <MaterialCommunityIcons
-                                name={isActive ? tab.iconName : `${tab.iconName}-outline`}
-                                size={24}
-                                color={isActive ? theme.colors.primary : theme.colors.text.secondary}
-                                style={styles.icon}
-                            />
-                        )}
-                        <Text style={[styles.label, isActive && styles.activeLabel]}>
-                            {tab.label}
-                        </Text>
-                        {isActive && <View style={styles.indicator} />}
-                    </TouchableOpacity>
-                );
-            })}
+            {tabs.map((tab) => (
+                <TabItem
+                    key={tab.key}
+                    tab={tab}
+                    isActive={currentScreen === tab.key || (currentScreen === 'Places' && tab.key === 'Explore') || (currentScreen === 'Directory' && tab.key === 'Explore')}
+                    onPress={() => navigate(tab.key === 'Explore' ? 'Directory' : tab.key, tab.params)}
+                    theme={theme}
+                />
+            ))}
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme, isDarkMode) => StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        ...theme.shadows.float, // Floating shadow effect
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        height: 76,
+        paddingHorizontal: 24,
+        ...theme.shadows.elevated,
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        elevation: 20, // High elevation for Android
+        elevation: 25,
+        shadowColor: isDarkMode ? '#000' : '#AAA',
+        borderTopWidth: isDarkMode ? 1 : 0,
+        borderTopColor: theme.colors.border,
     },
+});
+
+const styles = StyleSheet.create({
     tab: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    icon: {
-        marginBottom: 4,
+    iconCircle: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    label: {
-        fontSize: 10,
-        color: theme.colors.text.secondary,
-        fontWeight: '500',
-    },
-    activeLabel: {
-        color: theme.colors.primary,
-        fontWeight: 'bold',
-    },
-    indicator: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: theme.colors.primary,
-        position: 'absolute',
-        bottom: -8, // Position below the label
-    }
 });

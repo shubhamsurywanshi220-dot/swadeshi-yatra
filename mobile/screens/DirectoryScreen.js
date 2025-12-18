@@ -1,27 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, TextInput, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
 import { FavoritesManager } from '../utils/favoritesManager';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 export default function DirectoryScreen({ route, navigation }) {
-    const { category: initialCategory } = route.params || { category: 'destinations' };
+    const { theme, isDarkMode } = useTheme();
+    const { category: initialCategory, search: initialSearch, focusSearch } = route.params || { category: 'destinations' };
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const styles = createStyles(theme);
+
     // Search & Filter States
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(initialSearch || '');
     const [selectedState, setSelectedState] = useState('All');
     const [selectedCity, setSelectedCity] = useState('All');
-    const [selectedType, setSelectedType] = useState('All');
+
+    // Auto-select type if we came from a specific home category
+    const getInitialType = () => {
+        if (initialCategory === 'hidden-gems') return 'Hidden Gem';
+        if (initialCategory === 'crafts') return 'Crafts';
+        if (initialCategory === 'stays') return 'Stays';
+        return 'All';
+    };
+    const [selectedType, setSelectedType] = useState(getInitialType());
+    const [selectedSeason, setSelectedSeason] = useState('All');
     const [favorites, setFavorites] = useState([]);
+    const [showFilters, setShowFilters] = useState(false); // Default to collapsed to save space
+    const searchInputRef = React.useRef(null);
 
     useEffect(() => {
+        if (initialSearch) setSearchQuery(initialSearch);
+        if (focusSearch && searchInputRef.current) {
+            setTimeout(() => searchInputRef.current.focus(), 100);
+        }
         fetchData();
         loadFavorites();
-    }, [initialCategory]);
+    }, [initialCategory, initialSearch, focusSearch]);
+
+    // Auto-detect State & Category from Search Query
+    useEffect(() => {
+        if (!data.length || !searchQuery) return;
+
+        const term = searchQuery.toLowerCase();
+
+        // 1. Detect State from query
+        const detectedState = allStates.find(s =>
+            s !== 'All' && term.includes(s.toLowerCase())
+        );
+
+        // If detectedState is found and it's DIFFERENT from manual selection, update it
+        if (detectedState && selectedState !== detectedState) {
+            setSelectedState(detectedState);
+            setSelectedCity('All');
+        }
+
+        // 2. Detect Category (Type)
+        const detectedType = allTypes.find(t =>
+            t !== 'All' && term.includes(t.toLowerCase())
+        );
+
+        if (detectedType && selectedType !== detectedType) {
+            setSelectedType(detectedType);
+        }
+    }, [searchQuery, data]);
 
     const loadFavorites = async () => {
         const favs = await FavoritesManager.getFavorites();
@@ -45,7 +91,7 @@ export default function DirectoryScreen({ route, navigation }) {
     const fetchData = async () => {
         setLoading(true);
         try {
-            if (initialCategory === 'stays' || initialCategory === 'transport') {
+            if (initialCategory === 'transport') {
                 setTimeout(() => { setData([]); setLoading(false); }, 500);
                 return;
             }
@@ -72,28 +118,40 @@ export default function DirectoryScreen({ route, navigation }) {
     // 3. Get Categories (Types)
     const allTypes = ['All', ...new Set(data.map(item => item.category).filter(Boolean))];
 
+    // 4. Get Seasons
+    // Extract unique seasons or normalize data if needed. For now, distinct values.
+    const allSeasons = ['All', ...new Set(data.map(item => item.bestTime).filter(Boolean))];
+
 
     // --- Filtering Logic ---
     const filteredData = data.filter(item => {
-        // 1. Text Search
-        const term = searchQuery.toLowerCase().trim();
-        const matchesSearch =
-            (item.name?.toLowerCase() || '').includes(term) ||
-            (item.location?.toLowerCase() || '').includes(term) ||
-            (item.description?.toLowerCase() || '').includes(term) ||
-            (item.state?.toLowerCase() || '').includes(term) ||
-            (item.category?.toLowerCase() || '').includes(term);
-
-        // 2. State Filter
+        // 1. Manual Filters First
         const matchesState = selectedState === 'All' || item.state === selectedState;
-
-        // 3. City Filter
         const matchesCity = selectedCity === 'All' || item.city === selectedCity;
-
-        // 4. Category/Type Filter
         const matchesType = selectedType === 'All' || item.category === selectedType;
+        const matchesSeason = selectedSeason === 'All' || item.bestTime === selectedSeason;
 
-        return matchesSearch && matchesState && matchesCity && matchesType;
+        // 2. Text Search (Smart)
+        const term = searchQuery.toLowerCase().trim();
+        if (!term) return matchesState && matchesCity && matchesType && matchesSeason;
+
+        // Keywords to ignore (filler words)
+        const fillerWords = ['tourist', 'place', 'places', 'in', 'visit', 'best', 'top', 'to', 'of'];
+        const keywords = term.split(/\s+/).filter(word => word.length > 2 && !fillerWords.includes(word));
+
+        // If query only contains filler words or is very short, search the original term
+        const searchTerms = keywords.length > 0 ? keywords : [term];
+
+        const matchesSearch = searchTerms.every(kw => {
+            return (item.name?.toLowerCase() || '').includes(kw) ||
+                (item.location?.toLowerCase() || '').includes(kw) ||
+                (item.description?.toLowerCase() || '').includes(kw) ||
+                (item.state?.toLowerCase() || '').includes(kw) ||
+                (item.category?.toLowerCase() || '').includes(kw) ||
+                (item.city?.toLowerCase() || '').includes(kw);
+        });
+
+        return matchesSearch && matchesState && matchesCity && matchesType && matchesSeason;
     });
 
     const getTitle = () => {
@@ -101,7 +159,9 @@ export default function DirectoryScreen({ route, navigation }) {
             case 'business': return 'Local Businesses';
             case 'stays': return 'Authentic Stays';
             case 'transport': return 'Local Transport';
-            default: return 'Tourist Destinations';
+            case 'hidden-gems': return 'Hidden Gems';
+            case 'crafts': return 'Traditional Crafts';
+            default: return 'Discover India';
         }
     };
 
@@ -112,7 +172,7 @@ export default function DirectoryScreen({ route, navigation }) {
             onPress={() => navigation.navigate('PlaceDetails', { place: item })}
         >
             <View style={styles.imageContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
+                <ImageWithFallback source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
                 <View style={styles.cardBadge}>
                     <Text style={styles.cardBadgeText}>{item.category || 'Heritage'}</Text>
                 </View>
@@ -140,7 +200,7 @@ export default function DirectoryScreen({ route, navigation }) {
                     <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
                     {item.rating && (
                         <View style={styles.ratingContainer}>
-                            <Ionicons name="star" size={14} color={theme.colors.accent} />
+                            <Ionicons name="star" size={14} color={isDarkMode ? '#FFD700' : theme.colors.accent} />
                             <Text style={styles.rating}> {item.rating}</Text>
                         </View>
                     )}
@@ -187,6 +247,7 @@ export default function DirectoryScreen({ route, navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} />
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -198,70 +259,150 @@ export default function DirectoryScreen({ route, navigation }) {
                 </View>
             </View>
 
-            {/* A. General Search Bar (Modern) */}
-            <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color={theme.colors.text.tertiary} style={{ marginRight: 10 }} />
+            {/* A. Search Bar - Floating & Soft (Consistent with Home) */}
+            <View style={styles.searchFloating}>
+                <Ionicons name="search" size={20} color={theme.colors.text.tertiary} style={{ marginRight: 12 }} />
                 <TextInput
-                    style={styles.searchInput}
+                    ref={searchInputRef}
+                    style={styles.searchTextInput}
                     placeholder="Search destinations or cities..."
-                    placeholderTextColor={theme.colors.text.tertiary}
+                    placeholderTextColor={theme.colors.text.secondary}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     returnKeyType="search"
                 />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <Ionicons name="close-circle" size={20} color={theme.colors.text.tertiary} />
+                    </TouchableOpacity>
+                )}
             </View>
 
-            <View style={styles.filtersContainer}>
-                {/* B. State/UT Filter */}
-                <View style={styles.filterRow}>
-                    <Text style={styles.filterLabel}>State/UT</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
-                        {allStates.map(state => (
-                            <FilterChip
-                                key={state}
-                                label={state}
-                                selected={selectedState === state}
-                                onPress={() => {
-                                    setSelectedState(state);
-                                    setSelectedCity('All');
-                                }}
-                            />
-                        ))}
+            {/* Filter Toggle & Active Summary */}
+            <View style={styles.filterHeader}>
+                <View style={styles.activeFiltersRow}>
+                    <Ionicons name="filter" size={18} color={theme.colors.primary} style={{ marginRight: 8 }} />
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.activeChipsScroll}>
+                        {selectedState !== 'All' && (
+                            <TouchableOpacity style={styles.activeChip} onPress={() => setSelectedState('All')}>
+                                <Text style={styles.activeChipText}>{selectedState}</Text>
+                                <Ionicons name="close-circle" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
+                            </TouchableOpacity>
+                        )}
+                        {selectedCity !== 'All' && (
+                            <TouchableOpacity style={styles.activeChip} onPress={() => setSelectedCity('All')}>
+                                <Text style={styles.activeChipText}>{selectedCity}</Text>
+                                <Ionicons name="close-circle" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
+                            </TouchableOpacity>
+                        )}
+                        {selectedType !== 'All' && (
+                            <TouchableOpacity style={styles.activeChip} onPress={() => setSelectedType('All')}>
+                                <Text style={styles.activeChipText}>{selectedType}</Text>
+                                <Ionicons name="close-circle" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
+                            </TouchableOpacity>
+                        )}
+                        {selectedSeason !== 'All' && (
+                            <TouchableOpacity style={styles.activeChip} onPress={() => setSelectedSeason('All')}>
+                                <Text style={styles.activeChipText}>{selectedSeason}</Text>
+                                <Ionicons name="close-circle" size={14} color={theme.colors.primary} style={{ marginLeft: 4 }} />
+                            </TouchableOpacity>
+                        )}
+                        {selectedState === 'All' && selectedCity === 'All' && selectedType === 'All' && selectedSeason === 'All' && (
+                            <Text style={styles.noFiltersText}>All Categories</Text>
+                        )}
                     </ScrollView>
                 </View>
+                <TouchableOpacity
+                    style={styles.toggleButton}
+                    onPress={() => setShowFilters(!showFilters)}
+                >
+                    <Text style={styles.toggleText}>{showFilters ? "Hide" : "Filter"}</Text>
+                    <Ionicons
+                        name={showFilters ? "chevron-up" : "chevron-down"}
+                        size={18}
+                        color={theme.colors.primary}
+                    />
+                </TouchableOpacity>
+            </View>
 
-                {/* C. City Filter */}
-                {selectedState !== 'All' && (
+            {showFilters && (
+                <View style={styles.filtersContainer}>
+                    {/* B. State/UT Filter */}
                     <View style={styles.filterRow}>
-                        <Text style={styles.filterLabel}>City</Text>
+                        <Text style={styles.filterLabel}>State/UT</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
-                            {availableCities.map(city => (
+                            {allStates.map(state => (
                                 <FilterChip
-                                    key={city}
-                                    label={city}
-                                    selected={selectedCity === city}
-                                    onPress={() => setSelectedCity(city)}
+                                    key={state}
+                                    label={state}
+                                    selected={selectedState === state}
+                                    onPress={() => {
+                                        setSelectedState(state);
+                                        setSelectedCity('All');
+                                        setSearchQuery(''); // Clear search to avoid conflict
+                                    }}
                                 />
                             ))}
                         </ScrollView>
                     </View>
-                )}
 
-                {/* D. Category Filters */}
-                <View style={styles.filterRow}>
-                    <Text style={styles.filterLabel}>Type</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
-                        {allTypes.map(type => (
-                            <FilterChip
-                                key={type}
-                                label={type}
-                                selected={selectedType === type}
-                                onPress={() => setSelectedType(type)}
-                            />
-                        ))}
-                    </ScrollView>
+                    {/* C. City Filter */}
+                    {selectedState !== 'All' && (
+                        <View style={styles.filterRow}>
+                            <Text style={styles.filterLabel}>City</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
+                                {availableCities.map(city => (
+                                    <FilterChip
+                                        key={city}
+                                        label={city}
+                                        selected={selectedCity === city}
+                                        onPress={() => {
+                                            setSelectedCity(city);
+                                            setSearchQuery('');
+                                        }}
+                                    />
+                                ))}
+                            </ScrollView>
+                        </View>
+                    )}
+
+                    {/* D. Category Filters */}
+                    <View style={styles.filterRow}>
+                        <Text style={styles.filterLabel}>Type</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
+                            {allTypes.map(type => (
+                                <FilterChip
+                                    key={type}
+                                    label={type}
+                                    selected={selectedType === type}
+                                    onPress={() => {
+                                        setSelectedType(type);
+                                        setSearchQuery(''); // Clear search to avoid conflict
+                                    }}
+                                />
+                            ))}
+                        </ScrollView>
+                    </View>
+
+                    {/* E. Season Filters */}
+                    <View style={styles.filterRow}>
+                        <Text style={styles.filterLabel}>Season</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
+                            {allSeasons.map(season => (
+                                <FilterChip
+                                    key={season}
+                                    label={season}
+                                    selected={selectedSeason === season}
+                                    onPress={() => {
+                                        setSelectedSeason(season);
+                                        setSearchQuery('');
+                                    }}
+                                />
+                            ))}
+                        </ScrollView>
+                    </View>
                 </View>
-            </View>
+            )}
 
             {loading ? (
                 <View style={styles.center}>
@@ -271,7 +412,7 @@ export default function DirectoryScreen({ route, navigation }) {
                 <View style={styles.center}>
                     <MaterialCommunityIcons name="map-marker-off" size={64} color={theme.colors.text.tertiary} />
                     <Text style={styles.emptyText}>
-                        {(initialCategory === 'stays' || initialCategory === 'transport')
+                        {(initialCategory === 'transport')
                             ? "Coming Soon!"
                             : "No matches found."}
                     </Text>
@@ -293,113 +434,161 @@ export default function DirectoryScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.colors.background },
 
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: theme.spacing.m,
-        paddingVertical: 12,
-        backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
+        paddingHorizontal: theme.padding.screen,
+        paddingVertical: 16,
+        backgroundColor: theme.colors.background, // Match screen bg
     },
     backButton: { marginRight: theme.spacing.m, padding: 4 },
     headerTitle: {
+        ...theme.typography.greeting,
         fontSize: 20,
-        fontWeight: '700',
         color: theme.colors.text.primary,
     },
     headerSubtitle: {
-        fontSize: 12,
-        color: theme.colors.text.tertiary,
+        ...theme.typography.caption,
+        color: theme.colors.text.secondary,
     },
 
-    searchContainer: {
+    searchFloating: {
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,
-        marginHorizontal: theme.spacing.m,
+        marginHorizontal: theme.padding.screen,
         marginVertical: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: theme.radius.l, // Pill shape
+        paddingHorizontal: 20,
+        height: 56,
+        borderRadius: 28,
         alignItems: 'center',
+        ...theme.shadows.search,
         borderWidth: 1,
         borderColor: theme.colors.border,
-        ...theme.shadows.card,
     },
-    searchInput: {
+    searchTextInput: {
         flex: 1,
         fontSize: 15,
         color: theme.colors.text.primary,
-        padding: 0,
+        height: '100%',
     },
 
     filtersContainer: {
         backgroundColor: theme.colors.surface,
-        paddingVertical: 8,
-        paddingBottom: 12,
-        borderBottomLeftRadius: theme.radius.m,
-        borderBottomRightRadius: theme.radius.m,
-        marginBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
+        paddingBottom: 16,
+        borderBottomLeftRadius: 32,
+        borderBottomRightRadius: 32,
+        ...theme.shadows.soft,
+    },
+    filterHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        backgroundColor: theme.colors.background,
+        justifyContent: 'space-between',
+    },
+    activeFiltersRow: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    activeChipsScroll: {
+        alignItems: 'center',
+    },
+    activeChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.primary + '10',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.primary + '20',
+    },
+    activeChipText: {
+        fontSize: 12,
+        color: theme.colors.primary,
+        fontWeight: '600',
+    },
+    noFiltersText: {
+        fontSize: 13,
+        color: theme.colors.text.tertiary,
+        fontStyle: 'italic',
+    },
+    toggleButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: theme.colors.surface,
+        ...theme.shadows.soft,
+    },
+    toggleText: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: theme.colors.primary,
+        marginRight: 4,
     },
     filterRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
-        paddingHorizontal: 16,
+        marginTop: 12,
+        paddingHorizontal: 20,
     },
     filterLabel: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.text.secondary,
         width: 60,
     },
     scrollChips: {
         alignItems: 'center',
-        paddingRight: 16,
+        paddingRight: 20,
     },
     chip: {
         backgroundColor: theme.colors.surfaceVariant,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: 18,
+        paddingVertical: 10,
         borderRadius: 20,
         marginRight: 8,
     },
     chipSelected: {
         backgroundColor: theme.colors.primary,
+        ...theme.shadows.soft,
     },
     chipText: {
         fontSize: 13,
         color: theme.colors.text.secondary,
-        fontWeight: '500',
+        fontWeight: '600',
     },
     chipTextSelected: {
         color: theme.colors.surface,
-        fontWeight: '600',
+        fontWeight: '700',
     },
 
-    list: { padding: 16 },
+    list: { padding: 20, paddingTop: 10 },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: theme.spacing.xl,
+        padding: 40,
     },
 
     card: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.xl,
-        marginBottom: 20,
+        borderRadius: 24, // Matches Home cards
+        marginBottom: 24,
         overflow: 'hidden',
         ...theme.shadows.card,
     },
     imageContainer: {
         position: 'relative',
-        height: 200,
+        height: 220,
         backgroundColor: theme.colors.surfaceVariant,
     },
     image: { width: '100%', height: '100%' },
@@ -413,7 +602,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     cardBadgeText: {
-        color: theme.colors.surface,
+        color: '#FFF',
         fontSize: 11,
         fontWeight: '700',
     },
@@ -438,7 +627,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 12,
         left: 12,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
         width: 36,
         height: 36,
         borderRadius: 18,
@@ -446,34 +635,38 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    cardContent: { padding: 16 },
+    cardContent: { padding: 20 },
     titleRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: 6,
     },
     name: {
+        ...theme.typography.cardTitle,
         fontSize: 18,
-        fontWeight: '700',
         color: theme.colors.text.primary,
         flex: 1,
         marginRight: 8,
     },
     rating: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.accent,
+        fontSize: 13,
+        fontWeight: '700',
+        color: theme.colors.primary,
         marginLeft: 2,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: theme.colors.primary + '10',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 14,
     },
 
     location: {
@@ -492,6 +685,7 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: theme.colors.border,
         marginBottom: 12,
+        opacity: 0.5,
     },
 
     cardFooter: {

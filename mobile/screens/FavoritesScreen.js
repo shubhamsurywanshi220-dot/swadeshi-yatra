@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import { FavoritesManager } from '../utils/favoritesManager';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 export default function FavoritesScreen({ navigation }) {
+    const { theme, isDarkMode } = useTheme();
+    const styles = createStyles(theme, isDarkMode);
+
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchFavorites();
+        });
         fetchFavorites();
-    }, []);
+        return unsubscribe;
+    }, [navigation]);
 
     const fetchFavorites = async () => {
         try {
@@ -42,23 +50,23 @@ export default function FavoritesScreen({ navigation }) {
             onPress={() => navigation.navigate('PlaceDetails', { place: item })}
         >
             <View style={styles.imageContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
+                <ImageWithFallback source={{ uri: item.imageUrl }} style={styles.image} resizeMode="cover" />
                 <TouchableOpacity
                     style={styles.favoriteButton}
                     onPress={() => removeFavorite(item._id || item.id)}
                 >
-                    <Ionicons name="heart" size={24} color={theme.colors.error} />
+                    <Ionicons name="heart" size={20} color={theme.colors.error} />
                 </TouchableOpacity>
             </View>
             <View style={styles.cardContent}>
                 <Text style={styles.name} numberOfLines={1}>{item.name}</Text>
                 <View style={styles.locationRow}>
-                    <Ionicons name="location" size={14} color={theme.colors.text.secondary} />
+                    <Ionicons name="location" size={12} color={theme.colors.text.secondary} />
                     <Text style={styles.location} numberOfLines={1}> {item.location}</Text>
                 </View>
                 {item.averageRating > 0 && (
                     <View style={styles.ratingContainer}>
-                        <Ionicons name="star" size={14} color={theme.colors.accent} />
+                        <Ionicons name="star" size={12} color={isDarkMode ? '#FFD700' : theme.colors.accent} />
                         <Text style={styles.rating}> {item.averageRating.toFixed(1)}</Text>
                     </View>
                 )}
@@ -68,6 +76,8 @@ export default function FavoritesScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} />
+
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -85,11 +95,19 @@ export default function FavoritesScreen({ navigation }) {
                 </View>
             ) : favorites.length === 0 ? (
                 <View style={styles.center}>
-                    <Ionicons name="heart-outline" size={64} color={theme.colors.text.tertiary} />
+                    <View style={styles.emptyIconContainer}>
+                        <Ionicons name="heart-outline" size={64} color={theme.colors.text.tertiary} />
+                    </View>
                     <Text style={styles.emptyText}>No favorites yet</Text>
                     <Text style={styles.emptySubtext}>
                         Start exploring and add places to your favorites!
                     </Text>
+                    <TouchableOpacity
+                        style={styles.exploreButton}
+                        onPress={() => navigation.navigate('Explore')}
+                    >
+                        <Text style={styles.exploreButtonText}>Discover Places</Text>
+                    </TouchableOpacity>
                 </View>
             ) : (
                 <FlatList
@@ -106,103 +124,141 @@ export default function FavoritesScreen({ navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
-
+const createStyles = (theme, isDarkMode) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: theme.spacing.m,
-        paddingVertical: 12,
-        backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: theme.colors.background,
     },
-    backButton: { marginRight: theme.spacing.m, padding: 4 },
+    backButton: {
+        marginRight: 16,
+        padding: 4,
+    },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '700',
+        fontSize: 22,
+        fontWeight: 'bold',
         color: theme.colors.text.primary,
     },
     headerSubtitle: {
-        fontSize: 12,
-        color: theme.colors.text.tertiary,
+        fontSize: 13,
+        color: theme.colors.text.secondary,
+        marginTop: 2,
     },
-
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: theme.spacing.xl,
+        padding: 40,
+    },
+    emptyIconContainer: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: theme.colors.surface,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 24,
+        ...theme.shadows.soft,
     },
     emptyText: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         color: theme.colors.text.primary,
-        textAlign: 'center',
-        marginTop: 16,
     },
     emptySubtext: {
         marginTop: 8,
         color: theme.colors.text.secondary,
         textAlign: 'center',
+        lineHeight: 20,
     },
-
-    list: { padding: 12 },
+    exploreButton: {
+        marginTop: 32,
+        backgroundColor: theme.colors.primary,
+        paddingHorizontal: 32,
+        paddingVertical: 14,
+        borderRadius: 12,
+        ...theme.shadows.elevated,
+    },
+    exploreButtonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+    list: {
+        padding: 16,
+    },
     row: {
         justifyContent: 'space-between',
     },
     card: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
-        marginBottom: 12,
+        borderRadius: 16,
+        marginBottom: 16,
         overflow: 'hidden',
         width: '48%',
         ...theme.shadows.card,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
     },
     imageContainer: {
         position: 'relative',
-        height: 140,
+        height: 120,
         backgroundColor: theme.colors.surfaceVariant,
     },
-    image: { width: '100%', height: '100%' },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
     favoriteButton: {
         position: 'absolute',
         top: 8,
         right: 8,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        backgroundColor: isDarkMode ? 'rgba(0,0,0,0.6)' : 'rgba(255, 255, 255, 0.9)',
+        width: 32,
+        height: 32,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
         ...theme.shadows.soft,
     },
-    cardContent: { padding: 12 },
+    cardContent: {
+        padding: 10,
+    },
     name: {
-        fontSize: 15,
-        fontWeight: '700',
+        fontSize: 14,
+        fontWeight: 'bold',
         color: theme.colors.text.primary,
         marginBottom: 4,
     },
     locationRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: 6,
     },
     location: {
-        fontSize: 12,
+        fontSize: 11,
         color: theme.colors.text.secondary,
         flex: 1,
     },
     ratingContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: isDarkMode ? '#2D2418' : theme.colors.primary + '10',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
     rating: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.accent,
+        fontSize: 11,
+        fontWeight: '700',
+        color: isDarkMode ? '#FFD700' : theme.colors.primary,
         marginLeft: 2,
     },
 });

@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+// Serve static files from the public directory
+app.use(express.static('public'));
 
 // MongoDB Connection
 // For now, we will use a local URI or a placeholder. 

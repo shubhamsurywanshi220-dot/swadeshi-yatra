@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, Alert, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, Alert, Dimensions, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
 import { FavoritesManager } from '../utils/favoritesManager';
 import ReviewModal from '../components/ReviewModal';
 import ReviewCard from '../components/ReviewCard';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 const { width } = Dimensions.get('window');
 
 export default function PlaceDetailsScreen({ route, navigation }) {
+    const { theme, isDarkMode } = useTheme();
     const { place } = route.params;
+
+    const styles = createStyles(theme, isDarkMode);
 
     // State
     const [reviews, setReviews] = useState([]);
@@ -31,7 +35,7 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     useEffect(() => {
         fetchReviews();
         checkIfFavorite();
-    }, []);
+    }, [place]);
 
     const checkIfFavorite = async () => {
         const favorited = await FavoritesManager.isFavorite(place._id || place.id);
@@ -118,8 +122,22 @@ export default function PlaceDetailsScreen({ route, navigation }) {
         }
     };
 
+    const searchNearby = (queryType) => {
+        const query = `${queryType} near ${place.name} ${place.location}`;
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+        Linking.canOpenURL(url).then(supported => {
+            if (supported) {
+                Linking.openURL(url);
+            } else {
+                Alert.alert("Error", "Could not open Maps");
+            }
+        });
+    };
+
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
                 {/* Header Buttons */}
@@ -138,7 +156,7 @@ export default function PlaceDetailsScreen({ route, navigation }) {
 
                 {/* Hero Image */}
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: place.imageUrl }} style={styles.image} resizeMode="cover" />
+                    <ImageWithFallback source={{ uri: place.imageUrl }} style={styles.image} resizeMode="cover" />
                     <View style={styles.tagBadge}>
                         <Text style={styles.tagText}>{tag}</Text>
                     </View>
@@ -161,7 +179,7 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                     {/* Rating Display */}
                     {place.averageRating > 0 && (
                         <View style={styles.ratingContainer}>
-                            <Ionicons name="star" size={18} color={theme.colors.accent} />
+                            <Ionicons name="star" size={18} color={isDarkMode ? '#FFD700' : theme.colors.accent} />
                             <Text style={styles.ratingText}>
                                 {place.averageRating.toFixed(1)} ({place.reviewCount} {place.reviewCount === 1 ? 'review' : 'reviews'})
                             </Text>
@@ -222,6 +240,38 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                         <Text style={styles.directionButtonText}>Get Directions</Text>
                     </TouchableOpacity>
 
+                    {/* Explore Surroundings - Deep Links for EVERY Place */}
+                    <View style={styles.exploreNearbySection}>
+                        <Text style={styles.sectionHeader}>Explore Surroundings</Text>
+                        <Text style={styles.exploreNearbySub}>Find essentials near {place.name}</Text>
+                        <View style={styles.nearbyGrid}>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Hotels')}>
+                                <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#1B2E1C' : '#E8F5E9' }]}>
+                                    <Ionicons name="bed" size={22} color={isDarkMode ? '#81C784' : '#2E7D32'} />
+                                </View>
+                                <Text style={styles.nearbyLabel}>Stay</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Restaurants')}>
+                                <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#3E2723' : '#FFF3E0' }]}>
+                                    <Ionicons name="restaurant" size={22} color={isDarkMode ? '#FFB74D' : '#EF6C00'} />
+                                </View>
+                                <Text style={styles.nearbyLabel}>Food</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Bus Stops')}>
+                                <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#0D47A1' : '#E1F5FE' }]}>
+                                    <Ionicons name="bus" size={22} color={isDarkMode ? '#64B5F6' : '#0277BD'} />
+                                </View>
+                                <Text style={styles.nearbyLabel}>Transport</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('ATM')}>
+                                <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#311B92' : '#F3E5F5' }]}>
+                                    <Ionicons name="card-outline" size={22} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
+                                </View>
+                                <Text style={styles.nearbyLabel}>ATM</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
                     {/* Reviews Section */}
                     <View style={styles.reviewsSection}>
                         <View style={styles.reviewsHeader}>
@@ -271,13 +321,13 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.surface },
+const createStyles = (theme, isDarkMode) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.colors.background },
     scrollContent: { paddingBottom: 40 },
 
     headerButtons: {
         position: 'absolute',
-        top: 20,
+        top: 40,
         left: 0,
         right: 0,
         flexDirection: 'row',
@@ -286,7 +336,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     closeButton: {
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
         width: 40,
         height: 40,
         borderRadius: 20,
@@ -294,7 +344,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     favoriteButton: {
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
         width: 40,
         height: 40,
         borderRadius: 20,
@@ -304,7 +354,7 @@ const styles = StyleSheet.create({
 
     imageContainer: {
         width: '100%',
-        height: 250,
+        height: 300,
         position: 'relative',
     },
     image: {
@@ -313,7 +363,7 @@ const styles = StyleSheet.create({
     },
     tagBadge: {
         position: 'absolute',
-        top: 20,
+        top: 100,
         left: 20,
         backgroundColor: theme.colors.primary,
         paddingHorizontal: 12,
@@ -323,7 +373,7 @@ const styles = StyleSheet.create({
     tagText: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
     ecoBadge: {
         position: 'absolute',
-        bottom: 20,
+        bottom: 40,
         right: 20,
         backgroundColor: theme.colors.success,
         paddingHorizontal: 12,
@@ -336,11 +386,11 @@ const styles = StyleSheet.create({
     ecoText: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
 
     content: {
-        padding: 20,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        marginTop: -20,
-        backgroundColor: theme.colors.surface,
+        padding: 24,
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        marginTop: -32,
+        backgroundColor: theme.colors.background,
     },
 
     title: {
@@ -377,18 +427,21 @@ const styles = StyleSheet.create({
     },
     infoCard: {
         flex: 1,
-        backgroundColor: theme.colors.surfaceVariant,
+        backgroundColor: theme.colors.surface,
         padding: 16,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: theme.colors.border,
         alignItems: 'center',
+        ...theme.shadows.soft,
     },
     infoLabel: {
-        fontSize: 12,
+        fontSize: 11,
         color: theme.colors.text.secondary,
         marginBottom: 4,
         textAlign: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     infoValue: {
         fontSize: 14,
@@ -427,6 +480,7 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 12,
         gap: 6,
+        ...theme.shadows.soft,
     },
     contactButtonText: {
         color: theme.colors.primary,
@@ -450,6 +504,45 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
+    // Explore Nearby
+    exploreNearbySection: {
+        marginBottom: 30,
+        backgroundColor: theme.colors.surface,
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        ...theme.shadows.soft,
+    },
+    exploreNearbySub: {
+        fontSize: 13,
+        color: theme.colors.text.tertiary,
+        marginTop: -8,
+        marginBottom: 20,
+    },
+    nearbyGrid: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    nearbyItem: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    nearbyIconBg: {
+        width: 54,
+        height: 54,
+        borderRadius: 18,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    nearbyLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.text.secondary,
+    },
+
+    // Reviews Section
     reviewsSection: {
         marginTop: 8,
     },

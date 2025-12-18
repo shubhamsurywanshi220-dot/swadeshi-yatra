@@ -2,29 +2,23 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 
 // START CONFIGURATION
-// -------------------
-// For Android Emulator, use 'http://10.0.2.2:5000'
-// For Real Device (LAN), use your computer's IP: 'http://192.168.x.x:5000'
-// For iOS Simulator, use 'http://localhost:5000'
+// Production backend URL (deployed on Render)
+// const PRODUCTION_URL = 'https://swadeshi-yatra.onrender.com/api';
 
-const DEV_BACKEND_URL = Platform.select({
-    android: 'http://10.0.2.2:5000', // Default for Android Emulator
-    ios: 'http://localhost:5000',
-    default: 'http://localhost:5000',
-});
+// Local backend URL for Self-Hosted Image Testing (Use 10.0.2.2 for Android Emulator, localhost for iOS/Web)
+const LOCAL_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5000/api' : 'http://localhost:5000/api';
 
-// AUTOMATICALLY CONFIGURED FOR PHYSICAL DEVICE
-const BASE_URL = 'http://192.168.137.29:5000/api';
-// const BASE_URL = `${DEV_BACKEND_URL}/api`;
+// Use production URL for all environments
+const BASE_URL = LOCAL_URL;
 
-console.log(`[API] Using Base URL: ${BASE_URL}`);
+console.log('[API] Using Base URL:', BASE_URL);
 
 const api = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000, // 10 seconds timeout
+    timeout: 15000,
     headers: {
-        'Content-Type': 'application/json',
-    },
+        'Content-Type': 'application/json'
+    }
 });
 
 export default api;

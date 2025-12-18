@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ProfileScreen({ navigation }) {
+    const { theme, isDarkMode } = useTheme();
+    const styles = createStyles(theme, isDarkMode);
 
     const handleLogout = () => {
         Alert.alert(
@@ -23,34 +25,36 @@ export default function ProfileScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={theme.colors.background} />
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
                 {/* Profile Header */}
                 <View style={styles.header}>
                     <View style={styles.avatarContainer}>
-                        <Ionicons name="person-circle" size={80} color={theme.colors.primary} />
+                        <Ionicons name="person-circle" size={100} color={theme.colors.primary} />
                     </View>
                     <Text style={styles.name}>Traveler</Text>
                     <Text style={styles.email}>traveler@swadeshiyatra.in</Text>
                     <View style={styles.badge}>
+                        <Ionicons name="shield-checkmark" size={14} color={isDarkMode ? '#81C784' : '#2E7D32'} />
                         <Text style={styles.badgeText}>Level 1 Explorer</Text>
                     </View>
                 </View>
 
-                {/* Stats / Gamification (Module 6 UX) */}
+                {/* Stats / Gamification */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statValue}>12</Text>
                         <Text style={styles.statLabel}>Trips</Text>
                     </View>
                     <View style={styles.statDivider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statValue}>8</Text>
                         <Text style={styles.statLabel}>Reviews</Text>
                     </View>
                     <View style={styles.statDivider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statValue}>5</Text>
                         <Text style={styles.statLabel}>Badges</Text>
                     </View>
                 </View>
@@ -66,44 +70,69 @@ export default function ProfileScreen({ navigation }) {
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => navigation.navigate('Settings')}
+                    >
                         <Ionicons name="settings-outline" size={24} color={theme.colors.text.secondary} style={styles.menuIcon} />
                         <Text style={styles.menuText}>Settings</Text>
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => navigation.navigate('HelpSupport')}
+                    >
                         <Ionicons name="help-circle-outline" size={24} color={theme.colors.text.secondary} style={styles.menuIcon} />
                         <Text style={styles.menuText}>Help & Support</Text>
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.menuItem, { borderBottomWidth: 0 }]}
+                        onPress={() => navigation.navigate('About')}
+                    >
+                        <Ionicons name="information-circle-outline" size={24} color={theme.colors.text.secondary} style={styles.menuIcon} />
+                        <Text style={styles.menuText}>About Swadeshi Yatra</Text>
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Logout Button */}
                 <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={20} color={theme.colors.error} style={{ marginRight: 8 }} />
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
 
+                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
-    scrollContent: { padding: theme.spacing.l, alignItems: 'center' },
-
+const createStyles = (theme, isDarkMode) => StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
+        padding: theme.padding.screen,
+        alignItems: 'center',
+    },
     header: {
         alignItems: 'center',
-        marginBottom: theme.spacing.xl,
-        marginTop: theme.spacing.m,
+        marginBottom: 30,
+        marginTop: 20,
     },
     avatarContainer: {
-        width: 100,
-        height: 100,
+        width: 110,
+        height: 110,
+        borderRadius: 55,
+        backgroundColor: theme.colors.surface,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.spacing.m,
+        marginBottom: 16,
+        ...theme.shadows.soft,
     },
     name: {
         fontSize: 24,
@@ -114,62 +143,90 @@ const styles = StyleSheet.create({
     email: {
         fontSize: 14,
         color: theme.colors.text.secondary,
-        marginBottom: theme.spacing.m,
+        marginBottom: 16,
     },
     badge: {
-        backgroundColor: '#E8F5E9',
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: isDarkMode ? '#1B2E1C' : '#E8F5E9',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 12,
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#81C784',
+        borderColor: isDarkMode ? '#2E7D32' : '#81C784',
+        gap: 4,
     },
     badgeText: {
-        color: '#2E7D32',
+        color: isDarkMode ? '#81C784' : '#2E7D32',
         fontWeight: 'bold',
         fontSize: 12,
     },
-
     statsContainer: {
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
-        padding: theme.spacing.m,
+        padding: 20,
         width: '100%',
-        marginBottom: theme.spacing.xl,
+        marginBottom: 30,
         ...theme.shadows.card,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
     },
-    statItem: { flex: 1, alignItems: 'center' },
-    statValue: { fontSize: 20, fontWeight: 'bold', color: theme.colors.primary },
-    statLabel: { fontSize: 12, color: theme.colors.text.secondary },
-    statDivider: { width: 1, backgroundColor: '#EEE' },
-
+    statItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    statValue: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: theme.colors.primary,
+    },
+    statLabel: {
+        fontSize: 12,
+        color: theme.colors.text.secondary,
+        marginTop: 2,
+    },
+    statDivider: {
+        width: 1,
+        backgroundColor: theme.colors.border,
+        marginVertical: 4,
+    },
     menu: {
         width: '100%',
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
-        padding: theme.spacing.s,
-        marginBottom: theme.spacing.xl,
+        marginBottom: 30,
         ...theme.shadows.card,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        overflow: 'hidden',
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: theme.spacing.m,
+        padding: 18,
         borderBottomWidth: 1,
-        borderBottomColor: '#F5F5F5',
+        borderBottomColor: theme.colors.border,
     },
-    menuIcon: { marginRight: theme.spacing.m },
-    menuText: { flex: 1, fontSize: 16, color: theme.colors.text.primary },
-
+    menuIcon: {
+        marginRight: 16,
+    },
+    menuText: {
+        flex: 1,
+        fontSize: 16,
+        color: theme.colors.text.primary,
+        fontWeight: '500',
+    },
     logoutButton: {
         width: '100%',
-        padding: theme.spacing.m,
-        borderRadius: theme.radius.m,
-        backgroundColor: '#FFEBEE',
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        borderRadius: theme.radius.m,
+        backgroundColor: isDarkMode ? '#311B1B' : '#FFEBEE',
         borderWidth: 1,
-        borderColor: '#FFCDD2',
+        borderColor: isDarkMode ? '#C62828' : '#FFCDD2',
     },
     logoutText: {
         color: theme.colors.error,

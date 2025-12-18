@@ -7,12 +7,30 @@ import DirectoryScreen from './screens/DirectoryScreen';
 import PlaceDetailsScreen from './screens/PlaceDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import FavoritesScreen from './screens/FavoritesScreen';
+import SettingsScreen from './screens/SettingsScreen';
+import InitiativesScreen from './screens/InitiativesScreen';
+import HelpSupportScreen from './screens/HelpSupportScreen';
+import AboutScreen from './screens/AboutScreen';
 import BottomTabs from './components/BottomTabs';
 import { theme } from './constants/theme';
 
-export default function App() {
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+
+function MainApp() {
+  const { theme } = useTheme();
   const [currentScreen, setCurrentScreen] = useState('Login');
   const [routeParams, setRouteParams] = useState({});
+
+  // Dynamic Styles
+  const styles = StyleSheet.create({
+    appContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    contentContainer: {
+      flex: 1,
+    }
+  });
 
   // Simple manual navigation helper to bypass broken libraries
   const navigation = {
@@ -28,6 +46,10 @@ export default function App() {
       // Basic back handling
       if (currentScreen === 'PlaceDetails') {
         setCurrentScreen('Places');
+      } else if (currentScreen === 'Settings' || currentScreen === 'HelpSupport' || currentScreen === 'About') {
+        setCurrentScreen('Profile');
+      } else if (currentScreen === 'Initiatives') { // Added back handling for Initiatives
+        setCurrentScreen('Home');
       } else if (['Places', 'SOS', 'Profile', 'Favorites'].includes(currentScreen)) {
         setCurrentScreen('Home');
       } else {
@@ -52,6 +74,14 @@ export default function App() {
         return <ProfileScreen navigation={navigation} />;
       case 'Favorites':
         return <FavoritesScreen navigation={navigation} />;
+      case 'Settings':
+        return <SettingsScreen navigation={navigation} />;
+      case 'Initiatives':
+        return <InitiativesScreen navigation={navigation} />;
+      case 'HelpSupport':
+        return <HelpSupportScreen navigation={navigation} />;
+      case 'About':
+        return <AboutScreen navigation={navigation} />;
       default:
         return <LoginScreen navigation={navigation} />;
     }
@@ -63,20 +93,26 @@ export default function App() {
         {renderScreen()}
       </View>
 
-      {/* Helper to show Tabs only on non-login screens, and NOT on Details/Favorites screen */}
-      {currentScreen !== 'Login' && currentScreen !== 'PlaceDetails' && currentScreen !== 'Favorites' && (
-        <BottomTabs currentScreen={currentScreen} navigate={navigation.navigate} />
-      )}
+      {/* Helper to show Tabs only on non-login screens, and NOT on Details/Favorites screen etc */}
+      {currentScreen !== 'Login' &&
+        currentScreen !== 'PlaceDetails' &&
+        currentScreen !== 'Favorites' &&
+        currentScreen !== 'Settings' &&
+        currentScreen !== 'Initiatives' &&
+        currentScreen !== 'HelpSupport' &&
+        currentScreen !== 'About' && (
+          <BottomTabs currentScreen={currentScreen} navigate={navigation.navigate} />
+        )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  contentContainer: {
-    flex: 1,
-  }
-});
+export default function App() {
+  return (
+    <ThemeProvider>
+      <MainApp />
+    </ThemeProvider>
+  );
+}
+
+
