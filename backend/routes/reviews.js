@@ -148,6 +148,19 @@ router.post('/:id/helpful', async (req, res) => {
     }
 });
 
+// @route   GET /api/reviews/user/:userId/count
+// @desc    Get total count of reviews for a user
+// @access  Public
+router.get('/user/:userId/count', async (req, res) => {
+    try {
+        const count = await Review.countDocuments({ userId: req.params.userId });
+        res.json({ count });
+    } catch (err) {
+        console.error('Error fetching review count:', err.message);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});
+
 // Helper function to update place rating
 async function updatePlaceRating(placeId) {
     try {

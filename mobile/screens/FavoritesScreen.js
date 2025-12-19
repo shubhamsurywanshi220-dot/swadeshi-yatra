@@ -14,12 +14,8 @@ export default function FavoritesScreen({ navigation }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            fetchFavorites();
-        });
         fetchFavorites();
-        return unsubscribe;
-    }, [navigation]);
+    }, []);
 
     const fetchFavorites = async () => {
         try {

@@ -1,14 +1,63 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import api from '../utils/api';
 
 export default function ProfileScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const [userData, setUserData] = React.useState({
+        name: 'Traveler',
+        email: 'traveler@swadeshiyatra.in',
+        reviewsCount: 0,
+        badgesCount: 0,
+        level: 'Explorer'
+    });
+    const [loading, setLoading] = React.useState(true);
     const styles = createStyles(theme, isDarkMode);
 
-    const handleLogout = () => {
+    React.useEffect(() => {
+        loadProfileData();
+    }, []);
+
+    const loadProfileData = async () => {
+        setLoading(true);
+        try {
+            const userId = await AsyncStorage.getItem('@user_id');
+            if (userId) {
+                // Fetch profile basic info (including trips)
+                const profileRes = await api.get(`/auth/profile/${userId}`);
+                // Fetch review count separately
+                const reviewsRes = await api.get(`/reviews/user/${userId}/count`);
+
+                const reviews = reviewsRes.data.count || 0;
+
+                // Dynamic Badge logic: 1 badge for every 5 reviews
+                const badges = Math.floor(reviews / 3);
+
+                // Level logic based on reviews
+                let level = 'Level 1 Explorer';
+                if (reviews > 5) level = 'Seasoned Reviewer';
+                if (reviews > 15) level = 'Indian Cultural Envoy';
+
+                setUserData({
+                    name: profileRes.data.name || 'Traveler',
+                    email: profileRes.data.email || 'traveler@swadeshiyatra.in',
+                    reviewsCount: reviews,
+                    badgesCount: badges,
+                    level
+                });
+            }
+        } catch (error) {
+            console.error('Error loading profile:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogout = async () => {
         Alert.alert(
             "Logout",
             "Are you sure you want to logout?",
@@ -17,7 +66,10 @@ export default function ProfileScreen({ navigation }) {
                 {
                     text: "Logout",
                     style: "destructive",
-                    onPress: () => navigation.replace('Login')
+                    onPress: async () => {
+                        await AsyncStorage.multiRemove(['@user_id', '@user_name', '@user_email']);
+                        navigation.replace('Login');
+                    }
                 }
             ]
         );
@@ -33,28 +85,24 @@ export default function ProfileScreen({ navigation }) {
                     <View style={styles.avatarContainer}>
                         <Ionicons name="person-circle" size={100} color={theme.colors.primary} />
                     </View>
-                    <Text style={styles.name}>Traveler</Text>
-                    <Text style={styles.email}>traveler@swadeshiyatra.in</Text>
+                    <Text style={styles.name}>{userData.name}</Text>
+                    <Text style={styles.email}>{userData.email}</Text>
                     <View style={styles.badge}>
                         <Ionicons name="shield-checkmark" size={14} color={isDarkMode ? '#81C784' : '#2E7D32'} />
-                        <Text style={styles.badgeText}>Level 1 Explorer</Text>
+                        <Text style={styles.badgeText}>{userData.level}</Text>
                     </View>
                 </View>
 
                 {/* Stats / Gamification */}
                 <View style={styles.statsContainer}>
+
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>12</Text>
-                        <Text style={styles.statLabel}>Trips</Text>
-                    </View>
-                    <View style={styles.statDivider} />
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>8</Text>
+                        <Text style={styles.statValue}>{userData.reviewsCount}</Text>
                         <Text style={styles.statLabel}>Reviews</Text>
                     </View>
                     <View style={styles.statDivider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>5</Text>
+                        <Text style={styles.statValue}>{userData.badgesCount}</Text>
                         <Text style={styles.statLabel}>Badges</Text>
                     </View>
                 </View>

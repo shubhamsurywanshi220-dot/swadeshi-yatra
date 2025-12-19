@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 
-const FAQItem = ({ question, answer, theme }) => {
+const FAQItem = ({ question, answer, theme, styles }) => {
     const [expanded, setExpanded] = React.useState(false);
     return (
         <TouchableOpacity
@@ -108,7 +108,7 @@ export default function HelpSupportScreen({ navigation }) {
                 <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Frequently Asked Questions</Text>
                 <View style={styles.faqContainer}>
                     {faqs.map((faq, index) => (
-                        <FAQItem key={index} {...faq} theme={theme} />
+                        <FAQItem key={index} {...faq} theme={theme} styles={styles} />
                     ))}
                 </View>
 

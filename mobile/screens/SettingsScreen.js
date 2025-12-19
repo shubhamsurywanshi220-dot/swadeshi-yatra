@@ -140,90 +140,92 @@ export default function SettingsScreen({ navigation }) {
     );
 }
 
-const createStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.spacing.m,
-        paddingVertical: theme.spacing.m,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-        backgroundColor: theme.colors.surface,
-    },
-    backButton: {
-        padding: theme.spacing.s,
-        marginRight: theme.spacing.m,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: theme.colors.text.primary,
-    },
-    content: {
-        padding: theme.spacing.l,
-    },
-    section: {
-        marginBottom: theme.spacing.xl,
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
-        padding: theme.spacing.m,
-        ...theme.shadows.card,
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: theme.colors.primary,
-        marginBottom: theme.spacing.m,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: theme.spacing.l,
-    },
-    rowTextContainer: {
-        flex: 1,
-        paddingRight: theme.spacing.m,
-    },
-    rowTitle: {
-        fontSize: 16,
-        color: theme.colors.text.primary,
-        marginBottom: 4,
-    },
-    rowSubtitle: {
-        fontSize: 12,
-        color: theme.colors.text.secondary,
-    },
-    linkRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: theme.spacing.m,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-    linkText: {
-        fontSize: 16,
-        color: theme.colors.text.primary,
-    },
-    versionRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: theme.spacing.m,
-    },
-    versionLabel: {
-        fontSize: 16,
-        color: theme.colors.text.primary,
-    },
-    versionValue: {
-        fontSize: 16,
-        color: theme.colors.text.tertiary,
-    },
-});
+function createStyles(theme) {
+    return StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.background,
+        },
+        header: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.spacing.m,
+            paddingVertical: theme.spacing.m,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+            backgroundColor: theme.colors.surface,
+        },
+        backButton: {
+            padding: theme.spacing.s,
+            marginRight: theme.spacing.m,
+        },
+        headerTitle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: theme.colors.text.primary,
+        },
+        content: {
+            padding: theme.spacing.l,
+        },
+        section: {
+            marginBottom: theme.spacing.xl,
+            backgroundColor: theme.colors.surface,
+            borderRadius: theme.radius.m,
+            padding: theme.spacing.m,
+            ...theme.shadows.card,
+        },
+        sectionTitle: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: theme.colors.primary,
+            marginBottom: theme.spacing.m,
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+        },
+        row: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: theme.spacing.l,
+        },
+        rowTextContainer: {
+            flex: 1,
+            paddingRight: theme.spacing.m,
+        },
+        rowTitle: {
+            fontSize: 16,
+            color: theme.colors.text.primary,
+            marginBottom: 4,
+        },
+        rowSubtitle: {
+            fontSize: 12,
+            color: theme.colors.text.secondary,
+        },
+        linkRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: theme.spacing.m,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+        },
+        linkText: {
+            fontSize: 16,
+            color: theme.colors.text.primary,
+        },
+        versionRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingVertical: theme.spacing.m,
+        },
+        versionLabel: {
+            fontSize: 16,
+            color: theme.colors.text.primary,
+        },
+        versionValue: {
+            fontSize: 16,
+            color: theme.colors.text.tertiary,
+        },
+    });
+}

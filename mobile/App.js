@@ -45,15 +45,15 @@ function MainApp() {
     goBack: () => {
       // Basic back handling
       if (currentScreen === 'PlaceDetails') {
-        setCurrentScreen('Places');
+        setCurrentScreen('Explore');
       } else if (currentScreen === 'Settings' || currentScreen === 'HelpSupport' || currentScreen === 'About') {
         setCurrentScreen('Profile');
-      } else if (currentScreen === 'Initiatives') { // Added back handling for Initiatives
+      } else if (currentScreen === 'Initiatives') {
         setCurrentScreen('Home');
-      } else if (['Places', 'SOS', 'Profile', 'Favorites'].includes(currentScreen)) {
+      } else if (['Explore', 'SOS', 'Profile', 'Favorites'].includes(currentScreen)) {
         setCurrentScreen('Home');
       } else {
-        setCurrentScreen('Home'); // Default fallback
+        setCurrentScreen('Home');
       }
     }
   };
@@ -66,7 +66,7 @@ function MainApp() {
         return <HomeScreen navigation={navigation} />;
       case 'SOS':
         return <SOSScreen navigation={navigation} />;
-      case 'Places':
+      case 'Explore':
         return <DirectoryScreen route={{ params: routeParams }} navigation={navigation} />;
       case 'PlaceDetails':
         return <PlaceDetailsScreen route={{ params: routeParams }} navigation={navigation} />;

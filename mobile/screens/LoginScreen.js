@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../utils/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,10 +29,12 @@ export default function LoginScreen({ navigation, route }) {
 
             const response = await api.post(endpoint, payload);
 
-            Alert.alert('Success', response.data.msg);
 
-            // Navigate to Home on success
-            // In a real app, save token to AsyncStorage here
+            // Save user data to AsyncStorage
+            await AsyncStorage.setItem('@user_id', response.data.userId);
+            if (response.data.name) await AsyncStorage.setItem('@user_name', response.data.name);
+            await AsyncStorage.setItem('@user_email', email);
+
             navigation.replace('Home');
 
         } catch (error) {

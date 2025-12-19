@@ -127,8 +127,15 @@ router.post('/visited/add', async (req, res) => {
             return res.status(404).json({ msg: 'User not found' });
         }
 
-        // Check if already marked as visited
-        if (!user.visitedPlaces.includes(placeId)) {
+        // Initialize visitedPlaces if it doesn't exist
+        if (!user.visitedPlaces) {
+            user.visitedPlaces = [];
+        }
+
+        // Check if already marked as visited (more robust check)
+        const isAlreadyVisited = user.visitedPlaces.some(id => id.toString() === placeId.toString());
+
+        if (!isAlreadyVisited) {
             user.visitedPlaces.push(placeId);
             await user.save();
         }
@@ -136,8 +143,8 @@ router.post('/visited/add', async (req, res) => {
         res.json({ msg: 'Marked as visited', visitedPlaces: user.visitedPlaces });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Error in /visited/add:', err.message);
+        res.status(500).json({ msg: 'Server Error', error: err.message });
     }
 });
 

@@ -57,10 +57,38 @@ router.post('/login', async (req, res) => {
             name: user.name,
             role: user.role
         });
-
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET /api/auth/profile/:userId
+// @desc    Get user profile stats
+// @access  Public
+router.get('/profile/:userId', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId)
+            .select('-password'); // Don't return password
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        res.json({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            tripsCount: user.visitedPlaces ? user.visitedPlaces.length : 0,
+            visitedPlaces: user.visitedPlaces || [],
+            favoritesCount: user.favorites ? user.favorites.length : 0,
+            favorites: user.favorites || [],
+            createdAt: user.createdAt
+        });
+
+    } catch (err) {
+        console.error('Error fetching profile:', err.message);
+        res.status(500).json({ msg: 'Server Error' });
     }
 });
 

@@ -74,7 +74,7 @@ export default function HomeScreen({ navigation }) {
     const handleSearch = (query) => {
         const text = query || searchQuery;
         if (text.trim()) {
-            navigation.navigate('Places', {
+            navigation.navigate('Explore', {
                 category: 'destinations',
                 search: text.trim(),
                 focusSearch: false
@@ -91,7 +91,7 @@ export default function HomeScreen({ navigation }) {
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greetingText}>Welcome,</Text>
+                        <Text style={styles.greetingText}>Welcome to,</Text>
                         <Text style={styles.brandTitle}>Swadeshi Yatra</Text>
                     </View>
                     {/* Profile Icon with Shadow */}
@@ -141,7 +141,7 @@ export default function HomeScreen({ navigation }) {
                         activeOpacity={0.9}
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}
-                        onPress={() => navigation.navigate('Places', { category: 'destinations' })}
+                        onPress={() => navigation.navigate('Explore', { category: 'destinations' })}
                     >
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332300' : '#FFF3E0' }]}>
                             <MaterialCommunityIcons name="temple-hindu" size={30} color={isDarkMode ? '#FFB74D' : '#F57C00'} />
@@ -155,7 +155,7 @@ export default function HomeScreen({ navigation }) {
                         activeOpacity={0.9}
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}
-                        onPress={() => navigation.navigate('Places', { category: 'business' })}
+                        onPress={() => navigation.navigate('Explore', { category: 'business' })}
                     >
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#002622' : '#E0F2F1' }]}>
                             <MaterialCommunityIcons name="store" size={30} color={isDarkMode ? '#4DB6AC' : '#00796B'} />
@@ -169,7 +169,7 @@ export default function HomeScreen({ navigation }) {
                         activeOpacity={0.9}
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}
-                        onPress={() => navigation.navigate('Places', { category: 'hidden-gems' })}
+                        onPress={() => navigation.navigate('Explore', { category: 'hidden-gems' })}
                     >
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332C00' : '#FFF9C4' }]}>
                             <Ionicons name="sparkles" size={30} color={isDarkMode ? '#FFF176' : '#FBC02D'} />
@@ -183,7 +183,7 @@ export default function HomeScreen({ navigation }) {
                         activeOpacity={0.9}
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}
-                        onPress={() => navigation.navigate('Places', { category: 'crafts' })}
+                        onPress={() => navigation.navigate('Explore', { category: 'crafts' })}
                     >
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#240033' : '#F3E5F5' }]}>
                             <MaterialCommunityIcons name="hammer-wrench" size={30} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
@@ -197,7 +197,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.sectionHeaderRow}>
                     <Text style={styles.sectionHeading}>Popular Near You</Text>
                     <View style={styles.sectionDivider} />
-                    <TouchableOpacity onPress={() => navigation.navigate('Places')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
                         <Text style={styles.seeAllText}>See All</Text>
                     </TouchableOpacity>
                 </View>

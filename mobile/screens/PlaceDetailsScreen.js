@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, Alert, Dimensions, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, Alert, Dimensions, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -22,10 +23,7 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     const [loadingReviews, setLoadingReviews] = useState(true);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
-
-    // Mock user data (in production, get from auth context)
-    const userId = 'user_dynamic_placeholder';
-    const userName = 'Traveler';
+    const [userData, setUserData] = useState({ id: null, name: 'Traveler' });
 
     // Fallback data
     const bestTime = place.bestTime || "Oct to Mar";
@@ -33,9 +31,20 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     const tag = place.category || "Heritage";
 
     useEffect(() => {
+        loadUserData();
         fetchReviews();
         checkIfFavorite();
     }, [place]);
+
+    const loadUserData = async () => {
+        const id = await AsyncStorage.getItem('@user_id');
+        const name = await AsyncStorage.getItem('@user_name');
+        if (id) {
+            setUserData({ id, name: name || 'Traveler' });
+        }
+    };
+
+
 
     const checkIfFavorite = async () => {
         const favorited = await FavoritesManager.isFavorite(place._id || place.id);
@@ -82,19 +91,22 @@ export default function PlaceDetailsScreen({ route, navigation }) {
         }
     };
 
+
+
     const openMaps = () => {
         const query = place.coordinates?.latitude && place.coordinates?.longitude
             ? `${place.coordinates.latitude},${place.coordinates.longitude}`
-            : place.name + " " + place.location;
+            : `${place.name} ${place.location}`;
 
-        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        const url = Platform.select({
+            android: `geo:0,0?q=${encodeURIComponent(query)}`,
+            ios: `maps:0,0?q=${encodeURIComponent(query)}`,
+            default: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+        });
 
-        Linking.canOpenURL(url).then(supported => {
-            if (supported) {
-                Linking.openURL(url);
-            } else {
-                Alert.alert("Error", "Could not open Maps");
-            }
+        Linking.openURL(url).catch(err => {
+            console.error('Error opening maps:', err);
+            Alert.alert("Error", "Could not open a Map application. Please install Google Maps.");
         });
     };
 
@@ -124,14 +136,16 @@ export default function PlaceDetailsScreen({ route, navigation }) {
 
     const searchNearby = (queryType) => {
         const query = `${queryType} near ${place.name} ${place.location}`;
-        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
-        Linking.canOpenURL(url).then(supported => {
-            if (supported) {
-                Linking.openURL(url);
-            } else {
-                Alert.alert("Error", "Could not open Maps");
-            }
+        const url = Platform.select({
+            android: `geo:0,0?q=${encodeURIComponent(query)}`,
+            ios: `maps:0,0?q=${encodeURIComponent(query)}`,
+            default: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+        });
+
+        Linking.openURL(url).catch(err => {
+            console.error('Error searching nearby:', err);
+            Alert.alert("Error", "Could not open a Map application.");
         });
     };
 
@@ -234,11 +248,13 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                         </>
                     )}
 
-                    {/* Get Directions Button */}
-                    <TouchableOpacity style={styles.directionButton} onPress={openMaps}>
-                        <Ionicons name="navigate" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                        <Text style={styles.directionButtonText}>Get Directions</Text>
-                    </TouchableOpacity>
+                    {/* Get Directions */}
+                    <View style={{ marginBottom: 24 }}>
+                        <TouchableOpacity style={styles.directionButton} onPress={openMaps}>
+                            <Ionicons name="navigate" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                            <Text style={styles.directionButtonText}>Directions</Text>
+                        </TouchableOpacity>
+                    </View>
 
                     {/* Explore Surroundings - Deep Links for EVERY Place */}
                     <View style={styles.exploreNearbySection}>
@@ -313,8 +329,8 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                 onClose={() => setShowReviewModal(false)}
                 placeId={place._id || place.id}
                 placeName={place.name}
-                userId={userId}
-                userName={userName}
+                userId={userData.id || 'user_dynamic_placeholder'}
+                userName={userData.name}
                 onReviewSubmitted={handleReviewSubmitted}
             />
         </SafeAreaView>

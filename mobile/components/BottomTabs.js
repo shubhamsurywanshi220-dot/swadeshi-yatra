@@ -60,8 +60,8 @@ export default function BottomTabs({ currentScreen, navigate }) {
                 <TabItem
                     key={tab.key}
                     tab={tab}
-                    isActive={currentScreen === tab.key || (currentScreen === 'Places' && tab.key === 'Explore') || (currentScreen === 'Directory' && tab.key === 'Explore')}
-                    onPress={() => navigate(tab.key === 'Explore' ? 'Directory' : tab.key, tab.params)}
+                    isActive={currentScreen === tab.key}
+                    onPress={() => navigate(tab.key, tab.params)}
                     theme={theme}
                 />
             ))}

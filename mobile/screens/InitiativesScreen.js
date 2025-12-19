@@ -33,7 +33,7 @@ export default function InitiativesScreen({ navigation }) {
                 {/* Hero Section */}
                 <View style={styles.heroContainer}>
                     <ImageWithFallback
-                        source={{ uri: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=1000' }} // Taj Mahal for mission
+                        source={{ uri: 'https://swadeshi-yatra.onrender.com/atmanirbhar_bharat_hero.png' }}
                         style={styles.heroImage}
                     />
                     <View style={styles.heroOverlay} />
