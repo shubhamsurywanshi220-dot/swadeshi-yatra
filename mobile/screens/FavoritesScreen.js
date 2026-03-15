@@ -5,9 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { FavoritesManager } from '../utils/favoritesManager';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { useTranslation } from 'react-i18next';
 
 export default function FavoritesScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const styles = createStyles(theme, isDarkMode);
 
     const [favorites, setFavorites] = useState([]);
@@ -80,8 +82,8 @@ export default function FavoritesScreen({ navigation }) {
                     <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
                 </TouchableOpacity>
                 <View>
-                    <Text style={styles.headerTitle}>My Favorites</Text>
-                    <Text style={styles.headerSubtitle}>Places you love</Text>
+                    <Text style={styles.headerTitle}>{t('favorites.title')}</Text>
+                    <Text style={styles.headerSubtitle}>{t('favorites.subtitle')}</Text>
                 </View>
             </View>
 
@@ -94,7 +96,7 @@ export default function FavoritesScreen({ navigation }) {
                     <View style={styles.emptyIconContainer}>
                         <Ionicons name="heart-outline" size={64} color={theme.colors.text.tertiary} />
                     </View>
-                    <Text style={styles.emptyText}>No favorites yet</Text>
+                    <Text style={styles.emptyText}>{t('favorites.no_favorites')}</Text>
                     <Text style={styles.emptySubtext}>
                         Start exploring and add places to your favorites!
                     </Text>
@@ -102,7 +104,7 @@ export default function FavoritesScreen({ navigation }) {
                         style={styles.exploreButton}
                         onPress={() => navigation.navigate('Explore')}
                     >
-                        <Text style={styles.exploreButtonText}>Discover Places</Text>
+                        <Text style={styles.exploreButtonText}>{t('favorites.discover_places')}</Text>
                     </TouchableOpacity>
                 </View>
             ) : (

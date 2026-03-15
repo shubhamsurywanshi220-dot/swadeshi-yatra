@@ -1,0 +1,172 @@
+[
+    {
+        "id": "wb_001",
+        "name": "Darjeeling Himalayan Railway",
+        "location": "Darjeeling, West Bengal",
+        "state": "West Bengal",
+        "city": "Darjeeling",
+        "description": "The Darjeeling Himalayan Railway, also known as the DHR or the Toy Train, is a 2 ft gauge railway that runs between New Jalpaiguri and Darjeeling in the Indian state of West Bengal.",
+        "imageUrl": "/images/wb_darjeeling.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-May",
+        "entryFee": "₹600 - ₹1500",
+        "coordinates": {
+            "latitude": 27.0423,
+            "longitude": 88.2619
+        },
+        "detailedInfo": {
+            "introduction": "The Darjeeling Himalayan Railway, also known as the 'Toy Train', is a 2 ft narrow-gauge railway that reflects the ingenuity of 19th-century pioneers.",
+            "keyFacts": [
+                "Location: Darjeeling district, West Bengal",
+                "Elevation: 100m to 2,200m",
+                "UNESCO Designation: 1999",
+                "Highlights: Batasia Loop, Ghum Station"
+            ],
+            "history": "Developed by Franklin Prestage to transport tea more efficiently and provide a comfortable journey to the hill station of Darjeeling.",
+            "architecture": "Masterpiece of mountain engineering, using unique loops and reverses. The coal-fired steam engines are heritage gems.",
+            "significance": "A global icon of mountain travel and the soul of Darjeeling's tourism industry, featured in many films.",
+            "visitingInfo": "Tickets for the 'Joy Ride' should be booked via IRCTC. Best time: October to May.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1598305372439-0aeccb02ae20",
+                "https://images.unsplash.com/photo-1566371486490-560ded239df6"
+            ]
+        }
+    },
+    {
+        "id": "as_001",
+        "name": "Kaziranga National Park",
+        "location": "Kanchanjuri, Assam",
+        "state": "Assam",
+        "city": "Kaziranga",
+        "description": "A UNESCO World Heritage Site, Kaziranga National Park is famous for the world's largest population of one-horned rhinoceroses.",
+        "imageUrl": "/images/as_kaziranga.jpg",
+        "category": "Nature",
+        "rating": 4.8,
+        "bestTime": "Nov-Apr",
+        "entryFee": "₹100",
+        "coordinates": {
+            "latitude": 26.5775,
+            "longitude": 93.1711
+        },
+        "detailedInfo": {
+            "introduction": "Kaziranga National Park is located in the floodplains of the Brahmaputra River in Assam, globally renowned for the endangered one-horned rhinoceros.",
+            "keyFacts": [
+                "Location: Golaghat and Nagaon districts, Assam",
+                "Established: 1905",
+                "UNESCO Site: Since 1985",
+                "Notable fauna: One-horned rhino, Tiger, Elephant"
+            ],
+            "history": "Originally protected in 1905 due to efforts of Mary Curzon, it has evolved into one of the world's most successful conservation stories.",
+            "architecture": "Defined by tall elephant grass, marshland, and tropical forests, rejuvenated annually by monsoon flooding.",
+            "significance": "Global benchmark for wildlife protection and home to many endangered species.",
+            "visitingInfo": "Open from November to April. Jeep or elephant safaris are available across four main ranges.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1589908000355-9816c146d59d",
+                "https://images.unsplash.com/photo-1621849400072-f554417f7051"
+            ]
+        }
+    },
+    {
+        "id": "od_001",
+        "name": "Jagannath Temple Puri",
+        "location": "Puri, Odisha",
+        "state": "Odisha",
+        "city": "Puri",
+        "description": "The Jagannath Temple is an important Hindu temple dedicated to Jagannath, a form of Vishnu, in Puri in the state of Odisha on the eastern coast of India.",
+        "imageUrl": "/images/od_jagannath.jpg",
+        "category": "Religious",
+        "rating": 4.9,
+        "bestTime": "Oct-Feb",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 19.8049,
+            "longitude": 85.8178
+        },
+        "detailedInfo": {
+            "introduction": "The Jagannath Temple of Puri is a sacred Hindu temple and one of the four most holy places of pilgrimage in India (Char Dhams).",
+            "keyFacts": [
+                "Location: Puri, Odisha",
+                "History: Rebuilt from the 10th century onwards",
+                "Highlights: Rath Yatra festival, world's largest kitchen",
+                "Dynasty: Eastern Ganga Dynasty"
+            ],
+            "history": "The temple was built by King Anatavarman Chodaganga Deva. It is famous for its massive annual Rath Yatra (Chariot Festival).",
+            "architecture": "The temple is built on an elevated platform in the center of Puri. The main temple is a curvilinear structure crowned with the 'srichakra' of Vishnu.",
+            "significance": "It is a major spiritual center where millions gather for the Rath Yatra. The temple's kitchen (Mahaprasad) is the largest in the world.",
+            "visitingInfo": "Open to Hindus only. Non-Hindus can view the temple from a nearby platform. Best time: June/July during Rath Yatra.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3",
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3"
+            ]
+        }
+    },
+    {
+        "id": "br_001",
+        "name": "Nalanda Ruins",
+        "location": "Nalanda, Bihar",
+        "state": "Bihar",
+        "city": "Nalanda",
+        "description": "Nalanda was a renowned mahavihara, a large Buddhist monastery, in the ancient kingdom of Magadha in India. The site is located about 95 kilometres southeast of Patna near the city of Bihar Sharif.",
+        "imageUrl": "/images/br_nalanda.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹15 (Indians)",
+        "coordinates": {
+            "latitude": 25.1328,
+            "longitude": 85.4526
+        },
+        "detailedInfo": {
+            "introduction": "Nalanda was a renowned Mahavihara, a large and revered Buddhist monastery in the ancient kingdom of Magadha in India. It is one of the world's first residential universities.",
+            "keyFacts": [
+                "Location: Near Bihar Sharif, Bihar",
+                "Period: 5th century CE to 1200 CE",
+                "UNESCO: World Heritage Site since 2016",
+                "Highlights: Temple No. 3, ancient dormitories, Nalanda Archaeological Museum"
+            ],
+            "history": "Flourished under the patronage of the Gupta Empire and later Harshavardhana. It attracted scholars from China, Korea, Japan, Tibet, and Turkey. It was eventually destroyed by Bakhtiyar Khalji in 1193.",
+            "architecture": "The ruins reveal highly organized layout with central courtyards, classrooms, and small dormitories for monks. The bricks depict the sophisticated engineering of the time.",
+            "significance": "Nalanda is a symbol of India's intellectual heritage and its leading role in global education during the classical age. It remains a place of profound scholarly pilgrimage.",
+            "visitingInfo": "Best time: October to March. The site is about 90 km from Patna and 12 km from Bihar Sharif. The museum across the road is a must-visit.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1590490360182-ed3340ce9282",
+                "https://images.unsplash.com/photo-1588665893902-6e93297a7e78"
+            ]
+        }
+    },
+    {
+        "id": "as_002",
+        "name": "Kamakhya Temple",
+        "location": "Guwahati, Assam",
+        "state": "Assam",
+        "city": "Guwahati",
+        "description": "The Kamakhya Temple is a Shakta temple dedicated to the mother goddess Kamakhya. It is one of the oldest of the 51 Shakti Pithas.",
+        "imageUrl": "/images/as_kamakhya.jpg",
+        "category": "Religious",
+        "rating": 4.9,
+        "bestTime": "Oct-Apr",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 26.1663,
+            "longitude": 91.7056
+        },
+        "detailedInfo": {
+            "introduction": "The Kamakhya Temple is a Shakta temple dedicated to the mother goddess Kamakhya. It is situated on the Nilachal Hill in western part of Guwahati city in Assam.",
+            "keyFacts": [
+                "Location: Nilachal Hill, Guwahati, Assam",
+                "Significance: One of the 51 Shakti Pithas",
+                "Highlights: Ambubachi Mela, rock carvings",
+                "Deity: Goddess Kamakhya"
+            ],
+            "history": "The temple has ancient origins and has been rebuilt several times, notably by the Koch king Naranarayan in the 16th century. It is the center of Tantric worship in India.",
+            "architecture": "The temple has a unique 'Nilachal' style of architecture, with a beehive-like dome of brick or stone. The inner sanctum is a natural cave with a spring.",
+            "significance": "It is a vital pilgrimage site for devotees of Shaktism. The Ambubachi Mela, celebrating the annual menstruation of the goddess, is its most important festival.",
+            "visitingInfo": "Best time: October to April. Expect long queues during festival seasons. Reach via taxi or shared rickshaws from Guwahati city center.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3",
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3"
+            ]
+        }
+    }
+]

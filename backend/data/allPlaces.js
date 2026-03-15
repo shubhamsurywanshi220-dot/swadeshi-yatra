@@ -1,4 +1,11 @@
+const batch1 = require('./indiaTourism_batch1.json');
+const batch2 = require('./indiaTourism_batch2.json');
+const batch3 = require('./indiaTourism_batch3.json');
+
 const allPlaces = [
+    ...batch1,
+    ...batch2,
+    ...batch3,
     // --- ANDHRA PRADESH ---
     {
         id: 'ap1',
@@ -36,22 +43,7 @@ const allPlaces = [
         coordinates: { latitude: 27.5861, longitude: 91.8594 }
     },
 
-    // --- ASSAM ---
-    {
-        id: 'as1',
-        name: 'Kaziranga National Park',
-        location: 'Kanchanjuri, Assam',
-        state: 'Assam',
-        city: 'Kanchanjuri',
-        description: 'A World Heritage Site giving shelter to two-thirds of the world\'s great one-horned rhinoceroses.',
-        imageUrl: '/images/as_kaziranga.jpg',
-        category: 'Nature',
-        rating: 4.8,
-        bestTime: 'Nov-Apr',
-        entryFee: '₹100',
-        isEcoFriendly: true,
-        coordinates: { latitude: 26.5775, longitude: 93.1711 }
-    },
+
 
     // --- BIHAR ---
     {
@@ -135,21 +127,6 @@ const allPlaces = [
         coordinates: { latitude: 15.3144, longitude: 74.3143 }
     },
     {
-        id: 'ga4',
-        name: 'Fort Aguada',
-        location: 'Candolim, Goa',
-        state: 'Goa',
-        city: 'Candolim',
-        description: 'A 17th-century Portuguese fort standing on Sinquerim Beach.',
-        imageUrl: '/images/goa_fort_aguada.jpg',
-        category: 'Heritage',
-        rating: 4.6,
-        bestTime: 'Year Round',
-        entryFee: 'Free',
-        isEcoFriendly: false,
-        coordinates: { latitude: 15.4920, longitude: 73.7737 }
-    },
-    {
         id: 'ga5',
         name: 'Palolem Beach',
         location: 'South Goa, Goa',
@@ -167,21 +144,7 @@ const allPlaces = [
 
     // --- GUJARAT ---
     // --- GUJARAT (Official Tourism Sourced) ---
-    {
-        id: 'gj1',
-        name: 'Statue of Unity',
-        location: 'Kevadia, Gujarat',
-        state: 'Gujarat',
-        city: 'Kevadia',
-        description: 'The world\'s tallest statue, dedicated to Sardar Vallabhbhai Patel.',
-        imageUrl: '/images/gj_statue_of_unity.jpg',
-        category: 'Heritage',
-        rating: 4.9,
-        bestTime: 'Oct-Mar',
-        entryFee: '₹150',
-        isEcoFriendly: true,
-        coordinates: { latitude: 21.8380, longitude: 73.7191 }
-    },
+
     {
         id: 'gj2',
         name: 'Rann of Kutch',
@@ -197,36 +160,8 @@ const allPlaces = [
         isEcoFriendly: true,
         coordinates: { latitude: 23.7337, longitude: 69.8597 }
     },
-    {
-        id: 'gj3',
-        name: 'Gir National Park',
-        location: 'Talala Gir, Gujarat',
-        state: 'Gujarat',
-        city: 'Gir',
-        description: 'The only natural habitat of the Asiatic Lion.',
-        imageUrl: '/images/gj_gir_lion.jpg',
-        category: 'Nature',
-        rating: 4.8,
-        bestTime: 'Dec-Mar',
-        entryFee: '₹800',
-        isEcoFriendly: true,
-        coordinates: { latitude: 21.1243, longitude: 70.8242 }
-    },
-    {
-        id: 'gj4',
-        name: 'Somnath Temple',
-        location: 'Veraval, Gujarat',
-        state: 'Gujarat',
-        city: 'Veraval',
-        description: 'The first among the twelve Jyotirlinga shrines of Shiva.',
-        imageUrl: '/images/gj_somnath.jpg',
-        category: 'Spiritual',
-        rating: 4.9,
-        bestTime: 'Sep-Mar',
-        entryFee: 'Free',
-        isEcoFriendly: false,
-        coordinates: { latitude: 20.8880, longitude: 70.4010 }
-    },
+
+
     {
         id: 'gj5',
         name: 'Modhera Sun Temple',
@@ -310,36 +245,7 @@ const allPlaces = [
     },
 
     // --- KARNATAKA ---
-    {
-        id: 'ka1',
-        name: 'Hampi',
-        location: 'Hampi, Karnataka',
-        state: 'Karnataka',
-        city: 'Hampi',
-        description: 'A UNESCO World Heritage Site famous for its ancient ruins and temples.',
-        imageUrl: '/images/hampi.jpg',
-        category: 'Heritage',
-        rating: 4.8,
-        bestTime: 'Oct-Mar',
-        entryFee: '₹40 (Ind), ₹600 (For)',
-        isEcoFriendly: true,
-        coordinates: { latitude: 15.3350, longitude: 76.4600 }
-    },
-    {
-        id: 'ka2',
-        name: 'Mysore Palace',
-        location: 'Mysore, Karnataka',
-        state: 'Karnataka',
-        city: 'Mysore',
-        description: 'A historical palace and a royal residence of the Wadiyar dynasty.',
-        imageUrl: '/images/mysore_palace.jpg',
-        category: 'Heritage',
-        rating: 4.7,
-        bestTime: 'Oct-Mar',
-        entryFee: '₹70 (Ind), ₹200 (For)',
-        isEcoFriendly: false,
-        coordinates: { latitude: 12.3051, longitude: 76.6551 }
-    },
+
     {
         id: 'ka3',
         name: 'Abbey Falls',
@@ -610,21 +516,7 @@ const allPlaces = [
     },
 
     // --- MAHARASHTRA ---
-    {
-        id: 'mh1',
-        name: 'Gateway of India',
-        location: 'Mumbai, Maharashtra',
-        state: 'Maharashtra',
-        city: 'Mumbai',
-        description: 'An arch-monument built in the 20th century to commemorate the landing of King George V.',
-        imageUrl: '/images/mh_gateway.jpg',
-        category: 'Heritage',
-        rating: 4.7,
-        bestTime: 'Year Round',
-        entryFee: 'Free',
-        isEcoFriendly: false,
-        coordinates: { latitude: 18.9220, longitude: 72.8347 }
-    },
+
 
     // --- MANIPUR ---
     {
@@ -708,7 +600,25 @@ const allPlaces = [
         bestTime: 'Sep-Mar',
         entryFee: '₹40',
         isEcoFriendly: false,
-        coordinates: { latitude: 19.8876, longitude: 86.0945 }
+        coordinates: { latitude: 19.8876, longitude: 86.0945 },
+        detailedInfo: {
+            introduction: "The Sun Temple at Konark is a 13th-century architectural masterpiece dedicated to the solar deity Surya. Located on the coastline of Odisha, it is renowned for its monumental scale and intricate stone carvings. It stands as a pinnacle of Hindu temple architecture and is recognized as a UNESCO World Heritage Site.",
+            keyFacts: [
+                "Location: Konark, Puri district, Odisha",
+                "Built by: King Narasimhadeva I (Eastern Ganga Dynasty)",
+                "Completed: Around 1250 CE",
+                "Style: Kalinga Architecture",
+                "UNESCO Designation: 1984"
+            ],
+            history: "Commissioned by King Narasimhadeva I to celebrate military triumphs and honor the Sun God, the temple was designed as a colossal stone chariot drawn by seven horses and carrying twelve pairs of giant wheels. Though parts of the main sanctum eventually collapsed, the remaining structures still testify to the sophisticated artistic culture of medieval Odisha.",
+            architecture: "The temple's chariot structure symbolizes the passage of time and the Sun's celestial journey. Its walls are enveloped in detailed sculptures portraying deities, celestial beings, scenes of daily life, and various flora and fauna, showcasing the exceptional scientific and artistic depth of the Eastern Ganga era.",
+            significance: "Konark is not merely a temple but a monument to the scientific and astronomical knowledge of ancient India. The twelve pairs of wheels serve as sundials that can accurately predict time to the minute, reflecting a perfect harmony between spiritual devotion and mathematical precision.",
+            visitingInfo: "Open from 6:00 AM to 8:00 PM. The best time to visit is during the winter months (September to March) when the weather is pleasant. Light and sound shows are held every evening.",
+            additionalImages: [
+                "https://images.unsplash.com/photo-1590050752117-23849ff3efaa",
+                "https://images.unsplash.com/photo-1601956501308-41793739a852"
+            ]
+        }
     },
 
     // --- PUNJAB ---
@@ -725,7 +635,25 @@ const allPlaces = [
         bestTime: 'Oct-Mar',
         entryFee: 'Free',
         isEcoFriendly: true,
-        coordinates: { latitude: 31.6200, longitude: 74.8765 }
+        coordinates: { latitude: 31.6200, longitude: 74.8765 },
+        detailedInfo: {
+            introduction: "The Golden Temple, or Sri Harmandir Sahib, is the spiritual nerve center of Sikhism. Located in Amritsar, it is a sublime structure made of white marble overlaid with genuine gold leaf, surrounded by a sacred pool known as the 'Amrit Sarovar' or Pool of Nectar.",
+            keyFacts: [
+                "Location: Amritsar, Punjab",
+                "Foundation laid by: Sai Mian Mir (a Muslim Sufi saint)",
+                "Completed: 1604 CE (Original structure)",
+                "Style: Indo-Islamic and Rajput fusion",
+                "Daily visitors: ~100,000"
+            ],
+            history: "Founded by Guru Ram Das, the fourth Sikh Guru, and completed by Guru Arjan Dev in 1604, the temple was designed as a place of universal worship. It has been destroyed and rebuilt multiple times, with its current gold-plated appearance dating back to the reign of Maharaja Ranjit Singh in the early 19th century.",
+            architecture: "The temple's architecture is unique for its four entrances, symbolizing that people from all directions and walks of life are welcome. The lower level is built from white marble with inlay work reminiscent of Mughal floral patterns, while the upper floors are covered in gold panels intricately carved with floral motifs.",
+            significance: "Beyond its architectural beauty, the Golden Temple is a living embodiment of the Sikh principles of equality and service. It hosts the world's largest free community kitchen (Langar), serving over 100,000 people daily regardless of race, religion, or background.",
+            visitingInfo: "Open 24/7. Visitors are required to cover their heads and remove footwear before entering. The best time to experience its serene beauty is during the early morning Palki Sahib ceremony.",
+            additionalImages: [
+                "https://images.unsplash.com/photo-1589134114059-e910246a482b",
+                "https://images.unsplash.com/photo-1512140409540-0870938f38d4"
+            ]
+        }
     },
 
     // --- RAJASTHAN (Existing) ---
@@ -949,7 +877,25 @@ const allPlaces = [
             phone: '+91-562-2226431',
             website: 'https://tajmahal.gov.in'
         },
-        coordinates: { latitude: 27.1751, longitude: 78.0421 }
+        coordinates: { latitude: 27.1751, longitude: 78.0421 },
+        detailedInfo: {
+            introduction: "The Taj Mahal is an ivory-white marble mausoleum on the southern bank of the Yamuna River in Agra. Commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal, it is widely considered the greatest architectural achievement in the whole range of Indo-Islamic architecture.",
+            keyFacts: [
+                "Location: Agra, Uttar Pradesh",
+                "Built by: Emperor Shah Jahan",
+                "Construction period: 1632 - 1653 CE",
+                "Style: Mughal architecture (Persian, Indian, Islamic)",
+                "UNESCO Designation: 1983"
+            ],
+            history: "Requiring twenty years and over 20,000 artisans to complete, the Taj Mahal was built as a monument of eternal love. The principal architect, Ustad Ahmad Lahauri, led a team that sourced materials from across India and Central Asia, including white marble from Makrana and semi-precious stones for the intricate Pietra Dura inlay work.",
+            architecture: "The Taj Mahal is famous for its perfect symmetry, a cornerstone of Mughal design. The central dome, reaching a height of 73 meters, is flanked by four smaller domes and four minarets. The interior is decorated with delicate calligraphy, floral carvings, and jade, crystal, and turquoise inlays that create a mesmerizing play of light.",
+            significance: "As a UNESCO World Heritage Site and one of the New Seven Wonders of the World, the Taj Mahal is an enduring symbol of India's rich history. It represents the pinnacle of Mughal artistic expression, blending diverse cultural influences into a singular, breathtaking masterpiece.",
+            visitingInfo: "Open from sunrise to sunset. Closed on Fridays for prayer. Night viewing is permitted on five nights a month around the full moon. Photography is allowed but prohibited inside the main mausoleum.",
+            additionalImages: [
+                "https://images.unsplash.com/photo-1564507592333-c60657451dd7",
+                "https://images.unsplash.com/photo-1542856391-010fb87dcfed"
+            ]
+        }
     },
     {
         id: 'up2',
@@ -1046,7 +992,25 @@ const allPlaces = [
         bestTime: 'Jul-Sep',
         entryFee: '₹150',
         isEcoFriendly: true,
-        coordinates: { latitude: 30.7280, longitude: 79.6053 }
+        coordinates: { latitude: 30.7280, longitude: 79.6053 },
+        detailedInfo: {
+            introduction: "The Valley of Flowers National Park is a high-altitude Himalayan valley and a UNESCO World Heritage Site located in the state of Uttarakhand. It is world-renowned for its vast alpine meadows bursting with more than 600 species of wildflowers, appearing like a colorful carpet against the backdrop of rugged snow-capped peaks.",
+            keyFacts: [
+                "Location: Chamoli district, Uttarakhand",
+                "UNESCO Inscription: 1988 (extended 2005)",
+                "Area: ~87 sq km",
+                "Elevation range: 3,200m to 6,600m",
+                "Climate: Monsoon-influenced Alpine"
+            ],
+            history: "Revered in Hindu mythology as the place where Hanuman found the Sanjivani herb, the valley was 'rediscovered' by mountaineer Frank S. Smythe in 1931. It was declared a National Park in 1982 to protect its unique biodiversity and subsequently integrated into the Nanda Devi Biosphere Reserve.",
+            architecture: "Unlike temples, the 'architecture' here is geological. The valley is cradled between the Zanskar and Great Himalayan ranges, featuring a unique microclimate that allows for the growth of rare flora. The Pushpawati River flows through the valley, fed by glaciers that melt during the summer to nurture the meadows.",
+            significance: "Together with Nanda Devi National Park, the valley forms a unique transition zone between the mountain ranges. It is home to rare and endangered animals, including the snow leopard, Himalayan musk deer, and blue sheep, and serves as a vital sanctuary for West Himalayan biogeographic diversity.",
+            visitingInfo: "The valley is only accessible from June to September. A 17km trek from Govindghat is required to reach the valley. Visitors are not allowed to stay overnight; based at Ghangaria.",
+            additionalImages: [
+                "https://images.unsplash.com/photo-1588096383061-6cc860dc6621",
+                "https://images.unsplash.com/photo-1605364444565-6b4539659392"
+            ]
+        }
     },
 
     // --- WEST BENGAL ---

@@ -17,9 +17,11 @@ app.use(express.static('public'));
 // In a real scenario, this comes from .env
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/swadeshi_yatra';
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.log('MongoDB Connection Error:', err));
+mongoose.connect(MONGO_URI, { dbName: 'swadeshi_yatra' })
+    .then(() => {
+        console.log('✅ MongoDB Connected to database:', mongoose.connection.name);
+    })
+    .catch(err => console.log('❌ MongoDB Connection Error:', err));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -28,6 +30,10 @@ app.use('/api/businesses', require('./routes/businesses'));
 app.use('/api/sos', require('./routes/sos'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/favorites', require('./routes/favorites'));
+app.use('/api/recommendations', require('./routes/recommendations'));
+app.use('/api/culture', require('./routes/culture'));
+app.use('/api/tickets', require('./routes/tickets'));
+app.use('/api/admin', require('./routes/admin'));
 
 app.get('/', (req, res) => {
     res.send('Swadeshi Yatra Backend Configured');

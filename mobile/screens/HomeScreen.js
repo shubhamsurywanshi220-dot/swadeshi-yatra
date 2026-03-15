@@ -3,16 +3,21 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Image,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { checkConnectivity } from '../utils/network';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function HomeScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t, i18n } = useTranslation();
     const [searchQuery, setSearchQuery] = useState('');
     const [popularPlaces, setPopularPlaces] = useState([]);
+    const [recommendedPlaces, setRecommendedPlaces] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(true);
+    const [loadingRecommended, setLoadingRecommended] = useState(true);
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const styles = createStyles(theme);
@@ -37,21 +42,58 @@ export default function HomeScreen({ navigation }) {
         ]).start();
 
         fetchPopularPlaces();
+        fetchRecommendations();
     }, []);
 
     const fetchPopularPlaces = async () => {
         setLoadingPopular(true);
         try {
             const response = await api.get('/places');
+            
+            // Helper to check for images
+            const hasImage = (p) => !!(p.imageUrl || (p.images && p.images.length > 0));
+
+            // Sort by image presence first, then rating
+            const sortedData = [...response.data].sort((a, b) => {
+                const aImg = hasImage(a);
+                const bImg = hasImage(b);
+                if (aImg && !bImg) return -1;
+                if (!aImg && bImg) return 1;
+                return (b.rating || 0) - (a.rating || 0);
+            });
+
             // Mocking "Popular Near You" by filtering Karnataka or just trending ones
-            const karnataka = response.data.filter(p => p.state === 'Karnataka').slice(0, 6);
+            const karnataka = sortedData.filter(p => p.state === 'Karnataka').slice(0, 6);
             // If no Karnataka places (unlikely), take any top rated
-            const places = karnataka.length > 0 ? karnataka : response.data.slice(0, 6);
+            const places = karnataka.length > 0 ? karnataka : sortedData.slice(0, 6);
             setPopularPlaces(places);
         } catch (error) {
             console.error("Error fetching popular places:", error);
         } finally {
             setLoadingPopular(false);
+        }
+    };
+
+    const fetchRecommendations = async () => {
+        setLoadingRecommended(true);
+        try {
+            const response = await api.get('/recommendations');
+            
+            // The backend already sorts, but we ensure it here as well for robustness
+            const hasImage = (p) => !!(p.imageUrl || (p.images && p.images.length > 0));
+            const sortedRecommendations = [...response.data.places].sort((a, b) => {
+                const aImg = hasImage(a);
+                const bImg = hasImage(b);
+                if (aImg && !bImg) return -1;
+                if (!aImg && bImg) return 1;
+                return 0;
+            });
+
+            setRecommendedPlaces(sortedRecommendations);
+        } catch (error) {
+            console.error("Error fetching recommendations:", error);
+        } finally {
+            setLoadingRecommended(false);
         }
     };
 
@@ -71,9 +113,14 @@ export default function HomeScreen({ navigation }) {
         }).start();
     };
 
-    const handleSearch = (query) => {
+    const handleSearch = async (query) => {
         const text = query || searchQuery;
         if (text.trim()) {
+            const isOnline = await checkConnectivity();
+            if (!isOnline) {
+                Alert.alert(t('common.offline'), "Internet connection required to search locations.");
+                // We still navigate to Explore for local filtering, but warn them
+            }
             navigation.navigate('Explore', {
                 category: 'destinations',
                 search: text.trim(),
@@ -91,8 +138,8 @@ export default function HomeScreen({ navigation }) {
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greetingText}>Welcome to,</Text>
-                        <Text style={styles.brandTitle}>Swadeshi Yatra</Text>
+                        <Text style={styles.greetingText}>{t('home.greeting')}</Text>
+                        <Text style={styles.brandTitle}>{t('home.brand')}</Text>
                     </View>
                     {/* Profile Icon with Shadow */}
                     <TouchableOpacity style={styles.profileContainer} onPress={() => navigation.navigate('Profile')}>
@@ -109,7 +156,7 @@ export default function HomeScreen({ navigation }) {
                     </TouchableOpacity>
                     <TextInput
                         style={styles.searchTextInput}
-                        placeholder="Search destinations, stays & culture"
+                        placeholder={t('common.search')}
                         placeholderTextColor={theme.colors.text.secondary}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
@@ -129,9 +176,10 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
 
+
                 {/* Categories Grid */}
                 <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionHeading}>Explore</Text>
+                    <Text style={styles.sectionHeading}>{t('common.explore')}</Text>
                     <View style={styles.sectionDivider} />
                 </View>
 
@@ -146,8 +194,8 @@ export default function HomeScreen({ navigation }) {
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332300' : '#FFF3E0' }]}>
                             <MaterialCommunityIcons name="temple-hindu" size={30} color={isDarkMode ? '#FFB74D' : '#F57C00'} />
                         </View>
-                        <Text style={styles.premiumCardTitle}>Destinations</Text>
-                        <Text style={styles.premiumCardSubtitle}>Heritage & Culture</Text>
+                        <Text style={styles.premiumCardTitle}>{t('home.destinations')}</Text>
+                        <Text style={styles.premiumCardSubtitle}>{t('home.heritage_culture')}</Text>
                     </AnimatedTouchableOpacity>
 
                     <AnimatedTouchableOpacity
@@ -160,8 +208,8 @@ export default function HomeScreen({ navigation }) {
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#002622' : '#E0F2F1' }]}>
                             <MaterialCommunityIcons name="store" size={30} color={isDarkMode ? '#4DB6AC' : '#00796B'} />
                         </View>
-                        <Text style={styles.premiumCardTitle}>Local Biz</Text>
-                        <Text style={styles.premiumCardSubtitle}>Vocal for Local</Text>
+                        <Text style={styles.premiumCardTitle}>{t('home.local_biz')}</Text>
+                        <Text style={styles.premiumCardSubtitle}>{t('home.vocal_for_local')}</Text>
                     </AnimatedTouchableOpacity>
 
                     <AnimatedTouchableOpacity
@@ -174,8 +222,8 @@ export default function HomeScreen({ navigation }) {
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#332C00' : '#FFF9C4' }]}>
                             <Ionicons name="sparkles" size={30} color={isDarkMode ? '#FFF176' : '#FBC02D'} />
                         </View>
-                        <Text style={styles.premiumCardTitle}>Hidden Gems</Text>
-                        <Text style={styles.premiumCardSubtitle}>Offbeat escapes</Text>
+                        <Text style={styles.premiumCardTitle}>{t('home.hidden_gems')}</Text>
+                        <Text style={styles.premiumCardSubtitle}>{t('home.offbeat_escapes')}</Text>
                     </AnimatedTouchableOpacity>
 
                     <AnimatedTouchableOpacity
@@ -188,17 +236,19 @@ export default function HomeScreen({ navigation }) {
                         <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#240033' : '#F3E5F5' }]}>
                             <MaterialCommunityIcons name="hammer-wrench" size={30} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
                         </View>
-                        <Text style={styles.premiumCardTitle}>Traditional Crafts</Text>
-                        <Text style={styles.premiumCardSubtitle}>Local Artisans</Text>
+                        <Text style={styles.premiumCardTitle}>{t('home.trad_crafts')}</Text>
+                        <Text style={styles.premiumCardSubtitle}>{t('home.local_artisans')}</Text>
                     </AnimatedTouchableOpacity>
                 </Animated.View>
 
+
+
                 {/* Popular Section */}
                 <View style={styles.sectionHeaderRow}>
-                    <Text style={styles.sectionHeading}>Popular Near You</Text>
+                    <Text style={styles.sectionHeading}>{t('home.popular')}</Text>
                     <View style={styles.sectionDivider} />
                     <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
-                        <Text style={styles.seeAllText}>See All</Text>
+                        <Text style={styles.seeAllText}>{t('common.see_all')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -235,14 +285,14 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.bannerContainer}>
                     <View style={styles.banner}>
                         <View style={styles.bannerContent}>
-                            <Text style={styles.bannerTag}>PROMOTING SWADESHI</Text>
-                            <Text style={styles.bannerTitle}>Dekho Apna Desh</Text>
-                            <Text style={styles.bannerDesc}>Explore 50+ heritage sites this season</Text>
+                            <Text style={styles.bannerTag}>{t('home.promoting_swadeshi')}</Text>
+                            <Text style={styles.bannerTitle}>{t('home.dekho_apna_desh')}</Text>
+                            <Text style={styles.bannerDesc}>{t('home.explore_heritage')}</Text>
                             <TouchableOpacity
                                 style={styles.bannerButton}
                                 onPress={() => navigation.navigate('Initiatives')}
                             >
-                                <Text style={styles.bannerButtonText}>Learn More</Text>
+                                <Text style={styles.bannerButtonText}>{t('home.learn_more')}</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={styles.bannerCircle} />
@@ -259,8 +309,8 @@ export default function HomeScreen({ navigation }) {
                         <Ionicons name="shield-checkmark" size={24} color="#FFF" />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.sosTitle}>Travel Safe</Text>
-                        <Text style={styles.sosSubtitle}>Quick access to emergency services</Text>
+                        <Text style={styles.sosTitle}>{t('home.travel_safe')}</Text>
+                        <Text style={styles.sosSubtitle}>{t('home.quick_emergency')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={theme.colors.text.tertiary} />
                 </TouchableOpacity>
@@ -349,6 +399,7 @@ const createStyles = (theme) => StyleSheet.create({
         color: theme.colors.primary,
         marginLeft: 12,
     },
+
     // Categories Grid
     categoryGrid: {
         flexDirection: 'row',

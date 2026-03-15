@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, StatusBar 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 export default function AboutScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const styles = createStyles(theme, isDarkMode);
 
     return (
@@ -16,7 +18,7 @@ export default function AboutScreen({ navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>About App</Text>
+                <Text style={styles.headerTitle}>{t('about.title')}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -27,12 +29,12 @@ export default function AboutScreen({ navigation }) {
                         <MaterialCommunityIcons name="map-marker-path" size={64} color={theme.colors.primary} />
                     </View>
                     <Text style={styles.appName}>Swadeshi Yatra</Text>
-                    <Text style={styles.version}>Version 1.0.4 (Stable)</Text>
+                    <Text style={styles.version}>{t('about.version_label')}</Text>
                 </View>
 
                 {/* Tagline section */}
                 <View style={styles.missionCard}>
-                    <Text style={styles.tagline}>"Discover the Heart of Bharat"</Text>
+                    <Text style={styles.tagline}>{t('about.tagline')}</Text>
                     <Text style={styles.missionText}>
                         Swadeshi Yatra is a dedicated platform designed to empower domestic tourism and local businesses under the <Text style={{ fontWeight: 'bold', color: theme.colors.primary }}>Atmanirbhar Bharat</Text> initiative.
                         Our mission is to help travelers explore the rich heritage, vibrant culture, and hidden landscapes of India while directly contributing to the local ecosystem.
@@ -44,22 +46,22 @@ export default function AboutScreen({ navigation }) {
                     <View style={styles.pillarItem}>
                         <Ionicons name="location" size={24} color={theme.colors.accent} />
                         <Text style={styles.pillarTitle}>1,000+</Text>
-                        <Text style={styles.pillarLabel}>Places</Text>
+                        <Text style={styles.pillarLabel}>{t('about.places')}</Text>
                     </View>
                     <View style={styles.pillarItem}>
                         <Ionicons name="people" size={24} color="#34A853" />
                         <Text style={styles.pillarTitle}>50k+</Text>
-                        <Text style={styles.pillarLabel}>Community</Text>
+                        <Text style={styles.pillarLabel}>{t('about.community')}</Text>
                     </View>
                     <View style={styles.pillarItem}>
                         <Ionicons name="star" size={24} color="#FBBC05" />
                         <Text style={styles.pillarTitle}>4.8/5</Text>
-                        <Text style={styles.pillarLabel}>Rating</Text>
+                        <Text style={styles.pillarLabel}>{t('about.rating')}</Text>
                     </View>
                 </View>
 
                 {/* Social Links */}
-                <Text style={styles.sectionTitle}>Follow Our Journey</Text>
+                <Text style={styles.sectionTitle}>{t('about.follow_journey')}</Text>
                 <View style={styles.socialRow}>
                     <TouchableOpacity style={[styles.socialIcon, { backgroundColor: '#E1306C' }]}>
                         <Ionicons name="logo-instagram" size={24} color="#FFF" />

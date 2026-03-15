@@ -1,0 +1,172 @@
+[
+    {
+        "id": "ka_001",
+        "name": "Mysore Palace",
+        "location": "Mysuru, Karnataka",
+        "state": "Karnataka",
+        "city": "Mysuru",
+        "description": "The Mysore Palace is a historical palace and a royal residence at Mysore in the Indian State of Karnataka. It is the official residence of the Wadiyar dynasty and the seat of the Kingdom of Mysore.",
+        "imageUrl": "/images/mysore_palace.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹70 (Indians), ₹200 (Foreigners)",
+        "coordinates": {
+            "latitude": 12.3051,
+            "longitude": 76.6551
+        },
+        "detailedInfo": {
+            "introduction": "Mysore Palace, also known as Amba Vilas Palace, is a historical palace and a royal residence at Mysore in the Indian State of Karnataka. It is the official residence of the Wadiyar dynasty and the seat of the Kingdom of Mysore.",
+            "keyFacts": [
+                "Location: Mysore, Karnataka",
+                "Architecture: Indo-Saracenic",
+                "Highlights: Golden Throne, Durbar Hall, Sunday illumination",
+                "UNESCO: On the tentative list"
+            ],
+            "history": "The original wood palace was destroyed by fire in 1897. The current structure was commissioned by the Maharani Vani Vilas Sannidhana and completed in 1912. It was designed by the British architect Henry Irwin.",
+            "architecture": "The architectural style of the palace is commonly described as Indo-Saracenic, blending Hindu, Muslim, Rajput, and Gothic styles. It is a three-stone structure with marble domes and a five-story tower.",
+            "significance": "Mysore Palace is one of the most famous tourist attractions in India, after the Taj Mahal. It is the center of the famous Mysore Dasara festival celebrated with great pomp and show every year.",
+            "visitingInfo": "Best time to visit is during the Dasara festival in October. The palace is illuminated on Sundays and public holidays, which is a sight to behold.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1590490360182-ed3340ce9282",
+                "https://images.unsplash.com/photo-1588665893902-6e93297a7e78"
+            ]
+        }
+    },
+    {
+        "id": "kl_001",
+        "name": "Munnar Tea Gardens",
+        "location": "Munnar, Idukki, Kerala",
+        "state": "Kerala",
+        "city": "Munnar",
+        "description": "The Munnar Tea Gardens are a breathtaking expanse of lush green tea plantations nestled in the Western Ghats of Kerala, offering stunning panoramic views.",
+        "imageUrl": "/images/kl_munnar.jpg",
+        "category": "Hill Stations",
+        "rating": 4.9,
+        "bestTime": "Sep-Mar",
+        "entryFee": "Free (some gardens charge)",
+        "coordinates": {
+            "latitude": 10.0889,
+            "longitude": 77.0595
+        },
+        "detailedInfo": {
+            "introduction": "Munnar is a town and hill station located in the Idukki district of Kerala. Situated at 1,600 metres above sea level, it is a world-renowned destination for tea enthusiasts.",
+            "keyFacts": [
+                "Location: Idukki district, Kerala",
+                "Highlights: Tea Museum, Eravikulam National Park",
+                "Fauna: Nilgiri Tahr (endangered)",
+                "Famous for: Neelakurinji flower (blooms once in 12 years)"
+            ],
+            "history": "The tea plantations were established in the late 19th century by British settlers. The region was a summer resort for the erstwhile British Government in South India.",
+            "architecture": "The landscape is defined by the vast, manicured tea estates. The area also features colonial-era bungalows and quaint stone churches.",
+            "significance": "Munnar is the center of Kerala's tea industry and a major hub for ecotourism and sprawling spice plantations.",
+            "visitingInfo": "Best time: September to March. The weather is pleasant year-round. Monsoons (June-August) make the landscape exceptionally lush.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1593693397690-362ae9666ec2",
+                "https://images.unsplash.com/photo-1593693397690-362ae9666ec2"
+            ]
+        }
+    },
+    {
+        "id": "ts_002",
+        "name": "Golconda Fort",
+        "location": "Hyderabad, Telangana",
+        "state": "Telangana",
+        "city": "Hyderabad",
+        "description": "Golconda Fort is a fortified citadel and an early capital city of the Qutb Shahi dynasty, located in Hyderabad, Telangana, India.",
+        "imageUrl": "/images/tg_golconda.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹25 (Indians)",
+        "coordinates": {
+            "latitude": 17.3833,
+            "longitude": 78.4011
+        },
+        "detailedInfo": {
+            "introduction": "Golconda Fort is a majestic fortress located in Hyderabad, Telangana. It was the principal capital of the Qutb Shahi kings and is renowned for its architectural grandeur and historical significance.",
+            "keyFacts": [
+                "Location: Hyderabad, Telangana",
+                "History: Rebuilt in 16th century by Qutb Shahi dynasty",
+                "Highlights: Fateh Darwaza acoustics, Light and Sound show",
+                "Famous for: Hope Diamond, Koh-i-Noor origin"
+            ],
+            "history": "The fort was originally a mud fort built by the Kakatiya rulers. It was later fortified by the Qutb Shahis. It is famous for being the center of the world's diamond trade, with mines nearby producing some of the most famous diamonds in history.",
+            "architecture": "The fort is known for its incredible acoustics; a handclap at the main gate can be heard at the 'Bala Hissar', the highest point. The complex consists of four distinct forts with a 10km long outer wall.",
+            "significance": "Golconda represents the strategic brilliance and cultural richness of the Deccan sultanates. It remains one of the most impressively preserved forts in India.",
+            "visitingInfo": "Best time: October to March. Comfortable walking shoes are a must as there is a steep climb to the top. The evening Light and Sound show is highly recommended.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1603204005030-cf8d80f803f2",
+                "https://images.unsplash.com/photo-1594993877167-a08f13013dc3"
+            ]
+        }
+    },
+    {
+        "id": "tn_002",
+        "name": "Brihadeeswara Temple",
+        "location": "Thanjavur, Tamil Nadu",
+        "state": "Tamil Nadu",
+        "city": "Thanjavur",
+        "description": "Brihadisvara temple, also called Rajarajesvaram or Peruvudaiyar Koyil, is a Hindu temple dedicated to Shiva located in South bank of Kaveri river in Thanjavur, Tamil Nadu.",
+        "imageUrl": "/images/tn_brihadeeswara.jpg",
+        "category": "Heritage",
+        "rating": 4.9,
+        "bestTime": "Oct-Mar",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 10.7828,
+            "longitude": 79.1318
+        },
+        "detailedInfo": {
+            "introduction": "The Brihadisvara Temple, also called Rajarajesvaram or Peruvudaiyar Koyil, is a Hindu temple dedicated to Shiva located in Thanjavur, Tamil Nadu. It is one of the largest South Indian temples and a pinnacle of Chola architecture.",
+            "keyFacts": [
+                "Location: Thanjavur, Tamil Nadu",
+                "UNESCO: Great Living Chola Temples",
+                "Built by: Raja Raja Chola I (completed 1010 AD)",
+                "Highlights: Massive monolith Nandi, 66m high Vimana"
+            ],
+            "history": "Built by Emperor Raja Raja Chola I to celebrate his reign. The temple turned 1000 years old in 2010. It is built entirely of granite, which was transported from over 60 km away.",
+            "architecture": "The 'Vimana' (temple tower) is 216 ft high and is among the tallest in the world. The 'Kumbam' (apex) is carved out of a single stone weighing about 80 tons.",
+            "significance": "One of the 'Great Living Chola Temples', it is a UNESCO World Heritage site and a testament to the Chola Empire's artistic and engineering prowess.",
+            "visitingInfo": "Open early morning to 9 PM. Photography is allowed in the complex but not in the inner sanctum. Best visited in the cool winter months.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3",
+                "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3"
+            ]
+        }
+    },
+    {
+        "id": "ap_001",
+        "name": "Araku Valley",
+        "location": "Visakhapatnam, Andhra Pradesh",
+        "state": "Andhra Pradesh",
+        "city": "Araku",
+        "description": "Araku Valley is a hill station and valley region in the southeastern Indian state of Andhra Pradesh. It's surrounded by the thick forests of the Eastern Ghats mountain range.",
+        "imageUrl": "/images/ap_araku.jpg",
+        "category": "Hill Stations",
+        "rating": 4.7,
+        "bestTime": "Sep-Mar",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 18.3333,
+            "longitude": 82.8667
+        },
+        "detailedInfo": {
+            "introduction": "Araku Valley is a relatively unexplored hill station mostly visited as a summer getaway. It is located in the Visakhapatnam district of Andhra Pradesh and is famous for its rich biodiversity and coffee history.",
+            "keyFacts": [
+                "Location: Visakhapatnam district, Andhra Pradesh",
+                "Elevation: 911 meters above sea level",
+                "Highlights: Borra Caves, Coffee Museum, Padmapuram Gardens",
+                "Culture: Home to several tribal communities"
+            ],
+            "history": "The valley has been inhabited by indigenous tribes for centuries. In recent decades, it became famous for its organic coffee, cultivated by the local tribals and exported worldwide.",
+            "architecture": "Native architecture is characterized by traditional tribal dwellings. The modern infrastructure includes colonial-style rest houses and the uniquely designed Coffee Museum.",
+            "significance": "Araku is a vital hub for tribal heritage and ecotourism in the Eastern Ghats. It represents the successful integration of traditional farming and modern tourism.",
+            "visitingInfo": "Best time: September to March. The train journey from Visakhapatnam through 58 tunnels is one of the most scenic in India.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1581447109200-bf2769116db4",
+                "https://images.unsplash.com/photo-1581447109200-bf2769116db4"
+            ]
+        }
+    }
+]

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, StatusBa
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const FAQItem = ({ question, answer, theme, styles }) => {
     const [expanded, setExpanded] = React.useState(false);
@@ -27,6 +28,7 @@ const FAQItem = ({ question, answer, theme, styles }) => {
 
 export default function HelpSupportScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const styles = createStyles(theme, isDarkMode);
 
     const contactOptions = [
@@ -80,13 +82,13 @@ export default function HelpSupportScreen({ navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Help & Support</Text>
+                <Text style={styles.headerTitle}>{t('help.title')}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 {/* Contact Section */}
-                <Text style={styles.sectionTitle}>Contact Us</Text>
+                <Text style={styles.sectionTitle}>{t('help.contact_us')}</Text>
                 <View style={styles.contactGrid}>
                     {contactOptions.map((option, index) => (
                         <TouchableOpacity
@@ -105,7 +107,7 @@ export default function HelpSupportScreen({ navigation }) {
                 </View>
 
                 {/* FAQ Section */}
-                <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Frequently Asked Questions</Text>
+                <Text style={[styles.sectionTitle, { marginTop: 32 }]}>{t('help.faq_title')}</Text>
                 <View style={styles.faqContainer}>
                     {faqs.map((faq, index) => (
                         <FAQItem key={index} {...faq} theme={theme} styles={styles} />
@@ -115,7 +117,7 @@ export default function HelpSupportScreen({ navigation }) {
                 {/* Feedback Button */}
                 <TouchableOpacity style={styles.feedbackButton}>
                     <MaterialCommunityIcons name="message-draw" size={24} color="#FFF" />
-                    <Text style={styles.feedbackText}>Send Feedback</Text>
+                    <Text style={styles.feedbackText}>{t('help.send_feedback')}</Text>
                 </TouchableOpacity>
 
                 <View style={{ height: 40 }} />

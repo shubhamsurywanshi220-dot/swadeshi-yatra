@@ -18,6 +18,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'traveler' // 'traveler', 'guide', 'business'
     },
+    phone: {
+        type: String
+    },
+    profilePhoto: {
+        type: String
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -30,7 +36,11 @@ const UserSchema = new mongoose.Schema({
     visitedPlaces: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Place'
-    }]
+    }],
+    isBlocked: {
+        type: Boolean,
+        default: false
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema);

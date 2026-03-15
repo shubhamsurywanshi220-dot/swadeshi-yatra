@@ -5,11 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../utils/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../constants/theme';
+import { useTranslation } from 'react-i18next';
 
 // const BACKEND_URL = 'http://10.0.2.2:5000/api/auth'; // Removed hardcoded URL
 
 
 export default function LoginScreen({ navigation, route }) {
+    const { t } = useTranslation();
     const [isLogin, setIsLogin] = useState(true);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -18,7 +20,7 @@ export default function LoginScreen({ navigation, route }) {
 
     const handleSubmit = async () => {
         if (!email || !password || (!isLogin && !name)) {
-            Alert.alert('Error', 'Please fill all fields');
+            Alert.alert(t('common.error'), t('login.fill_all'));
             return;
         }
 
@@ -31,6 +33,7 @@ export default function LoginScreen({ navigation, route }) {
 
 
             // Save user data to AsyncStorage
+            await AsyncStorage.setItem('@auth_token', response.data.token);
             await AsyncStorage.setItem('@user_id', response.data.userId);
             if (response.data.name) await AsyncStorage.setItem('@user_name', response.data.name);
             await AsyncStorage.setItem('@user_email', email);
@@ -38,8 +41,19 @@ export default function LoginScreen({ navigation, route }) {
             navigation.replace('Home');
 
         } catch (error) {
-            const msg = error.response?.data?.msg || 'Something went wrong';
-            Alert.alert('Error', msg);
+            console.log('[Login] Error:', error);
+            let msg = 'Something went wrong. Please check your connection.';
+
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                msg = error.response.data?.msg || error.response.data || 'Server error';
+            } else if (error.request) {
+                // The request was made but no response was received
+                msg = 'Cannot connect to server. Please check your internet or server IP.';
+            }
+
+            Alert.alert('Error', typeof msg === 'string' ? msg : JSON.stringify(msg));
         } finally {
             setLoading(false);
         }
@@ -57,8 +71,8 @@ export default function LoginScreen({ navigation, route }) {
                         <View style={styles.logoContainer}>
                             <Ionicons name="earth" size={48} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Join Swadeshi Yatra'}</Text>
-                        <Text style={styles.subtitle}>{isLogin ? 'Login to continue' : 'Sign up to explore India'}</Text>
+                        <Text style={styles.title}>{isLogin ? t('login.welcome_back') : t('login.join')}</Text>
+                        <Text style={styles.subtitle}>{isLogin ? t('login.login_continue') : t('login.signup_explore')}</Text>
                     </View>
 
                     {/* Input Fields */}
@@ -67,7 +81,7 @@ export default function LoginScreen({ navigation, route }) {
                             <Ionicons name="person-outline" size={20} color={theme.colors.text.tertiary} style={styles.inputIcon} />
                             <TextInput
                                 style={styles.input}
-                                placeholder="Full Name"
+                                placeholder={t('login.full_name')}
                                 placeholderTextColor={theme.colors.text.tertiary}
                                 value={name}
                                 onChangeText={setName}
@@ -79,7 +93,7 @@ export default function LoginScreen({ navigation, route }) {
                         <Ionicons name="mail-outline" size={20} color={theme.colors.text.tertiary} style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Email Address"
+                            placeholder={t('login.email')}
                             placeholderTextColor={theme.colors.text.tertiary}
                             value={email}
                             onChangeText={setEmail}
@@ -92,7 +106,7 @@ export default function LoginScreen({ navigation, route }) {
                         <Ionicons name="lock-closed-outline" size={20} color={theme.colors.text.tertiary} style={styles.inputIcon} />
                         <TextInput
                             style={styles.input}
-                            placeholder="Password"
+                            placeholder={t('login.password')}
                             placeholderTextColor={theme.colors.text.tertiary}
                             secureTextEntry={true}
                             value={password}
@@ -111,7 +125,7 @@ export default function LoginScreen({ navigation, route }) {
                             <ActivityIndicator color="white" />
                         ) : (
                             <View style={styles.buttonContent}>
-                                <Text style={styles.buttonText}>{isLogin ? 'Login' : 'Sign Up'}</Text>
+                                <Text style={styles.buttonText}>{isLogin ? t('login.login') : t('login.signup')}</Text>
                                 <Ionicons name="arrow-forward" size={20} color="white" />
                             </View>
                         )}
@@ -120,8 +134,8 @@ export default function LoginScreen({ navigation, route }) {
                     {/* Switch Login/Signup */}
                     <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.switchContainer}>
                         <Text style={styles.switchText}>
-                            {isLogin ? "Don't have an account? " : "Already have an account? "}
-                            <Text style={styles.switchTextBold}>{isLogin ? 'Sign Up' : 'Login'}</Text>
+                            {isLogin ? t('login.no_account') : t('login.have_account')}
+                            <Text style={styles.switchTextBold}>{isLogin ? t('login.signup') : t('login.login')}</Text>
                         </Text>
                     </TouchableOpacity>
                 </View>

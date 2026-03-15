@@ -3,12 +3,16 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity, 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import api from '../utils/api';
 import { FavoritesManager } from '../utils/favoritesManager';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { checkConnectivity } from '../utils/network';
+import { Alert } from 'react-native';
 
 export default function DirectoryScreen({ route, navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const { category: initialCategory, search: initialSearch, focusSearch } = route.params || { category: 'destinations' };
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -152,16 +156,23 @@ export default function DirectoryScreen({ route, navigation }) {
         });
 
         return matchesSearch && matchesState && matchesCity && matchesType && matchesSeason;
+    }).sort((a, b) => {
+        const aHasImage = !!(a.imageUrl || (a.images && a.images.length > 0));
+        const bHasImage = !!(b.imageUrl || (b.images && b.images.length > 0));
+
+        if (aHasImage && !bHasImage) return -1;
+        if (!aHasImage && bHasImage) return 1;
+        return 0;
     });
 
     const getTitle = () => {
         switch (initialCategory) {
-            case 'business': return 'Local Businesses';
-            case 'stays': return 'Authentic Stays';
-            case 'transport': return 'Local Transport';
-            case 'hidden-gems': return 'Hidden Gems';
-            case 'crafts': return 'Traditional Crafts';
-            default: return 'Discover India';
+            case 'business': return t('directory.local_businesses', 'Local Businesses');
+            case 'stays': return t('directory.authentic_stays', 'Authentic Stays');
+            case 'transport': return t('directory.local_transport', 'Local Transport');
+            case 'hidden-gems': return t('home.hidden_gems', 'Hidden Gems');
+            case 'crafts': return t('home.trad_crafts', 'Traditional Crafts');
+            default: return t('directory.discover_india', 'Discover India');
         }
     };
 
@@ -180,7 +191,7 @@ export default function DirectoryScreen({ route, navigation }) {
                 {item.isEcoFriendly && (
                     <View style={styles.ecoBadge}>
                         <Ionicons name="leaf" size={14} color="#FFF" />
-                        <Text style={styles.ecoText}>Eco</Text>
+                        <Text style={styles.ecoText}>{t('directory.eco', 'Eco')}</Text>
                     </View>
                 )}
                 {/* Favorite Button */}
@@ -255,7 +266,7 @@ export default function DirectoryScreen({ route, navigation }) {
                 </TouchableOpacity>
                 <View>
                     <Text style={styles.headerTitle}>{getTitle()}</Text>
-                    <Text style={styles.headerSubtitle}>Discover the diverse beauty of India</Text>
+                    <Text style={styles.headerSubtitle}>{t('directory.discover_subtitle', 'Discover the diverse beauty of India')}</Text>
                 </View>
             </View>
 
@@ -265,10 +276,16 @@ export default function DirectoryScreen({ route, navigation }) {
                 <TextInput
                     ref={searchInputRef}
                     style={styles.searchTextInput}
-                    placeholder="Search destinations or cities..."
+                    placeholder={t('directory.search_places', 'Search destinations or cities...')}
                     placeholderTextColor={theme.colors.text.secondary}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
+                    onSubmitEditing={async () => {
+                        const isOnline = await checkConnectivity();
+                        if (!isOnline) {
+                            Alert.alert(t('common.offline'), "Internet connection required to search locations.");
+                        }
+                    }}
                     returnKeyType="search"
                 />
                 {searchQuery.length > 0 && (
@@ -308,7 +325,7 @@ export default function DirectoryScreen({ route, navigation }) {
                             </TouchableOpacity>
                         )}
                         {selectedState === 'All' && selectedCity === 'All' && selectedType === 'All' && selectedSeason === 'All' && (
-                            <Text style={styles.noFiltersText}>All Categories</Text>
+                            <Text style={styles.noFiltersText}>{t('directory.all_categories', 'All Categories')}</Text>
                         )}
                     </ScrollView>
                 </View>
@@ -316,7 +333,7 @@ export default function DirectoryScreen({ route, navigation }) {
                     style={styles.toggleButton}
                     onPress={() => setShowFilters(!showFilters)}
                 >
-                    <Text style={styles.toggleText}>{showFilters ? "Hide" : "Filter"}</Text>
+                    <Text style={styles.toggleText}>{showFilters ? t('directory.hide', 'Hide') : t('directory.filter', 'Filter')}</Text>
                     <Ionicons
                         name={showFilters ? "chevron-up" : "chevron-down"}
                         size={18}
@@ -329,7 +346,7 @@ export default function DirectoryScreen({ route, navigation }) {
                 <View style={styles.filtersContainer}>
                     {/* B. State/UT Filter */}
                     <View style={styles.filterRow}>
-                        <Text style={styles.filterLabel}>State/UT</Text>
+                        <Text style={styles.filterLabel}>{t('directory.state_ut', 'State/UT')}</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
                             {allStates.map(state => (
                                 <FilterChip
@@ -349,7 +366,7 @@ export default function DirectoryScreen({ route, navigation }) {
                     {/* C. City Filter */}
                     {selectedState !== 'All' && (
                         <View style={styles.filterRow}>
-                            <Text style={styles.filterLabel}>City</Text>
+                            <Text style={styles.filterLabel}>{t('directory.city', 'City')}</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
                                 {availableCities.map(city => (
                                     <FilterChip
@@ -368,7 +385,7 @@ export default function DirectoryScreen({ route, navigation }) {
 
                     {/* D. Category Filters */}
                     <View style={styles.filterRow}>
-                        <Text style={styles.filterLabel}>Type</Text>
+                        <Text style={styles.filterLabel}>{t('directory.type', 'Type')}</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
                             {allTypes.map(type => (
                                 <FilterChip
@@ -386,7 +403,7 @@ export default function DirectoryScreen({ route, navigation }) {
 
                     {/* E. Season Filters */}
                     <View style={styles.filterRow}>
-                        <Text style={styles.filterLabel}>Season</Text>
+                        <Text style={styles.filterLabel}>{t('directory.season', 'Season')}</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollChips}>
                             {allSeasons.map(season => (
                                 <FilterChip
@@ -413,10 +430,10 @@ export default function DirectoryScreen({ route, navigation }) {
                     <MaterialCommunityIcons name="map-marker-off" size={64} color={theme.colors.text.tertiary} />
                     <Text style={styles.emptyText}>
                         {(initialCategory === 'transport')
-                            ? "Coming Soon!"
-                            : "No matches found."}
+                            ? t('directory.coming_soon', 'Coming Soon!')
+                            : t('directory.no_matches', 'No matches found.')}
                     </Text>
-                    <Text style={styles.emptySubtext}>Try adjusting your filters.</Text>
+                    <Text style={styles.emptySubtext}>{t('directory.try_filters', 'Try adjusting your filters.')}</Text>
                 </View>
             ) : (
                 <FlatList

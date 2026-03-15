@@ -1,16 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Linking, Alert, Dimensions, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking, Alert, Dimensions, ActivityIndicator, StatusBar, Platform, Animated } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
 import { FavoritesManager } from '../utils/favoritesManager';
+import { checkConnectivity } from '../utils/network';
 import ReviewModal from '../components/ReviewModal';
 import ReviewCard from '../components/ReviewCard';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const { width } = Dimensions.get('window');
+
+// ── Animated Entry Fee card ──────────────────────────────────────────────────
+function EntryFeeCard({ entryFee, theme, onPress }) {
+    const scale = useRef(new Animated.Value(1)).current;
+
+    const handlePressIn = () =>
+        Animated.spring(scale, { toValue: 0.93, useNativeDriver: true, speed: 30 }).start();
+
+    const handlePressOut = () =>
+        Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 20 }).start();
+
+    return (
+        <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={0.85}
+            onPress={onPress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+        >
+            <Animated.View
+                style={[
+                    {
+                        flex: 1,
+                        backgroundColor: theme.colors.surface,
+                        padding: 16,
+                        borderRadius: 12,
+                        borderWidth: 1.5,
+                        borderColor: theme.colors.primary,
+                        alignItems: 'center',
+                        transform: [{ scale }],
+                    }
+                ]}
+            >
+                <MaterialCommunityIcons name="ticket-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
+                <Text style={{ fontSize: 11, color: theme.colors.text.secondary, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Entry Fee</Text>
+                <Text style={{ fontSize: 14, fontWeight: 'bold', color: theme.colors.text.primary, textAlign: 'center' }}>{entryFee}</Text>
+                <Text style={{ fontSize: 10, color: theme.colors.primary, marginTop: 5, fontWeight: '600' }}>Tap to Book Ticket</Text>
+            </Animated.View>
+        </TouchableOpacity>
+    );
+}
+// ────────────────────────────────────────────────────────────────────────────
 
 export default function PlaceDetailsScreen({ route, navigation }) {
     const { theme, isDarkMode } = useTheme();
@@ -24,23 +69,94 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [userData, setUserData] = useState({ id: null, name: 'Traveler' });
+    const [loadingDirections, setLoadingDirections] = useState(false);
+    const [userLocation, setUserLocation] = useState(null);
+    const [locationError, setLocationError] = useState(null);
+    const mapRef = useRef(null);
+    const directionScale = useRef(new Animated.Value(1)).current;
+
+    // Destination coordinates
+    const destLat = place.coordinates?.latitude;
+    const destLng = place.coordinates?.longitude;
+    const hasDestCoords = destLat != null && destLng != null;
 
     // Fallback data
     const bestTime = place.bestTime || "Oct to Mar";
     const entryFee = place.entryFee || "₹35 (Ind), ₹500 (For)";
     const tag = place.category || "Heritage";
+    const isDestination = !['Artisan', 'Guide', 'Hotel', 'Restaurant', 'Shop', 'Transport'].includes(place.category);
 
     useEffect(() => {
         loadUserData();
         fetchReviews();
         checkIfFavorite();
+        fetchUserLocation();
     }, [place]);
+
 
     const loadUserData = async () => {
         const id = await AsyncStorage.getItem('@user_id');
         const name = await AsyncStorage.getItem('@user_name');
         if (id) {
             setUserData({ id, name: name || 'Traveler' });
+        }
+    };
+
+    // ── Fetch user location with high accuracy ───────────────────────────────
+    const fetchUserLocation = async () => {
+        try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setLocationError('Location permission denied. Please enable it in Settings.');
+                return;
+            }
+
+            // Check if location services are enabled on the device
+            const enabled = await Location.hasServicesEnabledAsync();
+            if (!enabled) {
+                setLocationError('Please enable location services to get accurate directions.');
+                Alert.alert(
+                    'Location Disabled',
+                    'Please enable location services to get accurate directions.',
+                    [{ text: 'OK' }]
+                );
+                return;
+            }
+
+            const loc = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+            });
+
+            // Check accuracy – if > 100 m, warn user
+            if (loc.coords.accuracy && loc.coords.accuracy > 100) {
+                Alert.alert(
+                    'Low Accuracy',
+                    'Your location accuracy is low. Please enable High Accuracy Location Mode in your device settings for better results.',
+                    [{ text: 'OK' }]
+                );
+            }
+
+            setUserLocation({
+                latitude: loc.coords.latitude,
+                longitude: loc.coords.longitude,
+            });
+            setLocationError(null);
+
+            // Fit map to show both markers
+            if (hasDestCoords && mapRef.current) {
+                setTimeout(() => {
+                    mapRef.current?.fitToCoordinates(
+                        [
+                            { latitude: loc.coords.latitude, longitude: loc.coords.longitude },
+                            { latitude: destLat, longitude: destLng },
+                        ],
+                        { edgePadding: { top: 60, right: 60, bottom: 60, left: 60 }, animated: true }
+                    );
+                }, 500);
+            }
+        } catch (err) {
+            console.error('Location error:', err);
+            setLocationError('Could not get your location. Please try again.');
         }
     };
 
@@ -75,6 +191,7 @@ export default function PlaceDetailsScreen({ route, navigation }) {
         }
     };
 
+
     const toggleFavorite = async () => {
         try {
             if (isFavorite) {
@@ -93,22 +210,71 @@ export default function PlaceDetailsScreen({ route, navigation }) {
 
 
 
-    const openMaps = () => {
-        const query = place.coordinates?.latitude && place.coordinates?.longitude
-            ? `${place.coordinates.latitude},${place.coordinates.longitude}`
-            : `${place.name} ${place.location}`;
+    const openMaps = async () => {
+        const isOnline = await checkConnectivity();
+        if (!isOnline) {
+            Alert.alert('Offline', 'Please connect to the internet to use maps and navigation.');
+            return;
+        }
 
-        const url = Platform.select({
-            android: `geo:0,0?q=${encodeURIComponent(query)}`,
-            ios: `maps:0,0?q=${encodeURIComponent(query)}`,
-            default: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
-        });
+        // Check if location services are enabled
+        const enabled = await Location.hasServicesEnabledAsync();
+        if (!enabled) {
+            Alert.alert(
+                'Location Disabled',
+                'Please enable location services to get accurate directions.',
+                [{ text: 'OK' }]
+            );
+            return;
+        }
 
-        Linking.openURL(url).catch(err => {
+        // Show loading indicator for 1 second
+        setLoadingDirections(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoadingDirections(false);
+
+        // Always prefer coordinates
+        if (!hasDestCoords) {
+            // Fallback to place name search
+            const destination = `${place.name} ${place.location}`;
+            const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving`;
+            Linking.openURL(browserUrl).catch(err => {
+                console.error('Error opening maps:', err);
+                Alert.alert('Error', 'Could not open Google Maps. Please install it or try again.');
+            });
+            return;
+        }
+
+        if (Platform.OS === 'android') {
+            // Try Google Maps navigation intent first (uses lat,lng)
+            const gmapsNavUri = `google.navigation:q=${destLat},${destLng}`;
+            const canOpen = await Linking.canOpenURL(gmapsNavUri);
+            if (canOpen) {
+                Linking.openURL(gmapsNavUri);
+                return;
+            }
+        } else if (Platform.OS === 'ios') {
+            const appleMapsUrl = `maps://?daddr=${destLat},${destLng}&dirflg=d`;
+            const canOpen = await Linking.canOpenURL(appleMapsUrl);
+            if (canOpen) {
+                Linking.openURL(appleMapsUrl);
+                return;
+            }
+        }
+
+        // Fallback: open Google Maps in browser with exact coordinates
+        const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving`;
+        Linking.openURL(browserUrl).catch(err => {
             console.error('Error opening maps:', err);
-            Alert.alert("Error", "Could not open a Map application. Please install Google Maps.");
+            Alert.alert('Error', 'Could not open Google Maps. Please install it or try again.');
         });
     };
+
+    const handleDirectionPressIn = () =>
+        Animated.spring(directionScale, { toValue: 0.93, useNativeDriver: true, speed: 30 }).start();
+
+    const handleDirectionPressOut = () =>
+        Animated.spring(directionScale, { toValue: 1, useNativeDriver: true, speed: 20 }).start();
 
     const handleCall = () => {
         if (place.contactInfo?.phone) {
@@ -126,7 +292,12 @@ export default function PlaceDetailsScreen({ route, navigation }) {
         }
     };
 
-    const handleWebsite = () => {
+    const handleWebsite = async () => {
+        const isOnline = await checkConnectivity();
+        if (!isOnline) {
+            Alert.alert(t('common.offline'), "Please connect to the internet to open this page.");
+            return;
+        }
         if (place.contactInfo?.website) {
             Linking.openURL(place.contactInfo.website);
         } else {
@@ -134,7 +305,12 @@ export default function PlaceDetailsScreen({ route, navigation }) {
         }
     };
 
-    const searchNearby = (queryType) => {
+    const searchNearby = async (queryType) => {
+        const isOnline = await checkConnectivity();
+        if (!isOnline) {
+            Alert.alert(t('common.offline'), "Internet connection required to search locations.");
+            return;
+        }
         const query = `${queryType} near ${place.name} ${place.location}`;
 
         const url = Platform.select({
@@ -159,13 +335,15 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                     <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
                         <Ionicons name="close" size={24} color="#FFF" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.favoriteButton} onPress={toggleFavorite}>
-                        <Ionicons
-                            name={isFavorite ? "heart" : "heart-outline"}
-                            size={24}
-                            color={isFavorite ? theme.colors.error : "#FFF"}
-                        />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 12 }}>
+                        <TouchableOpacity style={styles.favoriteButton} onPress={toggleFavorite}>
+                            <Ionicons
+                                name={isFavorite ? "heart" : "heart-outline"}
+                                size={24}
+                                color={isFavorite ? theme.colors.error : "#FFF"}
+                            />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Hero Image */}
@@ -191,34 +369,49 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                     </View>
 
                     {/* Rating Display */}
-                    {place.averageRating > 0 && (
+                    {(place.averageRating > 0 || place.rating > 0) && (
                         <View style={styles.ratingContainer}>
                             <Ionicons name="star" size={18} color={isDarkMode ? '#FFD700' : theme.colors.accent} />
                             <Text style={styles.ratingText}>
-                                {place.averageRating.toFixed(1)} ({place.reviewCount} {place.reviewCount === 1 ? 'review' : 'reviews'})
+                                {((place.averageRating || place.rating)).toFixed(1)} {place.reviewCount > 0 ? `(${place.reviewCount} ${place.reviewCount === 1 ? 'review' : 'reviews'})` : ''}
                             </Text>
                         </View>
                     )}
 
-                    {/* Info Grid (Season & Price) */}
-                    <View style={styles.infoGrid}>
-                        <View style={styles.infoCard}>
-                            <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
-                            <Text style={styles.infoLabel}>Best Time to Visit</Text>
-                            <Text style={styles.infoValue}>{bestTime}</Text>
+                    {/* Info Grid (Season & Price) - ONLY for Destinations */}
+                    {isDestination && (
+                        <View style={styles.infoGrid}>
+                            <View style={styles.infoCard}>
+                                <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
+                                <Text style={styles.infoLabel}>Best Time to Visit</Text>
+                                <Text style={styles.infoValue}>{bestTime}</Text>
+                            </View>
+                            <EntryFeeCard
+                                entryFee={entryFee}
+                                theme={theme}
+                                onPress={() => navigation.navigate('Booking', { placeId: place._id || place.id, placeName: place.name, entryFee: place.entryFee })}
+                            />
                         </View>
-                        <View style={styles.infoCard}>
-                            <MaterialCommunityIcons name="ticket-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
-                            <Text style={styles.infoLabel}>Entry Fee</Text>
-                            <Text style={styles.infoValue}>{entryFee}</Text>
+                    )}
+
+                    {/* Category specific layout for businesses if not already covered */}
+                    {!isDestination && (
+                        <View style={{ marginBottom: 16 }}>
+                             {/* Category and Rating are already shown above or handled by tagBadge */}
                         </View>
-                    </View>
+                    )}
 
                     {/* About Section */}
-                    <Text style={styles.sectionHeader}>About</Text>
-                    <Text style={styles.description}>
+                    <View style={styles.sectionHeaderRow}>
+                        <Text style={styles.sectionHeader}>About</Text>
+                        {isDestination && (
+                            <TouchableOpacity onPress={() => navigation.navigate('DestinationAbout', { place })}>
+                                <Text style={styles.readMoreText}>Read More</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                    <Text style={styles.description} numberOfLines={isDestination ? 3 : 0}>
                         {place.description}
-                        {place.description.length < 50 ? " This is a placeholder description to match the rich text look of the mockups provided. It adds context and details about the historical significance." : ""}
                     </Text>
 
                     {/* Contact Info */}
@@ -248,13 +441,90 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                         </>
                     )}
 
+
+
+                    {/* ── Map Section ─────────────────────────────────── */}
+                    {hasDestCoords && (
+                        <View style={styles.mapSection}>
+                            <Text style={styles.sectionHeader}>Location on Map</Text>
+                            <View style={styles.mapContainer}>
+                                <MapView
+                                    ref={mapRef}
+                                    style={styles.map}
+                                    initialRegion={{
+                                        latitude: destLat,
+                                        longitude: destLng,
+                                        latitudeDelta: 0.01,
+                                        longitudeDelta: 0.01,
+                                    }}
+                                    showsUserLocation={false}
+                                    showsMyLocationButton={false}
+                                >
+                                    {/* Destination Marker */}
+                                    <Marker
+                                        coordinate={{ latitude: destLat, longitude: destLng }}
+                                        title={place.name}
+                                        description={place.location}
+                                        pinColor="#E53935"
+                                    />
+                                    {/* User Location Marker */}
+                                    {userLocation && (
+                                        <Marker
+                                            coordinate={userLocation}
+                                            title="You are here"
+                                            description="Your current location"
+                                            pinColor="#1E88E5"
+                                        />
+                                    )}
+                                </MapView>
+                            </View>
+                            {locationError && (
+                                <View style={styles.locationErrorBanner}>
+                                    <Ionicons name="warning" size={16} color="#FF6F00" />
+                                    <Text style={styles.locationErrorText}>{locationError}</Text>
+                                </View>
+                            )}
+                        </View>
+                    )}
+
                     {/* Get Directions */}
                     <View style={{ marginBottom: 24 }}>
-                        <TouchableOpacity style={styles.directionButton} onPress={openMaps}>
-                            <Ionicons name="navigate" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                            <Text style={styles.directionButtonText}>Directions</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.85}
+                            onPress={openMaps}
+                            onPressIn={handleDirectionPressIn}
+                            onPressOut={handleDirectionPressOut}
+                            disabled={loadingDirections}
+                        >
+                            <Animated.View style={[styles.directionButton, { transform: [{ scale: directionScale }] }]}>
+                                {loadingDirections ? (
+                                    <ActivityIndicator size="small" color="#FFF" style={{ marginRight: 8 }} />
+                                ) : (
+                                    <Ionicons name="navigate" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                                )}
+                                <Text style={styles.directionButtonText}>
+                                    {loadingDirections ? 'Opening Maps...' : 'Directions'}
+                                </Text>
+                            </Animated.View>
                         </TouchableOpacity>
                     </View>
+
+                    {/* Cultural Vault Entry */}
+                    {isDestination && (
+                        <TouchableOpacity
+                            style={styles.cultureBanner}
+                            onPress={() => navigation.navigate('Culture', { placeId: place._id || place.id, placeName: place.name })}
+                        >
+                            <View style={styles.cultureBannerIcon}>
+                                <MaterialCommunityIcons name="feather" size={24} color="#FFF" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.cultureBannerTitle}>Cultural Vault</Text>
+                                <Text style={styles.cultureBannerText}>Discover myths, stories & folklore</Text>
+                            </View>
+                            <Ionicons name="sparkles" size={20} color={isDarkMode ? '#FFD700' : theme.colors.accent} />
+                        </TouchableOpacity>
+                    )}
 
                     {/* Explore Surroundings - Deep Links for EVERY Place */}
                     <View style={styles.exploreNearbySection}>
@@ -466,12 +736,16 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         textAlign: 'center',
     },
 
-    sectionHeader: {
-        fontSize: 18,
+    sectionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    readMoreText: {
+        color: theme.colors.primary,
         fontWeight: 'bold',
-        color: theme.colors.text.primary,
-        marginBottom: 12,
-        marginTop: 8,
+        fontSize: 14,
     },
     description: {
         fontSize: 15,
@@ -519,6 +793,38 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
+
+    // Map styles
+    mapSection: {
+        marginBottom: 24,
+    },
+    mapContainer: {
+        height: 220,
+        borderRadius: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        ...theme.shadows.soft,
+    },
+    map: {
+        width: '100%',
+        height: '100%',
+    },
+    locationErrorBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: isDarkMode ? '#3E2723' : '#FFF3E0',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 8,
+        gap: 8,
+    },
+    locationErrorText: {
+        color: isDarkMode ? '#FFB74D' : '#E65100',
+        fontSize: 12,
+        flex: 1,
+    },
+
 
     // Explore Nearby
     exploreNearbySection: {
@@ -596,6 +902,34 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         fontSize: 14,
         color: theme.colors.text.tertiary,
         marginTop: 4,
+    },
+    cultureBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundLinearGradient: ['#4A148C', '#7B1FA2'], // Note: using solid for now if gradient not installed
+        backgroundColor: isDarkMode ? '#2D004D' : '#4A148C',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 24,
+        ...theme.shadows.elevated,
+    },
+    cultureBannerIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
+    },
+    cultureBannerTitle: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    cultureBannerText: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 12,
     },
 });
 

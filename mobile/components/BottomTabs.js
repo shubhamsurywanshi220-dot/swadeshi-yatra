@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const TabItem = ({ tab, isActive, onPress, theme }) => {
     const scaleAnim = React.useRef(new Animated.Value(isActive ? 1.15 : 1)).current;
@@ -45,11 +46,12 @@ const TabItem = ({ tab, isActive, onPress, theme }) => {
 
 export default function BottomTabs({ currentScreen, navigate }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const tabs = [
-        { key: 'Home', label: 'Home', iconName: 'home', iconLibrary: 'Ionicons' },
-        { key: 'Explore', label: 'Explore', iconName: 'earth', iconLibrary: 'Ionicons', params: { category: 'destinations' } },
+        { key: 'Home', label: t('common.home', 'Home'), iconName: 'home', iconLibrary: 'Ionicons' },
+        { key: 'Explore', label: t('common.explore', 'Explore'), iconName: 'earth', iconLibrary: 'Ionicons', params: { category: 'destinations' } },
         { key: 'SOS', label: 'SOS', iconName: 'alert-circle', iconLibrary: 'MaterialCommunityIcons' },
-        { key: 'Profile', label: 'Profile', iconName: 'person', iconLibrary: 'Ionicons' },
+        { key: 'Profile', label: t('common.profile', 'Profile'), iconName: 'person', iconLibrary: 'Ionicons' },
     ];
 
     const styles = createStyles(theme, isDarkMode);

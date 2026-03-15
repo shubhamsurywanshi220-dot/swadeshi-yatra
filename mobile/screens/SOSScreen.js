@@ -5,18 +5,67 @@ import * as Location from 'expo-location';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import api from '../utils/api';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
+import { checkConnectivity } from '../utils/network';
 
 export default function SOSScreen() {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const styles = createStyles(theme, isDarkMode);
+
+    React.useEffect(() => {
+        return () => stopTracking();
+    }, []);
 
     const [loading, setLoading] = useState(false);
     const [sosStatus, setSosStatus] = useState('idle'); // idle, sending, sent
+    const [activeSOSId, setActiveSOSId] = useState(null);
+    const [locationSubscription, setLocationSubscription] = useState(null);
+
+    const stopTracking = () => {
+        if (locationSubscription) {
+            locationSubscription.remove();
+            setLocationSubscription(null);
+        }
+    };
 
     const handleSOS = async () => {
+        if (sosStatus === 'sent') {
+            // Option to resolve or stop tracking
+            Alert.alert(
+                t('sos.resolve_title'),
+                t('sos.resolve_msg'),
+                [
+                    { text: t('common.cancel'), style: 'cancel' },
+                    {
+                        text: t('sos.yes_safe'),
+                        onPress: async () => {
+                            try {
+                                if (activeSOSId) await api.put(`/sos/resolve/${activeSOSId}`);
+                                stopTracking();
+                                setSosStatus('idle');
+                                setActiveSOSId(null);
+                            } catch (err) {
+                                Alert.alert(t('common.error'), 'Failed to resolve SOS alert.');
+                            }
+                        }
+                    }
+                ]
+            );
+            return;
+        }
+
         setLoading(true);
         try {
-            // 1. Get Location
+            // 0. Check Connectivity
+            const isOnline = await checkConnectivity();
+            if (!isOnline) {
+                Alert.alert(t('common.offline'), "Internet connection required to send emergency alerts or location.");
+                setLoading(false);
+                return;
+            }
+
+            // 1. Get Location Permissions
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission Denied', 'Location permission is required for SOS.');
@@ -24,29 +73,53 @@ export default function SOSScreen() {
                 return;
             }
 
-            let location = await Location.getCurrentPositionAsync({});
+            // 2. Get Initial Position
+            let location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+            });
 
-            // 2. Send Alert to Backend
+            // 3. Start SOS on Backend
             const payload = {
-                userId: 'user_dynamic_placeholder',
                 latitude: location.coords.latitude,
-                longitude: location.coords.longitude
+                longitude: location.coords.longitude,
+                message: "Urgent SOS! I need help.",
+                emergencyContact: {
+                    name: "Emergency Contacts",
+                    phone: "911" // In real app, fetch from user profile
+                }
             };
 
-            console.log("Sending SOS:", payload);
-
-            try {
-                await api.post('/sos/alert', payload);
-            } catch (err) {
-                console.warn("Backend connect failed, showing success for demo:", err.message);
-            }
-
+            const response = await api.post('/sos/alert', payload);
+            const sosId = response.data._id;
+            setActiveSOSId(sosId);
             setSosStatus('sent');
-            Alert.alert('SOS Sent!', 'Emergency contacts and authorities have been notified with your live location.');
+
+            // 4. Start Live Tracking
+            const subscription = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.High,
+                    distanceInterval: 10, // Update every 10 meters
+                    timeInterval: 5000,    // Or every 5 seconds
+                },
+                async (newLocation) => {
+                    try {
+                        await api.put(`/sos/update/${sosId}`, {
+                            latitude: newLocation.coords.latitude,
+                            longitude: newLocation.coords.longitude
+                        });
+                        console.log("Live SOS Update sent");
+                    } catch (err) {
+                        console.warn("Tracking update failed", err.message);
+                    }
+                }
+            );
+            setLocationSubscription(subscription);
+
+            Alert.alert(t('sos.sos_sent'), t('sos.sent_alert'));
 
         } catch (error) {
             console.error(error);
-            Alert.alert('Error', 'Failed to retrieve location or send alert.');
+            Alert.alert('Error', error.response?.data?.msg || 'Failed to retrieve location or send alert.');
         } finally {
             setLoading(false);
         }
@@ -59,9 +132,9 @@ export default function SOSScreen() {
             <View style={styles.content}>
                 <View style={styles.header}>
                     <MaterialCommunityIcons name="alert-octagon" size={80} color={theme.colors.error} />
-                    <Text style={styles.title}>EMERGENCY SOS</Text>
+                    <Text style={styles.title}>{t('sos.title')}</Text>
                     <Text style={styles.desc}>
-                        Pressing the button below will share your live location with emergency services and listed contacts.
+                        {t('sos.description')}
                     </Text>
                 </View>
 
@@ -76,12 +149,12 @@ export default function SOSScreen() {
                     ) : sosStatus === 'sent' ? (
                         <View style={styles.buttonContent}>
                             <Ionicons name="checkmark-circle" size={56} color="white" />
-                            <Text style={styles.buttonText}>SOS SENT</Text>
+                            <Text style={styles.buttonText}>{t('sos.sos_sent')}</Text>
                         </View>
                     ) : (
                         <View style={styles.buttonContent}>
                             <MaterialCommunityIcons name="alert-circle" size={56} color="white" />
-                            <Text style={styles.buttonText}>PRESS FOR HELP</Text>
+                            <Text style={styles.buttonText}>{t('sos.press_help')}</Text>
                         </View>
                     )}
                 </TouchableOpacity>
@@ -89,7 +162,7 @@ export default function SOSScreen() {
                 {sosStatus === 'sent' && (
                     <View style={styles.statusContainer}>
                         <Ionicons name="location" size={24} color={theme.colors.success} />
-                        <Text style={styles.statusText}>Help is on the way. Keep your GPS enabled.</Text>
+                        <Text style={styles.statusText}>{t('sos.help_on_way')}</Text>
                     </View>
                 )}
             </View>

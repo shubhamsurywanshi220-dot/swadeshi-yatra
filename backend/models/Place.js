@@ -10,7 +10,7 @@ const PlaceSchema = new mongoose.Schema({
         required: true
     },
     location: {
-        type: String, // City, State
+        type: String, // City, State0
         required: true
     },
     type: {
@@ -66,6 +66,15 @@ const PlaceSchema = new mongoose.Schema({
     coordinates: {
         latitude: Number,
         longitude: Number
+    },
+    detailedInfo: {
+        introduction: String,
+        keyFacts: [String],
+        history: String,
+        architecture: String,
+        significance: String,
+        visitingInfo: String,
+        additionalImages: [String]
     }
 });
 

@@ -1,0 +1,274 @@
+[
+    {
+        "id": "rj_001",
+        "name": "Amber Fort",
+        "location": "Amer, Jaipur, Rajasthan",
+        "state": "Rajasthan",
+        "city": "Jaipur",
+        "description": "Amber Fort is a majestic fortress-palace located on a hill in Amer, near Jaipur. Built from yellow and pink sandstone and white marble, it is a stunning example of Rajput architecture.",
+        "imageUrl": "/images/rj_amber_fort.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹550",
+        "coordinates": {
+            "latitude": 26.9855,
+            "longitude": 75.8513
+        },
+        "detailedInfo": {
+            "introduction": "Amber Fort is a majestic fortress-palace located on a hill in Amer, near Jaipur. Built from yellow and pink sandstone and white marble, it is a stunning example of Rajput architecture and is one of the most visited forts in India.",
+            "keyFacts": [
+                "Location: Amer, 11 km from Jaipur, Rajasthan",
+                "History: Built by Raja Man Singh I in 1592; expanded by Jai Singh I",
+                "UNESCO: Part of Hill Forts of Rajasthan (2013)",
+                "Highlights: Sheesh Mahal (Mirror Palace), Ganesh Pol, Maota Lake"
+            ],
+            "history": "The settlement at Amer was founded by the Chanda clan of Meenas. The fort as it stands today was built over the remains of an earlier structure during the reign of Raja Man Singh I, the Kachwaha King of Amber.",
+            "architecture": "The fort is divided into four main sections, each with its own courtyard. The architecture is a fusion of Hindu and Mughal styles, featuring intricate carvings, expansive courtyards, and beautiful frescoes.",
+            "significance": "Amber Fort represents the military might and artistic sophistication of the Kachwaha Rajputs. It remains a symbol of Rajasthani pride and a key center for traditional crafts and tourism.",
+            "visitingInfo": "Best time: October to March. 11 km from Jaipur city center; accessible by jeep, elephant, or on foot.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1590050752117-23849ff3efaa",
+                "https://images.unsplash.com/photo-1601956501308-41793739a852"
+            ]
+        }
+    },
+    {
+        "id": "up_001",
+        "name": "Taj Mahal",
+        "location": "Agra, Uttar Pradesh",
+        "state": "Uttar Pradesh",
+        "city": "Agra",
+        "description": "The Taj Mahal is an ivory-white marble mausoleum on the right bank of the river Yamuna. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife, Mumtaz Mahal.",
+        "imageUrl": "/images/up_taj_mahal.jpg",
+        "category": "Heritage",
+        "rating": 4.9,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹50",
+        "coordinates": {
+            "latitude": 27.1751,
+            "longitude": 78.0421
+        },
+        "detailedInfo": {
+            "introduction": "The Taj Mahal is an ivory-white marble mausoleum on the south bank of the Yamuna river. It was commissioned in 1632 by the Mughal emperor Shah Jahan to house the tomb of his favorite wife.",
+            "keyFacts": [
+                "Location: Agra, Uttar Pradesh",
+                "History: Built between 1632 and 1653 by Emperor Shah Jahan",
+                "UNESCO: World Heritage Site since 1983",
+                "Highlights: Central dome, four minarets, Charbagh garden"
+            ],
+            "history": "Shah Jahan, mourning the death of Mumtaz Mahal during childbirth, envisioned a monument that would reflect paradise. It took over 20,000 artisans and 22 years to complete.",
+            "architecture": "The Taj Mahal is the ultimate achievement of Mughal architecture, blending Islamic, Persian, and Indian styles. It is built entirely of translucent white marble.",
+            "significance": "As a 'teardrop on the cheek of eternity', the Taj Mahal is a global icon of India. It represents the height of the Mughal Empire's power.",
+            "visitingInfo": "Best time: October to March; sunrise and sunset are the most magical. Well-connected by the Yamuna Expressway.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1564507592333-c60657ece523",
+                "https://images.unsplash.com/photo-1548013146-72479768bbaa"
+            ]
+        }
+    },
+    {
+        "id": "pb_001",
+        "name": "Golden Temple",
+        "location": "Amritsar, Punjab",
+        "state": "Punjab",
+        "city": "Amritsar",
+        "description": "The holiest Gurdwara of Sikhism, known for its stunning golden architecture and communal kitchen.",
+        "imageUrl": "/images/pb_golden_temple.jpg",
+        "category": "Religious",
+        "rating": 5.0,
+        "bestTime": "Oct-Mar",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 31.6200,
+            "longitude": 74.8765
+        },
+        "detailedInfo": {
+            "introduction": "Sri Harmandir Sahib, also known as the Golden Temple, is the spiritual and cultural center of the Sikh religion and a symbol of human brotherhood and equality.",
+            "keyFacts": [
+                "Location: Amritsar, Punjab",
+                "History: Founded in 1577 by Guru Ram Das",
+                "Highlights: Golden dome, Amrit Sarovar (holy tank), Langar Hall",
+                "Significance: Holiest shrine in Sikhism"
+            ],
+            "history": "The temple's foundation was laid by a Muslim Sufi saint, Sai Mian Mir, in 1589. It has been destroyed several times by Afghan invaders and rebuilt, with Maharaja Ranjit Singh covering the upper floors in gold in 1830.",
+            "architecture": "A unique blend of Hindu and Islamic influences. The temple is built on a lower level than the surrounding land, signifying humility, with four entrances symbolising that it's open to people of all religions.",
+            "significance": "The Golden Temple embodies the Sikh philosophy of seva (service) and equality. The Langar (community kitchen) serves free meals to over 100,000 people daily, regardless of their background.",
+            "visitingInfo": "Best time: Open 24/7. All visitors must cover their heads and remove shoes. Sunrise and night illumination are particularly beautiful.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1514222134-b57cbb8ce073",
+                "https://images.unsplash.com/photo-1514222134-b57cbb8ce073"
+            ]
+        }
+    },
+    {
+        "id": "ga_001",
+        "name": "Aguada Fort",
+        "location": "Candolim, Goa",
+        "state": "Goa",
+        "city": "North Goa",
+        "description": "A well-preserved 17th-century Portuguese fort standing on Sinquerim Beach, overlooking the Arabian Sea.",
+        "imageUrl": "/images/goa_fort_aguada.jpg",
+        "category": "Heritage",
+        "rating": 4.6,
+        "bestTime": "Nov-Feb",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 15.4920,
+            "longitude": 73.7737
+        },
+        "detailedInfo": {
+            "introduction": "Fort Aguada is a 17th-century Portuguese fort standing in Goa, India, on Sinquerim Beach. It was a strategic defense point against the Dutch and Marathas.",
+            "keyFacts": [
+                "Location: Candolim, North Goa",
+                "History: Built in 1612 to guard the entry into River Mandovi",
+                "Highlights: Ancient lighthouse, massive water reservoir",
+                "Origin: Named after the freshwater spring within it (Agua means water)"
+            ],
+            "history": "Built as a crucial defense for the Portuguese cargo ships coming from Europe. It had a capacity to store 2,376,000 gallons of water, one of the largest freshwater storages in Asia at the time.",
+            "architecture": "Standard Portuguese military architecture using laterite stone. It features dry moats and high walls. The four-story lighthouse is the oldest of its kind in Asia.",
+            "significance": "It represents the naval might and longevity of the Portuguese presence in India. Today, it's one of Goa's most photographed landmarks.",
+            "visitingInfo": "Best time: Winter months. It's a short drive from Panaji or Calangute. Arrive early or late for the best views and cooler weather.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1512753360424-aa6464500ae1",
+                "https://images.unsplash.com/photo-1512753360424-aa6464500ae1"
+            ]
+        }
+    },
+    {
+        "id": "dl_001",
+        "name": "Qutub Minar",
+        "location": "Mehrauli, Delhi",
+        "state": "Delhi",
+        "city": "New Delhi",
+        "description": "The Qutub Minar is a minaret and 'victory tower' that forms part of the Qutub complex, a UNESCO World Heritage Site in the Mehrauli area of Delhi, India.",
+        "imageUrl": "/images/dl_qutub_minar.jpg",
+        "category": "Heritage",
+        "rating": 4.8,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹35",
+        "coordinates": {
+            "latitude": 28.5244,
+            "longitude": 77.1855
+        },
+        "detailedInfo": {
+            "introduction": "The Qutub Minar is a 73-meter-high tapering tower built of red sandstone and marble. It is a UNESCO World Heritage Site and one of the finest examples of Indo-Islamic architecture.",
+            "keyFacts": [
+                "Location: Mehrauli, New Delhi",
+                "History: Construction started in 1192 by Qutb-ud-din Aibak",
+                "UNESCO: World Heritage Site since 1993",
+                "Highlights: Quwwat-ul-Islam Mosque, Iron Pillar"
+            ],
+            "history": "Qutb-ud-din Aibak started the construction of the first story. His successor, Iltutmish, added three more stories, and Firoz Shah Tughlaq added the final story.",
+            "architecture": "The Minar features five distinct stories. The first three are made of red sandstone, while the fourth and fifth are of marble and sandstone. It is decorated with calligraphic inscriptions.",
+            "significance": "The Qutub Minar is a symbol of the dawn of Muslim rule in North India. It represents a synthesis of Persian and traditional Indian craftsmanship.",
+            "visitingInfo": "Best time: October to March. Easily accessible via Qutub Minar Metro Station.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1599341604085-0210e74b94ea",
+                "https://images.unsplash.com/photo-1562670222-0cc613303429"
+            ]
+        }
+    },
+    {
+        "id": "gj_003",
+        "name": "Somnath Temple",
+        "location": "Prabhas Patan, Gujarat",
+        "state": "Gujarat",
+        "city": "Veraval",
+        "description": "One of the twelve sacred Jyotirlinga shrines of Lord Shiva, Somnath Temple is an ancient and powerful spiritual center on the shores of the Arabian Sea.",
+        "imageUrl": "/images/gj_somnath.jpg",
+        "category": "Religious",
+        "rating": 4.9,
+        "bestTime": "Sep-Mar",
+        "entryFee": "Free",
+        "coordinates": {
+            "latitude": 20.8880,
+            "longitude": 70.4010
+        },
+        "detailedInfo": {
+            "introduction": "The Somnath temple is located in Prabhas Patan near Veraval in Saurashtra on the western coast of Gujarat, India.",
+            "keyFacts": [
+                "Location: Veraval, Gujarat",
+                "History: Rebuilt several times; present structure 1951",
+                "Significance: First of the 12 Jyotirlingas",
+                "Highlights: Shore-side location, light and sound show"
+            ],
+            "history": "The temple is said to have been built originally by the Moon God in gold. It was destroyed by various invaders seventeen times and rebuilt each time, symbolizing the 'Eternal Shrine'.",
+            "architecture": "The present temple is built in the Chalukya style of temple architecture, or 'Kailash Mahameru Prasad' style, and reflects the skill of the Sompura Salats.",
+            "significance": "Somnath is one of the most sacred pilgrimage sites for Hindus. The temple stands at the tip of the Indian peninsula, such that no land mass exists between it and the South Pole.",
+            "visitingInfo": "Best time: September to March. Kartik Purnima Fair (November) is a significant cultural event attractively thousands of devotees.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1548013146-72479768bbaa",
+                "https://images.unsplash.com/photo-1548013146-72479768bbaa"
+            ]
+        }
+    },
+    {
+        "id": "gj_004",
+        "name": "Gir National Park",
+        "location": "Sasan Gir, Gujarat",
+        "state": "Gujarat",
+        "city": "Junagadh",
+        "description": "The only natural habitat of the Asiatic Lion, Gir National Park is a massive wildlife sanctuary known for its diverse flora and fauna.",
+        "imageUrl": "/images/gj_gir_lion.jpg",
+        "category": "Nature",
+        "rating": 4.8,
+        "bestTime": "Dec-Mar",
+        "entryFee": "₹800 (Safari)",
+        "coordinates": {
+            "latitude": 21.1243,
+            "longitude": 70.8242
+        },
+        "detailedInfo": {
+            "introduction": "Gir National Park and Wildlife Sanctuary, also known as Sasan Gir, is a forest and wildlife sanctuary near Talala Gir in Gujarat, India.",
+            "keyFacts": [
+                "Location: Sasan Gir, Gujarat",
+                "Established: 1965",
+                "Fauna: Asiatic Lion, Indian Leopard, Sambar",
+                "Highlights: Jungle Safari, Devalia Safari Park"
+            ],
+            "history": "The area was once the hunting ground of the Nawabs of Junagadh. After the lion population plummeted, the Nawabs and later the Indian government initiated strict conservation measures.",
+            "architecture": "The sanctuary is a rugged ecosystem consisting of dry deciduous forests, scrubland, and hills, punctuated by several rivers and the Kamleshwar Dam.",
+            "significance": "Gir is the last refuge of the Asiatic Lion (Panthera leo leo). Its success in saving the species from the brink of extinction is one of the world's great conservation stories.",
+            "visitingInfo": "The park is closed from mid-June to mid-October. Jeep safaris must be booked well in advance through the official Gujarat Tourism portal.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1589330273594-fade1ee91647",
+                "https://images.unsplash.com/photo-1581447109200-bf2769116db4"
+            ]
+        }
+    },
+    {
+        "id": "rj_004",
+        "name": "Chittorgarh Fort",
+        "location": "Chittorgarh, Rajasthan",
+        "state": "Rajasthan",
+        "city": "Chittorgarh",
+        "description": "The Chittorgarh Fort is one of the largest forts in India. It is a UNESCO World Heritage Site. The fort was the capital of Mewar and is located in the present-day town of Chittorgarh.",
+        "imageUrl": "/images/rj_chittorgarh.jpg",
+        "category": "Heritage",
+        "rating": 4.9,
+        "bestTime": "Oct-Mar",
+        "entryFee": "₹50 (Indians)",
+        "coordinates": {
+            "latitude": 24.8879,
+            "longitude": 74.6451
+        },
+        "detailedInfo": {
+            "introduction": "The Chittorgarh Fort is one of the largest forts in India. It is a UNESCO World Heritage Site. The fort was the capital of Mewar and is located in the present-day town of Chittorgarh.",
+            "keyFacts": [
+                "Location: Chittorgarh, Rajasthan",
+                "History: Main peak in 7th century",
+                "UNESCO: World Heritage Site since 2013",
+                "Highlights: Vijay Stambha, Kirti Stambha, Padmini Palace"
+            ],
+            "history": "The fort has been besieged three times in its history, and each time the Rajputs fought bravely, with the women performing 'Jauhar' (mass self-immolation) to preserve their honor.",
+            "architecture": "The fort is shaped like a fish and has a circumference of 13 kilometers. It features several magnificent gates, temples, and palaces, most notably the 'Vijay Stambha' (Tower of Victory).",
+            "significance": "Chittorgarh is the epitome of Rajput spirit, valor, and sacrifice. It remains a powerful symbol of Indian history and resistance against invading forces.",
+            "visitingInfo": "Best time: October to March. The fort is massive, so renting a bicycle or taking a rickshaw inside the complex is recommended.",
+            "additionalImages": [
+                "https://images.unsplash.com/photo-1590490360182-ed3340ce9282",
+                "https://images.unsplash.com/photo-1588665893902-6e93297a7e78"
+            ]
+        }
+    }
+]

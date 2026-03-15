@@ -2,42 +2,36 @@ const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
 const Place = require('../models/Place');
-
-// Test route to verify API is working
-router.get('/test', (req, res) => {
-    res.json({ msg: 'Reviews API is working!', timestamp: new Date() });
-});
-
+const auth = require('../middleware/auth');
 
 // @route   POST /api/reviews
 // @desc    Submit a review for a place
-// @access  Public (should be protected in production)
-router.post('/', async (req, res) => {
-    const { userId, placeId, userName, rating, comment } = req.body;
+// @access  Private
+router.post('/', auth, async (req, res) => {
+    const { placeId, userName, rating, comment, category, city } = req.body;
 
     try {
         // Validate input
-        if (!userId || !placeId || !userName || !rating || !comment) {
-            return res.status(400).json({ msg: 'All fields are required' });
+        if (!placeId || !rating || !comment) {
+            return res.status(400).json({ msg: 'Required fields missing' });
         }
 
         if (rating < 1 || rating > 5) {
             return res.status(400).json({ msg: 'Rating must be between 1 and 5' });
         }
 
-        console.log('Creating review with data:', { userId, placeId, userName, rating, comment });
-
         // Create new review
         const review = new Review({
-            userId,
+            userId: req.user.id,
             placeId,
-            userName,
+            userName: userName || 'Anonymous Traveler', // Ideally fetch from User model
             rating,
-            comment
+            comment,
+            category,
+            city
         });
 
         await review.save();
-        console.log('Review saved successfully:', review._id);
 
         // Update place's average rating and review count
         await updatePlaceRating(placeId);
@@ -46,8 +40,7 @@ router.post('/', async (req, res) => {
 
     } catch (err) {
         console.error('Error in POST /api/reviews:', err.message);
-        console.error('Full error:', err);
-        res.status(500).json({ msg: 'Server Error', error: err.message });
+        res.status(500).json({ msg: 'Server Error' });
     }
 });
 
@@ -56,24 +49,19 @@ router.post('/', async (req, res) => {
 // @access  Public
 router.get('/:placeId', async (req, res) => {
     try {
-        console.log('Fetching reviews for placeId:', req.params.placeId);
         const reviews = await Review.find({ placeId: req.params.placeId })
-            .sort({ createdAt: -1 }); // Most recent first
-
-        console.log(`Found ${reviews.length} reviews`);
+            .sort({ createdAt: -1 });
         res.json(reviews);
-
     } catch (err) {
         console.error('Error in GET /api/reviews/:placeId:', err.message);
-        console.error('Full error:', err);
-        res.status(500).json({ msg: 'Server Error', error: err.message });
+        res.status(500).json({ msg: 'Server Error' });
     }
 });
 
 // @route   PUT /api/reviews/:id
 // @desc    Update a review
-// @access  Public (should verify userId in production)
-router.put('/:id', async (req, res) => {
+// @access  Private
+router.put('/:id', auth, async (req, res) => {
     const { rating, comment } = req.body;
 
     try {
@@ -81,6 +69,11 @@ router.put('/:id', async (req, res) => {
 
         if (!review) {
             return res.status(404).json({ msg: 'Review not found' });
+        }
+
+        // Ensure user owns the review
+        if (review.userId.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'User not authorized' });
         }
 
         // Update fields
@@ -103,13 +96,18 @@ router.put('/:id', async (req, res) => {
 
 // @route   DELETE /api/reviews/:id
 // @desc    Delete a review
-// @access  Public (should verify userId in production)
-router.delete('/:id', async (req, res) => {
+// @access  Private
+router.delete('/:id', auth, async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);
 
         if (!review) {
             return res.status(404).json({ msg: 'Review not found' });
+        }
+
+        // Ensure user owns the review
+        if (review.userId.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'User not authorized' });
         }
 
         const placeId = review.placeId;
@@ -132,16 +130,11 @@ router.delete('/:id', async (req, res) => {
 router.post('/:id/helpful', async (req, res) => {
     try {
         const review = await Review.findById(req.params.id);
-
-        if (!review) {
-            return res.status(404).json({ msg: 'Review not found' });
-        }
+        if (!review) return res.status(404).json({ msg: 'Review not found' });
 
         review.helpfulCount += 1;
         await review.save();
-
         res.json({ msg: 'Review marked as helpful', helpfulCount: review.helpfulCount });
-
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -161,42 +154,22 @@ router.get('/user/:userId/count', async (req, res) => {
     }
 });
 
-// Helper function to update place rating
+// Helper function to update place rating (internal use)
 async function updatePlaceRating(placeId) {
     try {
-        console.log('Updating place rating for placeId:', placeId);
         const reviews = await Review.find({ placeId });
-        console.log(`Found ${reviews.length} reviews for rating calculation`);
-
         if (reviews.length === 0) {
-            console.log('No reviews found, skipping place update');
-            // Try to update if it's a valid ObjectId, otherwise skip
-            try {
-                await Place.findByIdAndUpdate(placeId, {
-                    averageRating: 0,
-                    reviewCount: 0
-                });
-            } catch (err) {
-                console.log('Could not update place (might not be ObjectId):', err.message);
-            }
+            await Place.findByIdAndUpdate(placeId, { averageRating: 0, reviewCount: 0 });
             return;
         }
 
         const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
         const averageRating = totalRating / reviews.length;
-        console.log(`Calculated average rating: ${averageRating} from ${reviews.length} reviews`);
 
-        // Try to update if it's a valid ObjectId, otherwise skip
-        try {
-            await Place.findByIdAndUpdate(placeId, {
-                averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
-                reviewCount: reviews.length
-            });
-            console.log('Place rating updated successfully');
-        } catch (err) {
-            console.log('Could not update place (might not be ObjectId):', err.message);
-        }
-
+        await Place.findByIdAndUpdate(placeId, {
+            averageRating: Math.round(averageRating * 10) / 10,
+            reviewCount: reviews.length
+        });
     } catch (err) {
         console.error('Error updating place rating:', err.message);
     }

@@ -11,6 +11,15 @@ import SettingsScreen from './screens/SettingsScreen';
 import InitiativesScreen from './screens/InitiativesScreen';
 import HelpSupportScreen from './screens/HelpSupportScreen';
 import AboutScreen from './screens/AboutScreen';
+import DestinationAboutScreen from './screens/DestinationAboutScreen';
+import ProviderRegistrationScreen from './screens/ProviderRegistrationScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import CultureScreen from './screens/CultureScreen';
+import StoryReaderScreen from './screens/StoryReaderScreen';
+import BookingScreen from './screens/BookingScreen';
+import MyTicketsScreen from './screens/MyTicketsScreen';
 import BottomTabs from './components/BottomTabs';
 import { theme } from './constants/theme';
 
@@ -44,7 +53,7 @@ function MainApp() {
     },
     goBack: () => {
       // Basic back handling
-      if (currentScreen === 'PlaceDetails') {
+      if (currentScreen === 'PlaceDetails' || currentScreen === 'DestinationAbout') {
         setCurrentScreen('Explore');
       } else if (currentScreen === 'Settings' || currentScreen === 'HelpSupport' || currentScreen === 'About') {
         setCurrentScreen('Profile');
@@ -52,10 +61,19 @@ function MainApp() {
         setCurrentScreen('Home');
       } else if (['Explore', 'SOS', 'Profile', 'Favorites'].includes(currentScreen)) {
         setCurrentScreen('Home');
+      } else if (['EditProfile', 'ChangePassword', 'PrivacyPolicy'].includes(currentScreen)) {
+        setCurrentScreen('Settings');
       } else {
         setCurrentScreen('Home');
       }
-    }
+    },
+    addListener: (event, callback) => {
+      // Stub for custom navigation compatibility
+      return () => { };
+    },
+    getState: () => ({
+      routes: [{ name: currentScreen, params: routeParams }]
+    })
   };
 
   const renderScreen = () => {
@@ -82,6 +100,24 @@ function MainApp() {
         return <HelpSupportScreen navigation={navigation} />;
       case 'About':
         return <AboutScreen navigation={navigation} />;
+      case 'ProviderRegistration':
+        return <ProviderRegistrationScreen navigation={navigation} />;
+      case 'Culture':
+        return <CultureScreen route={{ params: routeParams }} navigation={navigation} />;
+      case 'StoryReader':
+        return <StoryReaderScreen route={{ params: routeParams }} navigation={navigation} />;
+      case 'Booking':
+        return <BookingScreen route={{ params: routeParams }} navigation={navigation} />;
+      case 'MyTickets':
+        return <MyTicketsScreen navigation={navigation} />;
+      case 'DestinationAbout':
+        return <DestinationAboutScreen route={{ params: routeParams }} navigation={navigation} />;
+      case 'EditProfile':
+        return <EditProfileScreen navigation={navigation} />;
+      case 'ChangePassword':
+        return <ChangePasswordScreen navigation={navigation} />;
+      case 'PrivacyPolicy':
+        return <PrivacyPolicyScreen navigation={navigation} />;
       default:
         return <LoginScreen navigation={navigation} />;
     }
@@ -100,7 +136,9 @@ function MainApp() {
         currentScreen !== 'Settings' &&
         currentScreen !== 'Initiatives' &&
         currentScreen !== 'HelpSupport' &&
-        currentScreen !== 'About' && (
+        currentScreen !== 'About' &&
+        currentScreen !== 'DestinationAbout' &&
+        currentScreen !== 'ProviderRegistration' && (
           <BottomTabs currentScreen={currentScreen} navigate={navigation.navigate} />
         )}
     </View>

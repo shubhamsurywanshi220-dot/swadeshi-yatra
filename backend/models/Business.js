@@ -6,7 +6,8 @@ const BusinessSchema = new mongoose.Schema({
         required: true
     },
     category: {
-        type: String, // 'Artisan', 'Guide', 'Hotel', 'Restaurant'
+        type: String, 
+        enum: ['Guide', 'Artisan', 'Shop'],
         required: true
     },
     location: {
@@ -61,6 +62,10 @@ const BusinessSchema = new mongoose.Schema({
     coordinates: {
         latitude: Number,
         longitude: Number
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
 });
 

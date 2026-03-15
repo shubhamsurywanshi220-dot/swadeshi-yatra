@@ -4,17 +4,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { useTranslation } from 'react-i18next';
 
 export default function InitiativesScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
+    const { t } = useTranslation();
     const styles = createStyles(theme, isDarkMode);
     const [pledgeTaken, setPledgeTaken] = useState(false);
 
     const handlePledge = () => {
         setPledgeTaken(true);
         Alert.alert(
-            "Jai Hind! 🇮🇳",
-            "Thank you for pledging to support local businesses and travel domestically. Your small choices make a big difference!"
+            t('initiatives.pledge_alert_title'),
+            t('initiatives.pledge_alert_msg')
         );
     };
 
@@ -26,7 +28,7 @@ export default function InitiativesScreen({ navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Our Mission</Text>
+                <Text style={styles.headerTitle}>{t('initiatives.our_mission')}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -38,8 +40,8 @@ export default function InitiativesScreen({ navigation }) {
                     />
                     <View style={styles.heroOverlay} />
                     <View style={styles.heroTextContainer}>
-                        <Text style={styles.heroTitle}>Atmanirbhar Bharat</Text>
-                        <Text style={styles.heroSubtitle}>Self-Reliant India</Text>
+                        <Text style={styles.heroTitle}>{t('initiatives.atmanirbhar')}</Text>
+                        <Text style={styles.heroSubtitle}>{t('initiatives.self_reliant')}</Text>
                     </View>
                 </View>
 
@@ -56,7 +58,7 @@ export default function InitiativesScreen({ navigation }) {
                         <View style={[styles.iconBg, { backgroundColor: isDarkMode ? '#2D2418' : '#FFF3E0' }]}>
                             <MaterialCommunityIcons name="map-marker-path" size={28} color={isDarkMode ? '#FFB74D' : theme.colors.accent} />
                         </View>
-                        <Text style={styles.cardTitle}>Dekho Apna Desh</Text>
+                        <Text style={styles.cardTitle}>{t('initiatives.dekho_title')}</Text>
                     </View>
                     <Text style={styles.cardBody}>
                         India has everything — from the snow-capped Himalayas to the tropical beaches of the south. Why go far when paradise is right here?
@@ -68,7 +70,7 @@ export default function InitiativesScreen({ navigation }) {
                         <View style={[styles.iconBg, { backgroundColor: isDarkMode ? '#3E2723' : '#FBE9E7' }]}>
                             <MaterialCommunityIcons name="hand-heart" size={28} color={isDarkMode ? '#FF8A65' : theme.colors.secondary} />
                         </View>
-                        <Text style={styles.cardTitle}>Vocal for Local</Text>
+                        <Text style={styles.cardTitle}>{t('initiatives.vocal_title')}</Text>
                     </View>
                     <Text style={styles.cardBody}>
                         Every souvenir you buy from a local artisan, and every meal you eat at a local eatery, directly supports an Indian family and preserves our heritage.
@@ -80,7 +82,7 @@ export default function InitiativesScreen({ navigation }) {
                         <View style={[styles.iconBg, { backgroundColor: isDarkMode ? '#1B2E1C' : '#E8F5E9' }]}>
                             <Ionicons name="leaf" size={28} color={isDarkMode ? '#81C784' : '#2E7D32'} />
                         </View>
-                        <Text style={styles.cardTitle}>Sustainable Travel</Text>
+                        <Text style={styles.cardTitle}>{t('initiatives.sustainable_title')}</Text>
                     </View>
                     <Text style={styles.cardBody}>
                         We promote eco-friendly destinations and responsible tourism practices to ensure our natural beauty lasts for generations.
@@ -92,7 +94,7 @@ export default function InitiativesScreen({ navigation }) {
                     <View style={styles.pledgeIconContainer}>
                         <MaterialCommunityIcons name="medal" size={40} color={theme.colors.primary} />
                     </View>
-                    <Text style={styles.pledgeTitle}>Join the Movement</Text>
+                    <Text style={styles.pledgeTitle}>{t('initiatives.join_movement')}</Text>
                     <Text style={styles.pledgeText}>
                         "I pledge to travel India, explore its hidden gems, and support local communities whenever possible."
                     </Text>
@@ -102,7 +104,7 @@ export default function InitiativesScreen({ navigation }) {
                         disabled={pledgeTaken}
                     >
                         <Text style={styles.pledgeButtonText}>
-                            {pledgeTaken ? "Pledge Taken ✓" : "I Pledge Support 🇮🇳"}
+                            {pledgeTaken ? t('initiatives.pledge_taken') : t('initiatives.pledge_support')}
                         </Text>
                     </TouchableOpacity>
                 </View>

@@ -6,8 +6,13 @@ const ReviewSchema = new mongoose.Schema({
         required: true
     },
     placeId: {
-        type: String,  // Changed from ObjectId to String to support any place ID format
-        required: true
+        type: String,  // Can be a Place ID or Business ID
+        required: false
+    },
+    businessId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Business',
+        required: false
     },
     userName: {
         type: String,
