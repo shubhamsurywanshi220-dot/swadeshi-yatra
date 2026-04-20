@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/Ticket');
+const Activity = require('../models/Activity');
 const auth = require('../middleware/auth');
 
 // @route   GET /api/tickets
@@ -39,6 +40,31 @@ router.post('/', auth, async (req, res) => {
         });
 
         const ticket = await newTicket.save();
+
+        // Emit real-time event
+        if (req.io) {
+            req.io.emit('booking_created', {
+                id: ticket.id,
+                placeName: ticket.placeName,
+                numberOfTickets: ticket.numberOfTickets,
+                totalAmount: ticket.totalAmount,
+                createdAt: ticket.createdAt
+            });
+        }
+
+        // Log Activity
+        try {
+            const userName = ticket.passengerName || req.user.name || 'User';
+            const activity = new Activity({
+                type: 'booking_created',
+                message: `New booking for ${ticket.placeName} by ${userName}`,
+                metadata: { ticketId: ticket.id, userId: req.user.id, placeId: ticket.placeId }
+            });
+            await activity.save();
+        } catch (actErr) {
+            console.error('Activity Logging Error:', actErr.message);
+        }
+
         res.json(ticket);
     } catch (err) {
         console.error(err.message);

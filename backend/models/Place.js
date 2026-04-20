@@ -48,6 +48,9 @@ const PlaceSchema = new mongoose.Schema({
     category: {
         type: String // 'Fort', 'Temple', 'Beach', 'Museum', etc.
     },
+    tags: [{
+        type: String // e.g., 'Char Dham Yatra', 'Adventure', etc.
+    }],
     bestTime: {
         type: String // 'Oct-Mar', 'Year Round', etc.
     },
@@ -67,12 +70,55 @@ const PlaceSchema = new mongoose.Schema({
         latitude: Number,
         longitude: Number
     },
+    isPublished: {
+        type: Boolean,
+        default: true
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
+    },
+    bookingEnabled: {
+        type: Boolean,
+        default: false
+    },
+    bookingLink: {
+        type: String
+    },
+    reviewsEnabled: {
+        type: Boolean,
+        default: true
+    },
+    crowdLevel: {
+        type: String, // 'Low', 'Medium', 'High'
+        default: 'Medium'
+    },
+    isHiddenGem: {
+        type: Boolean,
+        default: false
+    },
+    galleryImages: [String],
+    weatherInfo: String,
+    culturalVault: {
+        stories: String,
+        myths: String,
+        history: String
+    },
+    exploreSurroundings: {
+        stay: [{ name: String, link: String }],
+        food: [{ name: String, link: String }],
+        transport: [{ name: String, link: String }],
+        atm: [{ name: String, link: String }]
+    },
     detailedInfo: {
         introduction: String,
         keyFacts: [String],
         history: String,
         architecture: String,
         significance: String,
+        culturalSignificance: String,
+        naturalFeatures: String,
+        interestingFacts: String,
         visitingInfo: String,
         additionalImages: [String]
     }

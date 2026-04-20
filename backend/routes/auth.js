@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Activity = require('../models/Activity');
 
 // @route   POST /api/auth/register
 // @desc    Register user
@@ -42,8 +43,30 @@ router.post('/register', async (req, res) => {
             payload,
             process.env.JWT_SECRET || 'secret',
             { expiresIn: '24h' },
-            (err, token) => {
+            async (err, token) => {
                 if (err) throw err;
+                
+                // Emit real-time event
+                if (req.io) {
+                    req.io.emit('user_registered', {
+                        name: user.name,
+                        email: user.email,
+                        createdAt: user.createdAt
+                    });
+                }
+
+                // Log Activity
+                try {
+                    const activity = new Activity({
+                        type: 'user_registered',
+                        message: `New user registered: ${user.name}`,
+                        metadata: { userId: user.id, email: user.email }
+                    });
+                    await activity.save();
+                } catch (actErr) {
+                    console.error('Activity Logging Error:', actErr.message);
+                }
+
                 res.json({ token, userId: user.id, name: user.name, role: user.role });
             }
         );

@@ -8,7 +8,67 @@ import api from '../utils/api';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { checkConnectivity } from '../utils/network';
 
+
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+
+// Fallback sample data when API returns no packages
+const FALLBACK_PACKAGES = [
+    {
+        _id: 'fb1',
+        title: 'Char Dham Yatra',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Kedarnath_Temple_in_Uttarakhand.jpg/800px-Kedarnath_Temple_in_Uttarakhand.jpg',
+        duration: { nights: 4, days: 5 },
+        tag: 'Best Seller',
+        price: { currency: '₹', original: 15999, discounted: 12999 },
+        rating: 4.8,
+        description: 'Visit the sacred Char Dham circuit — Yamunotri, Gangotri, Kedarnath & Badrinath.',
+        locations: ['Yamunotri', 'Gangotri', 'Kedarnath', 'Badrinath'],
+        highlights: ['Helicopter to Kedarnath', 'VIP Darshan', 'All meals included'],
+    },
+    {
+        _id: 'fb2',
+        title: 'Manali Adventure',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Solang_Valley_Feb_2021.jpg/800px-Solang_Valley_Feb_2021.jpg',
+        duration: { nights: 2, days: 3 },
+        tag: 'Trending',
+        price: { currency: '₹', original: 8999, discounted: 6499 },
+        rating: 4.6,
+        description: 'Snow-capped peaks, Solang Valley & the best of Himachal.',
+        locations: ['Manali', 'Solang Valley', 'Rohtang'],
+    },
+    {
+        _id: 'fb3',
+        title: 'Leh Ladakh Expedition',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Pangong_Tso.jpg/800px-Pangong_Tso.jpg',
+        duration: { nights: 5, days: 6 },
+        tag: 'Premium',
+        price: { currency: '₹', original: 22999, discounted: 18999 },
+        rating: 4.9,
+        description: 'Pangong Lake, Nubra Valley & the ultimate road trip.',
+        locations: ['Leh', 'Pangong', 'Nubra Valley', 'Khardung La'],
+    },
+    {
+        _id: 'fb4',
+        title: 'Goa Beach Getaway',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Vagator_Beach_Goa.jpg/800px-Vagator_Beach_Goa.jpg',
+        duration: { nights: 3, days: 4 },
+        price: { currency: '₹', original: 9999, discounted: 7499 },
+        rating: 4.5,
+        description: 'Sun, sand & heritage — explore the best of Goa.',
+        locations: ['Calangute', 'Old Goa', 'Dudhsagar'],
+    },
+    {
+        _id: 'fb5',
+        title: 'Coorg Nature Retreat',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Abbey_Falls_Coorg.jpg/800px-Abbey_Falls_Coorg.jpg',
+        duration: { nights: 2, days: 3 },
+        tag: 'New',
+        price: { currency: '₹', original: 6999, discounted: 4999 },
+        rating: 4.7,
+        description: 'Coffee plantations, waterfalls & misty hills of Karnataka.',
+        locations: ['Coorg', 'Abbey Falls', 'Mandalpatti'],
+    },
+];
 
 export default function HomeScreen({ navigation }) {
     const { theme, isDarkMode } = useTheme();
@@ -16,8 +76,10 @@ export default function HomeScreen({ navigation }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [popularPlaces, setPopularPlaces] = useState([]);
     const [recommendedPlaces, setRecommendedPlaces] = useState([]);
+    const [travelPackages, setTravelPackages] = useState([]);
     const [loadingPopular, setLoadingPopular] = useState(true);
     const [loadingRecommended, setLoadingRecommended] = useState(true);
+    const [loadingPackages, setLoadingPackages] = useState(true);
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const styles = createStyles(theme);
@@ -43,6 +105,7 @@ export default function HomeScreen({ navigation }) {
 
         fetchPopularPlaces();
         fetchRecommendations();
+        fetchTravelPackages();
     }, []);
 
     const fetchPopularPlaces = async () => {
@@ -95,6 +158,29 @@ export default function HomeScreen({ navigation }) {
         } finally {
             setLoadingRecommended(false);
         }
+    };
+
+    const fetchTravelPackages = async () => {
+        setLoadingPackages(true);
+        try {
+            const response = await api.get('/packages');
+            setTravelPackages(response.data || []);
+        } catch (error) {
+            console.error('Error fetching travel packages:', error);
+        } finally {
+            setLoadingPackages(false);
+        }
+    };
+
+    const getTagColor = (tag) => {
+        const colors = {
+            'Best Seller': '#FF6B00',
+            'Trending': '#E91E63',
+            'New': '#4CAF50',
+            'Limited Offer': '#F44336',
+            'Premium': '#9C27B0',
+        };
+        return colors[tag] || theme.colors.primary;
     };
 
     const handlePressIn = () => {
@@ -176,7 +262,6 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
 
-
                 {/* Categories Grid */}
                 <View style={styles.sectionHeaderRow}>
                     <Text style={styles.sectionHeading}>{t('common.explore')}</Text>
@@ -231,17 +316,16 @@ export default function HomeScreen({ navigation }) {
                         activeOpacity={0.9}
                         onPressIn={handlePressIn}
                         onPressOut={handlePressOut}
-                        onPress={() => navigation.navigate('Explore', { category: 'crafts' })}
+                        onPress={() => navigation.navigate('SocialHub')}
                     >
-                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#240033' : '#F3E5F5' }]}>
-                            <MaterialCommunityIcons name="hammer-wrench" size={30} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
+                        <View style={[styles.premiumIconContainer, { backgroundColor: isDarkMode ? '#0D1B2E' : '#E8F4FD' }]}>
+                            <MaterialCommunityIcons name="video-wireless" size={30} color={isDarkMode ? '#64B5F6' : '#1565C0'} />
                         </View>
-                        <Text style={styles.premiumCardTitle}>{t('home.trad_crafts')}</Text>
-                        <Text style={styles.premiumCardSubtitle}>{t('home.local_artisans')}</Text>
+                        <Text style={styles.premiumCardTitle}>Social Hub</Text>
+                        <Text style={styles.premiumCardSubtitle}>Travel Vlogs & Experiences</Text>
                     </AnimatedTouchableOpacity>
+
                 </Animated.View>
-
-
 
                 {/* Popular Section */}
                 <View style={styles.sectionHeaderRow}>
@@ -258,9 +342,9 @@ export default function HomeScreen({ navigation }) {
                             <ActivityIndicator size="large" color={theme.colors.primary} />
                         </View>
                     ) : (
-                        popularPlaces.map((item) => (
+                        popularPlaces.slice(0, 6).map((item) => (
                             <TouchableOpacity
-                                key={item.id}
+                                key={`popular-${item.id || item._id}`}
                                 style={styles.popularCard}
                                 onPress={() => navigation.navigate('PlaceDetails', { place: item })}
                             >
@@ -271,10 +355,63 @@ export default function HomeScreen({ navigation }) {
                                 />
                                 <View style={styles.popularInfo}>
                                     <Text style={styles.popularName} numberOfLines={1}>{item.name}</Text>
-                                    <View style={styles.popularLocationRow}>
-                                        <Ionicons name="location" size={12} color={theme.colors.text.tertiary} />
-                                        <Text style={styles.popularLocation} numberOfLines={1}>{item.city || item.location}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
+                </ScrollView>
+
+                {/* ====== Travel Packages Section ====== */}
+                <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionHeading}>Travel Packages</Text>
+                    <View style={styles.sectionDivider} />
+                    <TouchableOpacity onPress={() => navigation.navigate('Explore', { category: 'destinations' })}>
+                        <Text style={styles.seeAllText}>See All</Text>
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.packagesSubtitle}>Curated trips & experiences</Text>
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.popularScroll}>
+                    {loadingPackages ? (
+                        // Skeleton loader — matching Popular Near You style
+                        <>
+                            {[1, 2, 3].map((i) => (
+                                <View key={`pkg-skel-${i}`} style={styles.popularCard}>
+                                    <View style={[styles.popularImage, { backgroundColor: theme.colors.border, justifyContent: 'center', alignItems: 'center' }]}>
+                                        <Ionicons name="image-outline" size={32} color={theme.colors.text.tertiary} />
                                     </View>
+                                    <View style={styles.popularInfo}>
+                                        <View style={{ width: '75%', height: 12, borderRadius: 6, backgroundColor: theme.colors.border, marginBottom: 6 }} />
+                                        <View style={{ width: '50%', height: 10, borderRadius: 5, backgroundColor: theme.colors.border }} />
+                                    </View>
+                                </View>
+                            ))}
+                        </>
+                    ) : (
+                        (travelPackages.length > 0 ? travelPackages : FALLBACK_PACKAGES).map((pkg, index) => (
+                            <TouchableOpacity
+                                key={`pkg-${pkg._id || index}`}
+                                style={styles.popularCard}
+                                activeOpacity={0.85}
+                                onPress={() => navigation.navigate('PackageDetails', { package: pkg })}
+                            >
+                                <View style={{ position: 'relative' }}>
+                                    <ImageWithFallback
+                                        source={{ uri: pkg.imageUrl }}
+                                        style={styles.popularImage}
+                                        resizeMode="cover"
+                                    />
+                                    {pkg.tag ? (
+                                        <View style={[styles.pkgTagBadge, { backgroundColor: getTagColor(pkg.tag) }]}>
+                                            <Text style={styles.pkgTagText}>{pkg.tag}</Text>
+                                        </View>
+                                    ) : null}
+                                </View>
+                                <View style={styles.popularInfo}>
+                                    <Text style={styles.popularName} numberOfLines={1}>{pkg.title}</Text>
+                                    <Text style={styles.pkgDuration} numberOfLines={1}>
+                                        {pkg.duration ? `📅 ${pkg.duration.nights}N / ${pkg.duration.days}D` : ''}
+                                    </Text>
                                 </View>
                             </TouchableOpacity>
                         ))
@@ -399,7 +536,6 @@ const createStyles = (theme) => StyleSheet.create({
         color: theme.colors.primary,
         marginLeft: 12,
     },
-
     // Categories Grid
     categoryGrid: {
         flexDirection: 'row',
@@ -455,22 +591,40 @@ const createStyles = (theme) => StyleSheet.create({
         height: 110,
     },
     popularInfo: {
-        padding: 12,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
     },
     popularName: {
-        ...theme.typography.cardTitle,
-        fontSize: 14,
+        fontSize: 13,
+        fontWeight: '700',
         color: theme.colors.text.primary,
-        marginBottom: 4,
     },
-    popularLocationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    // Travel Packages (reuses popularCard, popularImage, popularInfo, popularName)
+    packagesSubtitle: {
+        fontSize: 13,
+        color: theme.colors.text.secondary,
+        marginTop: -10,
+        marginBottom: 16,
     },
-    popularLocation: {
+    pkgTagBadge: {
+        position: 'absolute',
+        top: 6,
+        left: 6,
+        backgroundColor: theme.colors.primary,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 8,
+    },
+    pkgTagText: {
+        color: '#FFF',
+        fontSize: 9,
+        fontWeight: '800',
+        letterSpacing: 0.3,
+    },
+    pkgDuration: {
         fontSize: 11,
-        color: theme.colors.text.tertiary,
-        marginLeft: 4,
+        color: theme.colors.text.secondary,
+        marginTop: 2,
     },
     // Banner
     bannerContainer: {

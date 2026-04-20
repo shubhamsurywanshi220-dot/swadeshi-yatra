@@ -8,6 +8,8 @@ import Places from './pages/Places';
 import Bookings from './pages/Bookings';
 import SOSMonitor from './pages/SOSMonitor';
 import Verification from './pages/Verification';
+import Vlogs from './pages/Vlogs';
+import TravelPackages from './pages/TravelPackages';
 import Login from './pages/Login';
 
 const ProtectedLayout = ({ children }) => {
@@ -42,6 +44,8 @@ function App() {
           <Route path="/bookings" element={<ProtectedLayout><Bookings /></ProtectedLayout>} />
           <Route path="/sos" element={<ProtectedLayout><SOSMonitor /></ProtectedLayout>} />
           <Route path="/businesses" element={<ProtectedLayout><Verification /></ProtectedLayout>} />
+          <Route path="/vlogs" element={<ProtectedLayout><Vlogs /></ProtectedLayout>} />
+          <Route path="/packages" element={<ProtectedLayout><TravelPackages /></ProtectedLayout>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

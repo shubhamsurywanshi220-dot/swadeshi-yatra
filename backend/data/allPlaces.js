@@ -1,11 +1,21 @@
 const batch1 = require('./indiaTourism_batch1.json');
 const batch2 = require('./indiaTourism_batch2.json');
 const batch3 = require('./indiaTourism_batch3.json');
+const heritageBatch = require('./heritage_batch.json');
+const hiddenNatureGems = require('./hidden_nature_gems.json');
+
+const karnatakaDestinations = require('./karnatakaDestinations').karnatakaDestinations;
+const newKarnatakaDestinations = require('./newKarnatakaDestinations').newKarnatakaDestinations;
+const requestedExtra = require('./requestedExtraKarnatakaDestinations').requestedExtraKarnatakaDestinations;
+const charDham = require('./char_dham.json');
 
 const allPlaces = [
     ...batch1,
     ...batch2,
     ...batch3,
+    ...heritageBatch,
+    ...hiddenNatureGems,
+    ...charDham,
     // --- ANDHRA PRADESH ---
     {
         id: 'ap1',
@@ -1890,5 +1900,37 @@ const allPlaces = [
         entryFee: 'Free'
     }
 ];
+
+const existingNames = new Set(allPlaces.map(p => p.name.toLowerCase().trim()));
+
+const normalize = (dest, prefix, index) => {
+    if (!dest || !dest.destination_name) return null;
+    const normName = dest.destination_name.toLowerCase().trim();
+    if (existingNames.has(normName)) return null;
+    existingNames.add(normName);
+    
+    return {
+        id: `${prefix}${index}`,
+        name: dest.destination_name,
+        location: `${dest.city}, Karnataka`,
+        state: 'Karnataka',
+        city: dest.city,
+        description: dest.description,
+        imageUrl: dest.imageUrl || (dest.images && dest.images[0]) || '/images/ka_default.jpg',
+        category: dest.category,
+        rating: 4.5,
+        bestTime: dest.best_time_to_visit,
+        entryFee: typeof dest.entry_fee === 'string' ? dest.entry_fee : dest.entry_fee?.indian || 'Free',
+        isEcoFriendly: true,
+        coordinates: { latitude: dest.latitude, longitude: dest.longitude },
+        detailedInfo: dest.detailedInfo
+    };
+};
+
+const extra1 = karnatakaDestinations.map((d, i) => normalize(d, 'ka_ext', i)).filter(Boolean);
+const extra2 = newKarnatakaDestinations.map((d, i) => normalize(d, 'ka_new', i + 500)).filter(Boolean);
+const extra3 = requestedExtra.map((d, i) => normalize(d, 'ka_req', i + 1000)).filter(Boolean);
+
+allPlaces.push(...extra1, ...extra2, ...extra3);
 
 module.exports = allPlaces;

@@ -1,0 +1,70 @@
+[
+    {
+        "id": "char_dham_1",
+        "name": "Yamunotri",
+        "city": "Uttarkashi",
+        "state": "Uttarakhand",
+        "country": "India",
+        "location": "Yamunotri, Uttarkashi, Uttarakhand",
+        "coordinates": { "latitude": 31.0140, "longitude": 78.4590 },
+        "category": "Temple",
+        "tags": ["Char Dham Yatra"],
+        "type": "Spiritual",
+        "rating": 4.7,
+        "description": "Yamunotri is the source of the Yamuna River and one of the four sacred Char Dham pilgrimage sites.",
+        "detailedInfo": {
+            "introduction": "Yamunotri is the source of the Yamuna River and one of the four sacred Char Dham pilgrimage sites.",
+            "history": "The temple is dedicated to Goddess Yamuna and is part of the Char Dham Yatra. It was built by Maharani Gularia of Jaipur in the 19th century.",
+            "cultural_significance": "It holds immense importance in Hindu pilgrimage traditions, representing the sacred purity of the Yamuna river.",
+            "architecture": "A simple yet beautiful temple structure surrounded by towering Himalayan peaks and glaciers.",
+            "interestingFacts": "Hot water springs like Surya Kund are used by pilgrims to cook rice and potatoes as prasad to take home."
+        },
+        "culturalVault": {
+            "history": "Believed to be the home of Goddess Yamuna, daughter of the Sun God Surya.",
+            "stories": "Bathing in the river here is said to cleanse one of their sins and protect against an untimely death.",
+            "myths": "The hot water springs are said to be the blessings of the Sun God."
+        },
+        "imageUrl": "https://images.unsplash.com/photo-1626084042851-40994f31c26b?w=1200&q=90&fit=crop",
+        "galleryImages": [
+            "https://images.unsplash.com/photo-1626084042851-40994f31c26b?w=1200&q=90&fit=crop",
+            "https://images.unsplash.com/photo-1598308892158-bf88849646b9?w=1200&q=90&fit=crop",
+            "https://images.unsplash.com/photo-1628045610815-5d9c22295bbb?w=1200&q=90&fit=crop"
+        ],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "May to June, September to October"
+    },
+    {
+        "id": "char_dham_2",
+        "name": "Gangotri",
+        "city": "Uttarkashi",
+        "state": "Uttarakhand",
+        "country": "India",
+        "location": "Gangotri, Uttarkashi, Uttarakhand",
+        "coordinates": { "latitude": 30.9947, "longitude": 78.9398 },
+        "category": "Temple",
+        "tags": ["Char Dham Yatra"],
+        "type": "Spiritual",
+        "rating": 4.8,
+        "description": "Gangotri is the origin of the sacred River Ganga and an important pilgrimage site.",
+        "detailedInfo": {
+            "introduction": "Gangotri is the origin of the sacred River Ganga and an important pilgrimage site within the Char Dham circuit.",
+            "history": "Built in the 18th century by Amar Singh Thapa, a Gorkha commander.",
+            "cultural_significance": "The Ganga river is considered the most sacred river in Hinduism. Legend states Lord Shiva released the river from the locks of his hair here.",
+            "architecture": "The temple is a pristine white granite structure situated near the banks of the roaring Bhagirathi river.",
+            "interestingFacts": "The actual physical source of the river is the Gaumukh glacier, which requires a steep 19km trek from the Gangotri temple."
+        },
+        "culturalVault": {
+            "history": "Discovered and established as a shrine by Amar Singh Thapa. Rebuilt later by the Jaipur dynasty.",
+            "stories": "King Bhagirath mediated here to bring Goddess Ganga down to earth to wash away the sins of his ancestors.",
+            "myths": "The sacred stone, Bhagirath Shila, is believed to be the exact spot where he mediated."
+        },
+        "imageUrl": "https://images.unsplash.com/photo-1613916943896-bcac8c5ea96c?w=1200&q=90&fit=crop",
+        "galleryImages": [
+            "https://images.unsplash.com/photo-1613916943896-bcac8c5ea96c?w=1200&q=90&fit=crop",
+            "https://images.unsplash.com/photo-1598305372439-0aeccb02ae20?w=1200&q=90&fit=crop",
+            "https://images.unsplash.com/photo-1663045653457-37207621c0ad?w=1200&q=90&fit=crop"
+        ],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "May to June, September to October"
+    }
+]

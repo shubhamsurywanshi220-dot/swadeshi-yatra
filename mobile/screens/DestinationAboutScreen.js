@@ -63,17 +63,39 @@ export default function DestinationAboutScreen({ route, navigation }) {
                     ))}
 
                     {/* Historical Background */}
-                    <Text style={styles.sectionHeader}>Historical background</Text>
-                    <Text style={styles.bodyText}>{info.history}</Text>
+                    {(info.history || info.history !== '') && (
+                        <>
+                            <Text style={styles.sectionHeader}>Historical background</Text>
+                            <Text style={styles.bodyText}>{info.history}</Text>
+                        </>
+                    )}
 
-                    {/* Architecture and Art */}
-                    <Text style={styles.sectionHeader}>Architecture and art</Text>
-                    <ImageWithFallback source={{ uri: info.additionalImages[1] || info.additionalImages[0] }} style={styles.artImage} />
-                    <Text style={[styles.bodyText, { marginTop: 12 }]}>{info.architecture}</Text>
+                    {/* Architecture and Art / Natural Features */}
+                    {(info.architecture || info.naturalFeatures) && (
+                        <>
+                            <Text style={styles.sectionHeader}>{info.naturalFeatures ? 'Natural features' : 'Architecture and art'}</Text>
+                            {info.additionalImages && info.additionalImages.length > 0 && (
+                                <ImageWithFallback source={{ uri: info.additionalImages[1] || info.additionalImages[0] }} style={styles.artImage} />
+                            )}
+                            <Text style={[styles.bodyText, { marginTop: 12 }]}>{info.naturalFeatures || info.architecture}</Text>
+                        </>
+                    )}
 
-                    {/* Significance */}
-                    <Text style={styles.sectionHeader}>Cultural and artistic significance</Text>
-                    <Text style={styles.bodyText}>{info.significance}</Text>
+                    {/* Significance (Cultural/Artistic/Nature) */}
+                    {(info.significance || info.culturalSignificance) && (
+                        <>
+                            <Text style={styles.sectionHeader}>Significance</Text>
+                            <Text style={styles.bodyText}>{info.culturalSignificance || info.significance}</Text>
+                        </>
+                    )}
+
+                    {/* Interesting Facts */}
+                    {info.interestingFacts && (
+                        <>
+                            <Text style={styles.sectionHeader}>Interesting facts</Text>
+                            <Text style={styles.bodyText}>{info.interestingFacts}</Text>
+                        </>
+                    )}
 
                     {/* Visiting Information */}
                     <Text style={styles.sectionHeader}>Visiting information</Text>

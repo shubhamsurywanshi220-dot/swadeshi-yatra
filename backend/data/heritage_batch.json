@@ -1,0 +1,240 @@
+[
+    {
+        "id": "heritage_1",
+        "name": "Konark Sun Temple",
+        "city": "Konark",
+        "state": "Odisha",
+        "country": "India",
+        "location": "Konark, Odisha",
+        "coordinates": { "latitude": 19.8876, "longitude": 86.0945 },
+        "category": "Heritage",
+        "type": "Historical",
+        "rating": 4.9,
+        "description": "A UNESCO World Heritage site known for its chariot-shaped temple dedicated to the Sun God.",
+        "detailedInfo": {
+            "introduction": "The Sun Temple at Konark is a 13th-century architectural masterpiece dedicated to the solar deity Surya. Located on the coastline of Odisha, it is renowned for its monumental scale and intricate stone carvings.",
+            "history": "Built in the 13th century by King Narasimhadeva I of the Eastern Ganga dynasty around 1250 CE. It was designed to celebrate military triumphs and honor the Sun God.",
+            "cultural_significance": "It represents the pinnacle of Kalinga architecture and devotion to Surya. It was once used as a navigational landmark by sailors, who called it the 'Black Pagoda'.",
+            "architecture": "The temple is designed as a giant chariot with 24 intricately carved wheels drawn by seven horses. Each wheel acts as a precise sundial.",
+            "visitingInfo": "Open from 6:00 AM to 8:00 PM. Best visited between October and March.",
+            "keyFacts": [
+                "UNESCO World Heritage Site since 1984",
+                "The 24 wheels represent the 24 hours of a day",
+                "Built from Khondalite rocks",
+                "Famous for its erotic sculptures and celestial dancers"
+            ]
+        },
+        "culturalVault": {
+            "history": "The temple was built to commemorate the victory of King Narasimhadeva I over the Muslims. It took 12 years and 12,000 artisans to complete.",
+            "stories": "Legend says that the temple's peak contained a massive magnet that caused ships to wreck along the shore, leading to its partial dismantling by early sailors.",
+            "myths": "Local folklore tells of the architect's son, Dharmapada, who completed the temple's crown when the 1,200 masons failed, before jumping into the sea to save his father's reputation."
+        },
+        "imageUrl": "assets/destinations/konark_1.jpg",
+        "galleryImages": [
+            "assets/destinations/konark_1.jpg",
+            "assets/destinations/konark_2.jpg"
+        ],
+        "entry_fee": { "indian": "₹40", "foreign": "₹600" },
+        "best_time_to_visit": "October to March"
+    },
+    {
+        "id": "heritage_2",
+        "name": "Somnath Temple",
+        "city": "Veraval",
+        "state": "Gujarat",
+        "country": "India",
+        "location": "Veraval, Gujarat",
+        "coordinates": { "latitude": 20.8880, "longitude": 70.4012 },
+        "category": "Heritage",
+        "type": "Spiritual",
+        "rating": 4.8,
+        "description": "The first of the twelve holy Jyotirlinga shrines of Lord Shiva, known as the 'Shrine Eternal'.",
+        "detailedInfo": {
+            "introduction": "Somnath Temple is a majestic shrine situated on the western coast of Gujarat. It is revered as the first Jyotirlinga of Lord Shiva.",
+            "history": "The temple has been destroyed and reconstructed 17 times over centuries. The current structure was rebuilt in 1951.",
+            "cultural_significance": "It is one of the most sacred pilgrimage sites for Hindus. The name Somnath means 'Lord of the Moon'.",
+            "architecture": "Built in the Chalukya style, it features a towering shikhara, intricate carvings, and a stunning view of the Arabian Sea.",
+            "visitingInfo": "Open for Darshan from 6:00 AM to 9:30 PM.",
+            "keyFacts": [
+                "First of the 12 Jyotirlingas",
+                "The 'Baan Stambh' indicates a straight line to Antarctica with no land in between"
+            ]
+        },
+        "culturalVault": {
+            "history": "The temple's history is a saga of destruction and resurrection.",
+            "stories": "The moon god, Chandra, is said to have built the original golden temple.",
+            "myths": "It is believed that the site has been sacred since the Satya Yuga."
+        },
+        "imageUrl": "assets/destinations/somnath_1.jpg",
+        "galleryImages": ["assets/destinations/somnath_1.jpg"],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "October to March"
+    },
+    {
+        "id": "heritage_3",
+        "name": "Kedarnath Temple",
+        "city": "Kedarnath",
+        "state": "Uttarakhand",
+        "country": "India",
+        "location": "Kedarnath, Uttarakhand",
+        "coordinates": { "latitude": 30.7352, "longitude": 79.0669 },
+        "category": "Heritage",
+        "tags": ["Char Dham Yatra"],
+        "type": "Spiritual",
+        "rating": 5.0,
+        "description": "A sacred Hindu temple dedicated to Lord Shiva, located in the Garhwal Himalayan range.",
+        "detailedInfo": {
+            "introduction": "Kedarnath is one of the holiest pilgrim centers in northern India.",
+            "history": "Believed to be originally built by the Pandavas and later revived by Adi Shankaracharya.",
+            "cultural_significance": "It is one of the 12 Jyotirlingas and the most important of the Panch Kedar temples.",
+            "architecture": "Constructed with massive grey stone slabs, it is built to survive the harsh Himalayan climate.",
+            "visitingInfo": "Accessible only from April to November.",
+            "keyFacts": [
+                "Survived the 2013 floods due to a massive boulder",
+                "Nearly 1000 years old"
+            ]
+        },
+        "culturalVault": {
+            "history": "The Pandavas sought Lord Shiva's penance here after the Kurukshetra war.",
+            "stories": "Bhairon Baba is believed to protect the temple during winter.",
+            "myths": "The hump of the bull (Shiva) appeared at Kedarnath."
+        },
+        "imageUrl": "assets/destinations/kedarnath_1.jpg",
+        "galleryImages": ["assets/destinations/kedarnath_1.jpg"],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "May to June, September to October"
+    },
+    {
+        "id": "heritage_4",
+        "name": "Badrinath Temple",
+        "city": "Badrinath",
+        "state": "Uttarakhand",
+        "country": "India",
+        "location": "Badrinath, Uttarakhand",
+        "coordinates": { "latitude": 30.7433, "longitude": 79.4938 },
+        "category": "Heritage",
+        "tags": ["Char Dham Yatra"],
+        "type": "Spiritual",
+        "rating": 4.9,
+        "description": "A holy temple dedicated to Lord Vishnu, part of the main Char Dham pilgrimage.",
+        "detailedInfo": {
+            "introduction": "Badrinath Temple is situated along the Alaknanda River in the hill town of Badrinath.",
+            "history": "Revived by Adi Shankaracharya in the 8th century.",
+            "cultural_significance": "Dedicated to the dual form of Vishnu (Nara-Narayana).",
+            "architecture": "Has a colorful facade with a gold-plated roof.",
+            "visitingInfo": "Open from April to November.",
+            "keyFacts": [
+                "The idol of Lord Vishnu is made of Saligram stone",
+                "Surrounded by mountain ranges"
+            ]
+        },
+        "culturalVault": {
+            "history": "Lord Vishnu performed long penance here shielded by a berry tree.",
+            "stories": "Mata Murti Ka Mela is a significant festival.",
+            "myths": "Peak prophecy about the temple vanishing."
+        },
+        "imageUrl": "assets/destinations/badrinath_1.jpg",
+        "galleryImages": ["assets/destinations/badrinath_1.jpg"],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "May to June, September to October"
+    },
+    {
+        "id": "heritage_5",
+        "name": "Jagannath Temple",
+        "city": "Puri",
+        "state": "Odisha",
+        "country": "India",
+        "location": "Puri, Odisha",
+        "coordinates": { "latitude": 19.8047, "longitude": 85.8186 },
+        "category": "Heritage",
+        "type": "Spiritual",
+        "rating": 4.8,
+        "description": "A significant Hindu temple dedicated to Lord Jagannath, famous for its annual Rath Yatra.",
+        "detailedInfo": {
+            "introduction": "The Jagannath Temple in Puri is one of the holiest Char Dham sites.",
+            "history": "Built by King Anantavarman Chodaganga Deva in the 12th century.",
+            "cultural_significance": "Famous for its mass kitchen and annual chariot festival.",
+            "architecture": "Classic Kalinga style architecture with a massive Vimana.",
+            "visitingInfo": "Open from 5:00 AM to 11:00 PM.",
+            "keyFacts": [
+                "Flag flaps opposite to the wind",
+                "Nothing flies over the temple"
+            ]
+        },
+        "culturalVault": {
+            "history": "The wooden idols are renewed every 12 or 19 years.",
+            "stories": "Ancient Rath Yatra origins.",
+            "myths": "Prophecy of the Brahma Padartha."
+        },
+        "imageUrl": "assets/destinations/puri_jagannath_1.jpg",
+        "galleryImages": ["assets/destinations/puri_jagannath_1.jpg"],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "October to March"
+    },
+    {
+        "id": "heritage_6",
+        "name": "Meenakshi Temple",
+        "city": "Madurai",
+        "state": "Tamil Nadu",
+        "country": "India",
+        "location": "Madurai, Tamil Nadu",
+        "coordinates": { "latitude": 9.9195, "longitude": 78.1193 },
+        "category": "Heritage",
+        "type": "Historical",
+        "rating": 4.8,
+        "description": "An ancient temple complex in Madurai, a masterpiece of Dravidian architecture.",
+        "detailedInfo": {
+            "introduction": "Meenakshi Amman Temple is the heart of the 2,500-year-old city of Madurai.",
+            "history": "Rebuilt by the Nayak rulers in the 16th century.",
+            "cultural_significance": "Dedicated to Goddess Meenakshi and Lord Sundareswarar.",
+            "architecture": "Famous for its 14 towering gopurams and 1000-pillar hall.",
+            "visitingInfo": "Open 5:00 AM to 12:30 PM, and 4:00 PM to 9:30 PM.",
+            "keyFacts": [
+                "Over 33,000 sculptures",
+                "A New Seven Wonders nominee"
+            ]
+        },
+        "culturalVault": {
+            "history": "Center of the Tamil Sangam literature.",
+            "stories": "The grand wedding festival.",
+            "myths": "Goddess Meenakshi's divine origins."
+        },
+        "imageUrl": "assets/destinations/madurai_meenakshi_1.jpg",
+        "galleryImages": ["assets/destinations/madurai_meenakshi_1.jpg"],
+        "entry_fee": { "indian": "Free", "foreign": "Free" },
+        "best_time_to_visit": "October to March"
+    },
+    {
+        "id": "heritage_7",
+        "name": "Sanchi Stupa",
+        "city": "Sanchi",
+        "state": "Madhya Pradesh",
+        "country": "India",
+        "location": "Sanchi, Madhya Pradesh",
+        "coordinates": { "latitude": 23.4793, "longitude": 77.7397 },
+        "category": "Heritage",
+        "type": "Historical",
+        "rating": 4.7,
+        "description": "One of the oldest stone structures in India and a significant Buddhist monument.",
+        "detailedInfo": {
+            "introduction": "Sanchi Stupa is a UNESCO World Heritage site centered on Buddhist art.",
+            "history": "Commissioned by Emperor Ashoka in the 3rd century BCE.",
+            "cultural_significance": "Represents the life and journeys of Buddha through symbolic carvings.",
+            "architecture": "A hemispherical brick dome with ornate stone gateways.",
+            "visitingInfo": "Open from 6:30 AM to 6:30 PM.",
+            "keyFacts": [
+                "Depicts Jataka tales",
+                "Featured on the 200 rupee note"
+            ]
+        },
+        "culturalVault": {
+            "history": "Flourishing center of Buddhist learning.",
+            "stories": "The Ashoka Pillar mirror polish.",
+            "myths": "Funded by local ivory carvers."
+        },
+        "imageUrl": "assets/destinations/sanchi_stupa_1.jpg",
+        "galleryImages": ["assets/destinations/sanchi_stupa_1.jpg"],
+        "entry_fee": { "indian": "₹30", "foreign": "₹500" },
+        "best_time_to_visit": "November to March"
+    }
+]

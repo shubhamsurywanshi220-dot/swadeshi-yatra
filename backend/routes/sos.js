@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const SOS = require('../models/SOS');
+const Activity = require('../models/Activity');
 
 // @route   POST /api/sos/alert
 // @desc    Trigger a new SOS alert
@@ -35,6 +36,31 @@ router.post('/alert', auth, async (req, res) => {
         console.log(`📞 Emergency Contact: ${JSON.stringify(newAlert.emergencyContact)}`);
         console.log(`💬 Message: ${newAlert.message}`);
         console.log(`🌐 Maps: https://www.google.com/maps?q=${latitude},${longitude}\n`);
+
+        // Emit real-time event
+        if (req.io) {
+            req.io.emit('sos_alert', {
+                id: alert.id,
+                userId: req.user.id,
+                name: (await alert.populate('user', 'name')).user.name,
+                location: { latitude, longitude },
+                message: alert.message,
+                timestamp: alert.timestamp
+            });
+        }
+
+        // Log Activity
+        try {
+            const userName = (await alert.populate('user', 'name')).user.name;
+            const activity = new Activity({
+                type: 'sos_alert',
+                message: `SOS Alert triggered by ${userName}`,
+                metadata: { alertId: alert.id, userId: req.user.id, location: { latitude, longitude } }
+            });
+            await activity.save();
+        } catch (actErr) {
+            console.error('Activity Logging Error:', actErr.message);
+        }
 
         res.json(alert);
     } catch (err) {
@@ -74,6 +100,13 @@ router.put('/update/:id', auth, async (req, res) => {
 
         console.log(`🛰️ [SOS UPDATE] Alert ${req.params.id} updated to ${latitude}, ${longitude}`);
 
+        if (req.io) {
+            req.io.emit('sos_update', {
+                id: alert.id,
+                location: { latitude, longitude }
+            });
+        }
+
         res.json(alert);
     } catch (err) {
         console.error('SOS Update Error:', err.message);
@@ -98,6 +131,24 @@ router.put('/resolve/:id', auth, async (req, res) => {
         await alert.save();
 
         console.log(`✅ [SOS RESOLVED] Alert ${req.params.id} marked as safe.`);
+
+        if (req.io) {
+            req.io.emit('sos_resolved', {
+                id: alert.id
+            });
+        }
+
+        // Log Activity
+        try {
+            const activity = new Activity({
+                type: 'sos_resolved',
+                message: `SOS Alert resolved: ${alert.id}`,
+                metadata: { alertId: alert.id }
+            });
+            await activity.save();
+        } catch (actErr) {
+            console.error('Activity Logging Error:', actErr.message);
+        }
 
         res.json(alert);
     } catch (err) {

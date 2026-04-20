@@ -10,7 +10,9 @@ import {
     Ticket,
     TriangleAlert,
     ShieldCheck,
-    ChevronRight
+    ChevronRight,
+    Video,
+    Package
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -24,6 +26,8 @@ const Sidebar = () => {
         { path: '/businesses', label: 'Verification', icon: ShieldCheck },
         { path: '/users', label: 'Users', icon: Users },
         { path: '/sos', label: 'SOS Alert', icon: TriangleAlert },
+        { path: '/vlogs', label: 'Travel Vlogs', icon: Video },
+        { path: '/packages', label: 'Travel Packages', icon: Package },
     ];
 
     return (

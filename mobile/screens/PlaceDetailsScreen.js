@@ -12,11 +12,12 @@ import { checkConnectivity } from '../utils/network';
 import ReviewModal from '../components/ReviewModal';
 import ReviewCard from '../components/ReviewCard';
 import ImageWithFallback from '../components/ImageWithFallback';
+import SmartTravelCalendarCard from '../components/SmartTravelCalendarCard';
 
 const { width } = Dimensions.get('window');
 
 // ── Animated Entry Fee card ──────────────────────────────────────────────────
-function EntryFeeCard({ entryFee, theme, onPress }) {
+function EntryFeeCard({ entryFee, theme, onPress, bookingEnabled }) {
     const scale = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () =>
@@ -32,6 +33,7 @@ function EntryFeeCard({ entryFee, theme, onPress }) {
             onPress={onPress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
+            disabled={!bookingEnabled}
         >
             <Animated.View
                 style={[
@@ -41,16 +43,24 @@ function EntryFeeCard({ entryFee, theme, onPress }) {
                         padding: 16,
                         borderRadius: 12,
                         borderWidth: 1.5,
-                        borderColor: theme.colors.primary,
+                        borderColor: bookingEnabled ? theme.colors.primary : theme.colors.border,
                         alignItems: 'center',
                         transform: [{ scale }],
+                        opacity: bookingEnabled ? 1 : 0.7,
                     }
                 ]}
             >
-                <MaterialCommunityIcons name="ticket-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
+                <MaterialCommunityIcons 
+                    name={bookingEnabled ? "ticket-outline" : "information-outline"} 
+                    size={24} 
+                    color={bookingEnabled ? theme.colors.primary : theme.colors.text.tertiary} 
+                    style={{ marginBottom: 4 }} 
+                />
                 <Text style={{ fontSize: 11, color: theme.colors.text.secondary, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Entry Fee</Text>
                 <Text style={{ fontSize: 14, fontWeight: 'bold', color: theme.colors.text.primary, textAlign: 'center' }}>{entryFee}</Text>
-                <Text style={{ fontSize: 10, color: theme.colors.primary, marginTop: 5, fontWeight: '600' }}>Tap to Book Ticket</Text>
+                {bookingEnabled && (
+                    <Text style={{ fontSize: 10, color: theme.colors.primary, marginTop: 5, fontWeight: '600' }}>Tap to Book Ticket</Text>
+                )}
             </Animated.View>
         </TouchableOpacity>
     );
@@ -69,11 +79,9 @@ export default function PlaceDetailsScreen({ route, navigation }) {
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [userData, setUserData] = useState({ id: null, name: 'Traveler' });
-    const [loadingDirections, setLoadingDirections] = useState(false);
     const [userLocation, setUserLocation] = useState(null);
     const [locationError, setLocationError] = useState(null);
     const mapRef = useRef(null);
-    const directionScale = useRef(new Animated.Value(1)).current;
 
     // Destination coordinates
     const destLat = place.coordinates?.latitude;
@@ -210,72 +218,6 @@ export default function PlaceDetailsScreen({ route, navigation }) {
 
 
 
-    const openMaps = async () => {
-        const isOnline = await checkConnectivity();
-        if (!isOnline) {
-            Alert.alert('Offline', 'Please connect to the internet to use maps and navigation.');
-            return;
-        }
-
-        // Check if location services are enabled
-        const enabled = await Location.hasServicesEnabledAsync();
-        if (!enabled) {
-            Alert.alert(
-                'Location Disabled',
-                'Please enable location services to get accurate directions.',
-                [{ text: 'OK' }]
-            );
-            return;
-        }
-
-        // Show loading indicator for 1 second
-        setLoadingDirections(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoadingDirections(false);
-
-        // Always prefer coordinates
-        if (!hasDestCoords) {
-            // Fallback to place name search
-            const destination = `${place.name} ${place.location}`;
-            const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=driving`;
-            Linking.openURL(browserUrl).catch(err => {
-                console.error('Error opening maps:', err);
-                Alert.alert('Error', 'Could not open Google Maps. Please install it or try again.');
-            });
-            return;
-        }
-
-        if (Platform.OS === 'android') {
-            // Try Google Maps navigation intent first (uses lat,lng)
-            const gmapsNavUri = `google.navigation:q=${destLat},${destLng}`;
-            const canOpen = await Linking.canOpenURL(gmapsNavUri);
-            if (canOpen) {
-                Linking.openURL(gmapsNavUri);
-                return;
-            }
-        } else if (Platform.OS === 'ios') {
-            const appleMapsUrl = `maps://?daddr=${destLat},${destLng}&dirflg=d`;
-            const canOpen = await Linking.canOpenURL(appleMapsUrl);
-            if (canOpen) {
-                Linking.openURL(appleMapsUrl);
-                return;
-            }
-        }
-
-        // Fallback: open Google Maps in browser with exact coordinates
-        const browserUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving`;
-        Linking.openURL(browserUrl).catch(err => {
-            console.error('Error opening maps:', err);
-            Alert.alert('Error', 'Could not open Google Maps. Please install it or try again.');
-        });
-    };
-
-    const handleDirectionPressIn = () =>
-        Animated.spring(directionScale, { toValue: 0.93, useNativeDriver: true, speed: 30 }).start();
-
-    const handleDirectionPressOut = () =>
-        Animated.spring(directionScale, { toValue: 1, useNativeDriver: true, speed: 20 }).start();
-
     const handleCall = () => {
         if (place.contactInfo?.phone) {
             Linking.openURL(`tel:${place.contactInfo.phone}`);
@@ -358,6 +300,12 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                             <Text style={styles.ecoText}>Eco-Friendly</Text>
                         </View>
                     )}
+                    {place.isHiddenGem && (
+                        <View style={styles.hiddenGemDetailsBadge}>
+                            <Ionicons name="sparkles" size={16} color="#FFF" />
+                            <Text style={styles.hiddenGemDetailsText}>HIDDEN GEM</Text>
+                        </View>
+                    )}
                 </View>
 
                 <View style={styles.content}>
@@ -381,15 +329,26 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                     {/* Info Grid (Season & Price) - ONLY for Destinations */}
                     {isDestination && (
                         <View style={styles.infoGrid}>
-                            <View style={styles.infoCard}>
-                                <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
-                                <Text style={styles.infoLabel}>Best Time to Visit</Text>
-                                <Text style={styles.infoValue}>{bestTime}</Text>
-                            </View>
+                            {hasDestCoords ? (
+                                <SmartTravelCalendarCard latitude={destLat} longitude={destLng} />
+                            ) : (
+                                <View style={styles.infoCard}>
+                                    <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} style={{ marginBottom: 4 }} />
+                                    <Text style={styles.infoLabel}>Best Time to Visit</Text>
+                                    <Text style={styles.infoValue}>{bestTime}</Text>
+                                </View>
+                            )}
                             <EntryFeeCard
                                 entryFee={entryFee}
                                 theme={theme}
-                                onPress={() => navigation.navigate('Booking', { placeId: place._id || place.id, placeName: place.name, entryFee: place.entryFee })}
+                                bookingEnabled={place.bookingEnabled !== false}
+                                onPress={() => {
+                                    if (place.bookingLink) {
+                                        Linking.openURL(place.bookingLink);
+                                    } else {
+                                        navigation.navigate('Booking', { placeId: place._id || place.id, placeName: place.name, entryFee: place.entryFee });
+                                    }
+                                }}
                             />
                         </View>
                     )}
@@ -487,33 +446,11 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                         </View>
                     )}
 
-                    {/* Get Directions */}
-                    <View style={{ marginBottom: 24 }}>
-                        <TouchableOpacity
-                            activeOpacity={0.85}
-                            onPress={openMaps}
-                            onPressIn={handleDirectionPressIn}
-                            onPressOut={handleDirectionPressOut}
-                            disabled={loadingDirections}
-                        >
-                            <Animated.View style={[styles.directionButton, { transform: [{ scale: directionScale }] }]}>
-                                {loadingDirections ? (
-                                    <ActivityIndicator size="small" color="#FFF" style={{ marginRight: 8 }} />
-                                ) : (
-                                    <Ionicons name="navigate" size={20} color="#FFF" style={{ marginRight: 8 }} />
-                                )}
-                                <Text style={styles.directionButtonText}>
-                                    {loadingDirections ? 'Opening Maps...' : 'Directions'}
-                                </Text>
-                            </Animated.View>
-                        </TouchableOpacity>
-                    </View>
-
                     {/* Cultural Vault Entry */}
                     {isDestination && (
                         <TouchableOpacity
                             style={styles.cultureBanner}
-                            onPress={() => navigation.navigate('Culture', { placeId: place._id || place.id, placeName: place.name })}
+                             onPress={() => navigation.navigate('Culture', { placeId: place._id || place.id, placeName: place.name, culturalVault: place.culturalVault })}
                         >
                             <View style={styles.cultureBannerIcon}>
                                 <MaterialCommunityIcons name="feather" size={24} color="#FFF" />
@@ -526,34 +463,68 @@ export default function PlaceDetailsScreen({ route, navigation }) {
                         </TouchableOpacity>
                     )}
 
+                    {/* ── Travel Vlogs Section ── */}
+                    {isDestination && (
+                        <TouchableOpacity
+                            style={styles.vlogsBanner}
+                            activeOpacity={0.85}
+                            onPress={() => navigation.navigate('SocialHub', { locationFilter: place.city || place.name })}
+                        >
+                            <View style={styles.vlogsBannerIcon}>
+                                <MaterialCommunityIcons name="video-wireless" size={24} color="#FFF" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.vlogsBannerTitle}>Travel Vlogs</Text>
+                                <Text style={styles.vlogsBannerText}>Watch vlogs from {place.city || place.name}</Text>
+                            </View>
+                            <Ionicons name="play-circle" size={24} color="#FFF" style={{ opacity: 0.85 }} />
+                        </TouchableOpacity>
+                    )}
+
                     {/* Explore Surroundings - Deep Links for EVERY Place */}
                     <View style={styles.exploreNearbySection}>
                         <Text style={styles.sectionHeader}>Explore Surroundings</Text>
                         <Text style={styles.exploreNearbySub}>Find essentials near {place.name}</Text>
-                        <View style={styles.nearbyGrid}>
-                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Hotels')}>
+                         <View style={styles.nearbyGrid}>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => {
+                                const custom = place.exploreSurroundings?.stay?.[0];
+                                if (custom?.link && custom.link !== '#') Linking.openURL(custom.link);
+                                else searchNearby('Hotels');
+                            }}>
                                 <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#1B2E1C' : '#E8F5E9' }]}>
                                     <Ionicons name="bed" size={22} color={isDarkMode ? '#81C784' : '#2E7D32'} />
                                 </View>
-                                <Text style={styles.nearbyLabel}>Stay</Text>
+                                <Text style={styles.nearbyLabel}>{place.exploreSurroundings?.stay?.[0]?.name || 'Stay'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Restaurants')}>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => {
+                                const custom = place.exploreSurroundings?.food?.[0];
+                                if (custom?.link && custom.link !== '#') Linking.openURL(custom.link);
+                                else searchNearby('Restaurants');
+                            }}>
                                 <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#3E2723' : '#FFF3E0' }]}>
                                     <Ionicons name="restaurant" size={22} color={isDarkMode ? '#FFB74D' : '#EF6C00'} />
                                 </View>
-                                <Text style={styles.nearbyLabel}>Food</Text>
+                                <Text style={styles.nearbyLabel}>{place.exploreSurroundings?.food?.[0]?.name || 'Food'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('Bus Stops')}>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => {
+                                const custom = place.exploreSurroundings?.transport?.[0];
+                                if (custom?.link && custom.link !== '#') Linking.openURL(custom.link);
+                                else searchNearby('Bus Stops');
+                            }}>
                                 <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#0D47A1' : '#E1F5FE' }]}>
                                     <Ionicons name="bus" size={22} color={isDarkMode ? '#64B5F6' : '#0277BD'} />
                                 </View>
-                                <Text style={styles.nearbyLabel}>Transport</Text>
+                                <Text style={styles.nearbyLabel}>{place.exploreSurroundings?.transport?.[0]?.name || 'Transport'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.nearbyItem} onPress={() => searchNearby('ATM')}>
+                            <TouchableOpacity style={styles.nearbyItem} onPress={() => {
+                                const custom = place.exploreSurroundings?.atm?.[0];
+                                if (custom?.link && custom.link !== '#') Linking.openURL(custom.link);
+                                else searchNearby('ATM');
+                            }}>
                                 <View style={[styles.nearbyIconBg, { backgroundColor: isDarkMode ? '#311B92' : '#F3E5F5' }]}>
                                     <Ionicons name="card-outline" size={22} color={isDarkMode ? '#BA68C8' : '#7B1FA2'} />
                                 </View>
-                                <Text style={styles.nearbyLabel}>ATM</Text>
+                                <Text style={styles.nearbyLabel}>{place.exploreSurroundings?.atm?.[0]?.name || 'ATM'}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -670,6 +641,24 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         gap: 4,
     },
     ecoText: { color: '#FFF', fontWeight: 'bold', fontSize: 12 },
+    hiddenGemDetailsBadge: {
+        position: 'absolute',
+        bottom: 40,
+        left: 20,
+        backgroundColor: '#6A1B9A',
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+        borderRadius: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    hiddenGemDetailsText: { color: '#FFF', fontWeight: '900', fontSize: 13, letterSpacing: 0.5 },
 
     content: {
         padding: 24,
@@ -778,22 +767,6 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         fontWeight: '600',
     },
 
-    directionButton: {
-        backgroundColor: theme.colors.primary,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 16,
-        borderRadius: 12,
-        marginBottom: 24,
-        ...theme.shadows.elevated,
-    },
-    directionButtonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-
     // Map styles
     mapSection: {
         marginBottom: 24,
@@ -825,6 +798,40 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         flex: 1,
     },
 
+
+    // Travel Vlogs Banner
+    vlogsBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#1565C0',
+        borderRadius: 20,
+        padding: 16,
+        marginBottom: 20,
+        gap: 14,
+        shadowColor: '#1565C0',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    vlogsBannerIcon: {
+        width: 46,
+        height: 46,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    vlogsBannerTitle: {
+        color: '#FFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    vlogsBannerText: {
+        color: 'rgba(255,255,255,0.82)',
+        fontSize: 13,
+    },
 
     // Explore Nearby
     exploreNearbySection: {

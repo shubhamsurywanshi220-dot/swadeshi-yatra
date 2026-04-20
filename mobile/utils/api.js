@@ -3,17 +3,20 @@ import { Platform } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { NativeModules } from 'react-native';
+
 // START CONFIGURATION
 // Production backend URL (deployed on Render)
 const PRODUCTION_URL = 'https://swadeshi-yatra.onrender.com/api';
 
-// Local backend URL (Use your machine's local IP for physical devices)
-// Current Machine IP: 10.46.191.131
-const DEV_URL = 'http://10.46.191.131:5000/api';
-const EMULATOR_URL = 'http://10.0.2.2:5000/api';
+let BASE_URL = PRODUCTION_URL;
 
-// Set this to DEV_URL if testing on a physical device, or EMULATOR_URL for Android Emulator
-const BASE_URL = DEV_URL;
+if (__DEV__) {
+    // 🚀 We are forcing the local IP address because loopback (10.0.2.2) doesn't work on physical Wi-Fi devices.
+    // If your internet IP changes, you need to update this to match your laptop's current IPv4 address.
+    BASE_URL = 'http://10.230.101.131:5000/api';
+    console.log('✅ [API] Hardcoded physical device IP:', BASE_URL);
+}
 
 console.log('[API] Using Base URL:', BASE_URL);
 

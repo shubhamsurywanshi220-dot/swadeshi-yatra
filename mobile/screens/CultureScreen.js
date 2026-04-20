@@ -22,10 +22,28 @@ export default function CultureScreen({ route, navigation }) {
 
     const fetchStories = async () => {
         try {
+            // First, if we have culturalVault data from the place object, add them as "stories"
+            let vaultStories = [];
+            if (route.params.culturalVault) {
+                const vault = route.params.culturalVault;
+                if (vault.history) vaultStories.push({ _id: 'v1', title: 'Historical Chronicles', content: vault.history, category: 'Tradition', contributorName: 'Official Registry' });
+                if (vault.myths) vaultStories.push({ _id: 'v2', title: 'Myths & Legends', content: vault.myths, category: 'Myth', contributorName: 'Local Folklore' });
+                if (vault.stories) vaultStories.push({ _id: 'v3', title: 'Local Narratives', content: vault.stories, category: 'Story', contributorName: 'Community' });
+            }
+
             const response = await api.get(`/culture/${placeId}`);
-            setStories(response.data);
+            setStories([...vaultStories, ...response.data]);
         } catch (error) {
             console.error('Error fetching stories:', error);
+            // Even if API fails, show vault stories if we have them
+            if (route.params.culturalVault) {
+                 const vault = route.params.culturalVault;
+                 const vaultStories = [];
+                 if (vault.history) vaultStories.push({ _id: 'v1', title: 'Historical Chronicles', content: vault.history, category: 'Tradition', contributorName: 'Official Registry' });
+                 if (vault.myths) vaultStories.push({ _id: 'v2', title: 'Myths & Legends', content: vault.myths, category: 'Myth', contributorName: 'Local Folklore' });
+                 if (vault.stories) vaultStories.push({ _id: 'v3', title: 'Local Narratives', content: vault.stories, category: 'Story', contributorName: 'Community' });
+                 setStories(vaultStories);
+            }
         } finally {
             setLoading(false);
         }

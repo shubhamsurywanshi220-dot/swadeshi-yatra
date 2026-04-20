@@ -152,7 +152,8 @@ export default function DirectoryScreen({ route, navigation }) {
                 (item.description?.toLowerCase() || '').includes(kw) ||
                 (item.state?.toLowerCase() || '').includes(kw) ||
                 (item.category?.toLowerCase() || '').includes(kw) ||
-                (item.city?.toLowerCase() || '').includes(kw);
+                (item.city?.toLowerCase() || '').includes(kw) ||
+                (item.tags?.some(tag => tag.toLowerCase().includes(kw)));
         });
 
         return matchesSearch && matchesState && matchesCity && matchesType && matchesSeason;
@@ -187,11 +188,25 @@ export default function DirectoryScreen({ route, navigation }) {
                 <View style={styles.cardBadge}>
                     <Text style={styles.cardBadgeText}>{item.category || 'Heritage'}</Text>
                 </View>
+                {/* Hidden Gem Badge */}
+                {item.isHiddenGem && (
+                    <View style={styles.hiddenGemBadge}>
+                        <Ionicons name="sparkles" size={12} color="#FFF" />
+                        <Text style={styles.hiddenGemText}>HIDDEN GEM</Text>
+                    </View>
+                )}
                 {/* Eco-Friendly Badge */}
                 {item.isEcoFriendly && (
                     <View style={styles.ecoBadge}>
                         <Ionicons name="leaf" size={14} color="#FFF" />
                         <Text style={styles.ecoText}>{t('directory.eco', 'Eco')}</Text>
+                    </View>
+                )}
+                {/* Crowd Level Badge */}
+                {item.crowdLevel === 'Low' && (
+                    <View style={styles.crowdBadge}>
+                        <View style={styles.crowdIndicator} />
+                        <Text style={styles.crowdText}>LESS CROWDED</Text>
                     </View>
                 )}
                 {/* Favorite Button */}
@@ -639,6 +654,49 @@ const createStyles = (theme) => StyleSheet.create({
         color: '#FFF',
         fontSize: 11,
         fontWeight: '700',
+    },
+    hiddenGemBadge: {
+        position: 'absolute',
+        top: 16,
+        left: 16,
+        backgroundColor: '#6A1B9A', // Deep Purple for Hidden Gems
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 16,
+        gap: 4,
+        ...theme.shadows.soft,
+    },
+    hiddenGemText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 0.5,
+    },
+    crowdBadge: {
+        position: 'absolute',
+        bottom: 12,
+        left: 12,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 16,
+        gap: 6,
+    },
+    crowdIndicator: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#4CAF50', // Green for low crowd
+    },
+    crowdText: {
+        color: '#FFF',
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 0.3,
     },
     favoriteButton: {
         position: 'absolute',

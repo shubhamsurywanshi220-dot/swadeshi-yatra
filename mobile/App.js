@@ -20,6 +20,8 @@ import CultureScreen from './screens/CultureScreen';
 import StoryReaderScreen from './screens/StoryReaderScreen';
 import BookingScreen from './screens/BookingScreen';
 import MyTicketsScreen from './screens/MyTicketsScreen';
+import SocialHubScreen from './screens/SocialHubScreen';
+import PackageDetailsScreen from './screens/PackageDetailsScreen';
 import BottomTabs from './components/BottomTabs';
 import { theme } from './constants/theme';
 
@@ -55,6 +57,8 @@ function MainApp() {
       // Basic back handling
       if (currentScreen === 'PlaceDetails' || currentScreen === 'DestinationAbout') {
         setCurrentScreen('Explore');
+      } else if (currentScreen === 'PackageDetails') {
+        setCurrentScreen('Home');
       } else if (currentScreen === 'Settings' || currentScreen === 'HelpSupport' || currentScreen === 'About') {
         setCurrentScreen('Profile');
       } else if (currentScreen === 'Initiatives') {
@@ -110,6 +114,10 @@ function MainApp() {
         return <BookingScreen route={{ params: routeParams }} navigation={navigation} />;
       case 'MyTickets':
         return <MyTicketsScreen navigation={navigation} />;
+      case 'SocialHub':
+        return <SocialHubScreen route={{ params: routeParams }} navigation={navigation} />;
+      case 'PackageDetails':
+        return <PackageDetailsScreen route={{ params: routeParams }} navigation={navigation} />;
       case 'DestinationAbout':
         return <DestinationAboutScreen route={{ params: routeParams }} navigation={navigation} />;
       case 'EditProfile':
@@ -138,6 +146,7 @@ function MainApp() {
         currentScreen !== 'HelpSupport' &&
         currentScreen !== 'About' &&
         currentScreen !== 'DestinationAbout' &&
+        currentScreen !== 'PackageDetails' &&
         currentScreen !== 'ProviderRegistration' && (
           <BottomTabs currentScreen={currentScreen} navigate={navigation.navigate} />
         )}
