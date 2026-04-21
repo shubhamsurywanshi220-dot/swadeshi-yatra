@@ -8,11 +8,20 @@ if not exist node_modules (
 echo Starting Expo...
 echo.
 echo ===================================================
-echo  INSTRUCTIONS:
-echo  1. Scan the QR code with the 'Expo Go' app on your phone.
-echo  2. OR press 'a' to run on Android Emulator.
-echo  3. To RELOAD changes, click in this window and press 'r'.
+echo  PHYSICAL DEVICE TESTING (RECOMMENDED)
+echo  1. Scanning: Open 'Expo Go' app on your phone and scan QR.
+echo  2. WiFi: Device and Laptop MUST be on the same WiFi.
+echo  3. Tunnel: If QR doesn't work, press 't' for tunnel mode.
+echo  4. Reload: Press 'r' inside the Expo terminal to reload.
 echo ===================================================
 echo.
-call npx.cmd expo start
+echo Running IP Fix Script...
+node ..\auto_fix_ip.js
+echo.
+set /p CHOICE="Run with Tunnel mode (Only if LAN fails)? [y/n]: "
+if /I "%CHOICE%"=="y" (
+    call npx.cmd expo start --tunnel
+) else (
+    call npx.cmd expo start
+)
 pause

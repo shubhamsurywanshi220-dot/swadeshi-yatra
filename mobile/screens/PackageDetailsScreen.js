@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    Image, StatusBar, Animated, Dimensions, FlatList
+    Image, StatusBar, Animated, Dimensions, FlatList, Modal
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -16,6 +16,8 @@ export default function PackageDetailsScreen({ route, navigation }) {
     const pkg = route?.params?.package || {};
     const [activeTab, setActiveTab] = useState('itinerary');
     const [expandedDay, setExpandedDay] = useState(0);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [isViewerOpen, setIsViewerOpen] = useState(false);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(40)).current;
@@ -26,6 +28,11 @@ export default function PackageDetailsScreen({ route, navigation }) {
             Animated.spring(slideAnim, { toValue: 0, tension: 20, friction: 7, useNativeDriver: true }),
         ]).start();
     }, []);
+
+    const openViewer = (url) => {
+        setSelectedImage(url);
+        setIsViewerOpen(true);
+    };
 
     const styles = createStyles(theme, isDarkMode);
 
@@ -64,6 +71,7 @@ export default function PackageDetailsScreen({ route, navigation }) {
                         source={{ uri: pkg.imageUrl }}
                         style={styles.heroImage}
                         resizeMode="cover"
+                        category={pkg.category}
                     />
                     <View style={styles.heroGradient} />
 
@@ -144,6 +152,32 @@ export default function PackageDetailsScreen({ route, navigation }) {
                     <Text style={styles.sectionTitle}>About This Package</Text>
                     <Text style={styles.descriptionText}>{pkg.description}</Text>
                 </View>
+
+                {/* Gallery */}
+                {pkg.galleryImages && pkg.galleryImages.length > 0 && (
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Gallery</Text>
+                        <FlatList
+                            horizontal
+                            data={pkg.galleryImages}
+                            keyExtractor={(item, index) => index.toString()}
+                            showsHorizontalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity 
+                                    style={styles.galleryItem}
+                                    activeOpacity={0.9}
+                                    onPress={() => openViewer(item)}
+                                >
+                                    <ImageWithFallback
+                                        source={{ uri: item }}
+                                        style={styles.galleryImage}
+                                        category={pkg.category}
+                                    />
+                                </TouchableOpacity>
+                            )}
+                        />
+                    </View>
+                )}
 
                 {/* Locations */}
                 {pkg.locations && pkg.locations.length > 0 && (
@@ -277,11 +311,33 @@ export default function PackageDetailsScreen({ route, navigation }) {
                     <Text style={styles.ctaPrice}>{priceText}</Text>
                     <Text style={styles.ctaPriceLabel}>per person</Text>
                 </View>
-                <TouchableOpacity style={styles.bookButton} activeOpacity={0.85}>
+                <TouchableOpacity 
+                    style={styles.bookButton} 
+                    activeOpacity={0.85}
+                    onPress={() => navigation.navigate('Booking', { package: pkg })}
+                >
                     <Text style={styles.bookButtonText}>Book Now</Text>
                     <Ionicons name="arrow-forward" size={18} color="#FFF" />
                 </TouchableOpacity>
             </View>
+            {/* Full Screen Image Viewer */}
+            <Modal visible={isViewerOpen} transparent animationType="fade">
+                <View style={styles.viewerContainer}>
+                    <TouchableOpacity 
+                        style={styles.viewerClose}
+                        onPress={() => setIsViewerOpen(false)}
+                    >
+                        <Ionicons name="close" size={30} color="#FFF" />
+                    </TouchableOpacity>
+                    {selectedImage && (
+                        <ImageWithFallback
+                            source={{ uri: selectedImage }}
+                            style={styles.fullImage}
+                            resizeMode="contain"
+                        />
+                    )}
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -439,6 +495,38 @@ const createStyles = (theme, isDarkMode) => StyleSheet.create({
         fontSize: 14,
         lineHeight: 22,
         color: theme.colors.text.secondary,
+    },
+
+    // Gallery
+    galleryItem: {
+        width: 140,
+        height: 100,
+        marginRight: 12,
+        borderRadius: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    galleryImage: {
+        width: '100%',
+        height: '100%',
+    },
+    viewerContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.95)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    viewerClose: {
+        position: 'absolute',
+        top: 50,
+        right: 20,
+        zIndex: 10,
+        padding: 10,
+    },
+    fullImage: {
+        width: SCREEN_WIDTH,
+        height: SCREEN_WIDTH * 1.5,
     },
 
     // Locations

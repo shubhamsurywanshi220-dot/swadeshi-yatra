@@ -17,7 +17,11 @@ const packages = [
         shortDescription: 'Sacred pilgrimage to four holy shrines in Uttarakhand',
         duration: { nights: 4, days: 5 },
         price: { original: 15999, discounted: 12999, currency: '₹', perPerson: true },
-        imageUrl: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+        imageUrl: 'https://images.unsplash.com/photo-1584810359583-96fc3448beaa?w=1200',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1598091383021-15ddea10925d?w=800',
+            'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800'
+        ],
         locations: ['Yamunotri', 'Gangotri', 'Kedarnath', 'Badrinath'],
         tag: 'Best Seller',
         category: 'Pilgrimage',
@@ -46,7 +50,11 @@ const packages = [
         shortDescription: 'Mountains, adventure & valley vibes in Himachal',
         duration: { nights: 2, days: 3 },
         price: { original: 8999, discounted: 6999, currency: '₹', perPerson: true },
-        imageUrl: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+        imageUrl: 'https://images.unsplash.com/photo-1615651261314-b6a83664d50c?w=1200',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1605649433653-4888801d8a43?w=800',
+            'https://images.unsplash.com/photo-1594142404563-64cccaf5a10f?w=800'
+        ],
         locations: ['Manali', 'Solang Valley', 'Old Manali', 'Hadimba Temple'],
         tag: 'Trending',
         category: 'Adventure',
@@ -73,7 +81,11 @@ const packages = [
         shortDescription: 'Ultimate road trip through the land of high passes',
         duration: { nights: 5, days: 6 },
         price: { original: 22999, discounted: 18999, currency: '₹', perPerson: true },
-        imageUrl: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+        imageUrl: 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=1200',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1599351410111-9a7008f1b9f4?w=800',
+            'https://images.unsplash.com/photo-1590766940554-634a7ed41450?w=800'
+        ],
         locations: ['Leh', 'Pangong Lake', 'Nubra Valley', 'Khardung La', 'Magnetic Hill'],
         tag: 'Premium',
         category: 'Adventure',
@@ -103,7 +115,11 @@ const packages = [
         shortDescription: 'Sun, sand, parties & water sports in Goa',
         duration: { nights: 3, days: 4 },
         price: { original: 9999, discounted: 7499, currency: '₹', perPerson: true },
-        imageUrl: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800',
+        imageUrl: 'https://images.unsplash.com/photo-1512757776214-26d36777b513?w=1200',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+            'https://images.unsplash.com/photo-1614082242765-7c98ca0f3df3?w=800'
+        ],
         locations: ['North Goa', 'South Goa', 'Old Goa', 'Dudhsagar'],
         tag: 'Trending',
         category: 'Beach',
@@ -131,7 +147,10 @@ const packages = [
         shortDescription: 'Coffee plantations & misty mountains in Karnataka',
         duration: { nights: 2, days: 3 },
         price: { original: 7999, discounted: 5999, currency: '₹', perPerson: true },
-        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+        imageUrl: 'https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=1200',
+        galleryImages: [
+            'https://images.unsplash.com/photo-1582236940902-869f379f8241?w=800'
+        ],
         locations: ['Coorg', 'Abbey Falls', 'Dubare Elephant Camp', 'Raja\'s Seat'],
         tag: 'New',
         category: 'Nature',
@@ -159,16 +178,17 @@ async function seedPackages() {
         await mongoose.connect(MONGO_URI, { dbName: 'swadeshi_yatra' });
         console.log('✅ Connected to MongoDB');
 
-        const existingCount = await TravelPackage.countDocuments();
-        if (existingCount > 0) {
-            console.log(`📦 ${existingCount} packages already exist. Skipping seed.`);
-            console.log('   To re-seed, run: db.travelpackages.drop() in MongoDB first.');
-            process.exit(0);
-        }
+        const result = await TravelPackage.deleteMany({});
+        console.log(`🗑️ Cleared ${result.deletedCount} existing packages.`);
 
-        const result = await TravelPackage.insertMany(packages);
-        console.log(`✅ Successfully seeded ${result.length} travel packages!`);
-        result.forEach(p => console.log(`   📦 ${p.title} — ${p.duration.nights}N/${p.duration.days}D — ${p.price.currency}${p.price.discounted}`));
+        const packagesWithSlugs = packages.map(pkg => ({
+            ...pkg,
+            slug: pkg.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        }));
+
+        const seeded = await TravelPackage.insertMany(packagesWithSlugs);
+        console.log(`✅ Successfully seeded ${seeded.length} travel packages!`);
+        seeded.forEach(p => console.log(`   📦 ${p.title} — ${p.duration.nights}N/${p.duration.days}D — ${p.price.currency}${p.price.discounted}`));
         
         process.exit(0);
     } catch (err) {

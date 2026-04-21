@@ -16,19 +16,19 @@ const FALLBACK_PACKAGES = [
     {
         _id: 'fb1',
         title: 'Char Dham Yatra',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Kedarnath_Temple_in_Uttarakhand.jpg/800px-Kedarnath_Temple_in_Uttarakhand.jpg',
+        imageUrl: 'https://images.unsplash.com/photo-1584810359583-96fc3448beaa?w=1200',
         duration: { nights: 4, days: 5 },
         tag: 'Best Seller',
         price: { currency: '₹', original: 15999, discounted: 12999 },
         rating: 4.8,
         description: 'Visit the sacred Char Dham circuit — Yamunotri, Gangotri, Kedarnath & Badrinath.',
         locations: ['Yamunotri', 'Gangotri', 'Kedarnath', 'Badrinath'],
-        highlights: ['Helicopter to Kedarnath', 'VIP Darshan', 'All meals included'],
+        highlights: ['VIP Darshan Included', 'Professional Local Guide', 'All meals & stay'],
     },
     {
         _id: 'fb2',
         title: 'Manali Adventure',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Solang_Valley_Feb_2021.jpg/800px-Solang_Valley_Feb_2021.jpg',
+        imageUrl: 'https://images.unsplash.com/photo-1615651261314-b6a83664d50c?w=1200',
         duration: { nights: 2, days: 3 },
         tag: 'Trending',
         price: { currency: '₹', original: 8999, discounted: 6499 },
@@ -39,7 +39,7 @@ const FALLBACK_PACKAGES = [
     {
         _id: 'fb3',
         title: 'Leh Ladakh Expedition',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Pangong_Tso.jpg/800px-Pangong_Tso.jpg',
+        imageUrl: 'https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?w=1200',
         duration: { nights: 5, days: 6 },
         tag: 'Premium',
         price: { currency: '₹', original: 22999, discounted: 18999 },
@@ -50,9 +50,10 @@ const FALLBACK_PACKAGES = [
     {
         _id: 'fb4',
         title: 'Goa Beach Getaway',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Vagator_Beach_Goa.jpg/800px-Vagator_Beach_Goa.jpg',
+        imageUrl: 'https://images.unsplash.com/photo-1512757776214-26d36777b513?w=1200',
         duration: { nights: 3, days: 4 },
         price: { currency: '₹', original: 9999, discounted: 7499 },
+        tag: 'Trending',
         rating: 4.5,
         description: 'Sun, sand & heritage — explore the best of Goa.',
         locations: ['Calangute', 'Old Goa', 'Dudhsagar'],
@@ -60,7 +61,7 @@ const FALLBACK_PACKAGES = [
     {
         _id: 'fb5',
         title: 'Coorg Nature Retreat',
-        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Abbey_Falls_Coorg.jpg/800px-Abbey_Falls_Coorg.jpg',
+        imageUrl: 'https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=1200',
         duration: { nights: 2, days: 3 },
         tag: 'New',
         price: { currency: '₹', original: 6999, discounted: 4999 },
@@ -351,6 +352,7 @@ export default function HomeScreen({ navigation }) {
                                 <ImageWithFallback
                                     source={{ uri: item.imageUrl }}
                                     style={styles.popularImage}
+                                    category={item.category}
                                     resizeMode="cover"
                                 />
                                 <View style={styles.popularInfo}>
@@ -588,7 +590,7 @@ const createStyles = (theme) => StyleSheet.create({
     },
     popularImage: {
         width: '100%',
-        height: 110,
+        height: 130, // Increased height as requested (120-150px)
     },
     popularInfo: {
         paddingHorizontal: 10,

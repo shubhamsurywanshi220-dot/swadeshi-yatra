@@ -158,12 +158,10 @@ export default function DirectoryScreen({ route, navigation }) {
 
         return matchesSearch && matchesState && matchesCity && matchesType && matchesSeason;
     }).sort((a, b) => {
-        const aHasImage = !!(a.imageUrl || (a.images && a.images.length > 0));
-        const bHasImage = !!(b.imageUrl || (b.images && b.images.length > 0));
-
-        if (aHasImage && !bHasImage) return -1;
-        if (!aHasImage && bHasImage) return 1;
-        return 0;
+        // Sort alphabetically by name
+        const nameA = a.name ? a.name.toLowerCase() : '';
+        const nameB = b.name ? b.name.toLowerCase() : '';
+        return nameA.localeCompare(nameB);
     });
 
     const getTitle = () => {

@@ -10,6 +10,7 @@ const STATUS_CONFIG = {
     approved: { label: 'Approved', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/30', icon: CheckCircle },
     pending:  { label: 'Pending',  color: 'text-amber-400',   bg: 'bg-amber-400/10',   border: 'border-amber-400/30',   icon: Clock },
     rejected: { label: 'Rejected', color: 'text-red-400',     bg: 'bg-red-400/10',     border: 'border-red-400/30',     icon: XCircle },
+    flagged:  { label: 'Flagged',  color: 'text-rose-400',    bg: 'bg-rose-400/10',    border: 'border-rose-400/30',    icon: Flag },
 };
 
 const formatCount = (n) => {
@@ -177,7 +178,7 @@ export default function Vlogs() {
         }
     };
 
-    const FILTERS = ['all', 'pending', 'approved', 'rejected'];
+    const FILTERS = ['all', 'pending', 'approved', 'rejected', 'flagged'];
 
     return (
         <div className="space-y-8">

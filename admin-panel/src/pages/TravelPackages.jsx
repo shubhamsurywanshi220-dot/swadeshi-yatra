@@ -4,7 +4,8 @@ import socket from '../utils/socket';
 import {
     Package, Plus, Edit2, Trash2, X, Save, Eye, EyeOff,
     Clock, MapPin, Star, TrendingUp, DollarSign, Calendar,
-    ChevronDown, ChevronUp, Users, Mountain, Loader2
+    ChevronDown, ChevronUp, Users, Mountain, Loader2, Image as ImageIcon,
+    UploadCloud, RefreshCw, Trash2 as TrashIcon, ExternalLink
 } from 'lucide-react';
 
 const TAG_OPTIONS = ['', 'Best Seller', 'Trending', 'New', 'Limited Offer', 'Premium'];
@@ -44,6 +45,9 @@ const TravelPackages = () => {
     const [saving, setSaving] = useState(false);
     const [expandedId, setExpandedId] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [uploading, setUploading] = useState({});
+    const heroInputRef = React.useRef(null);
+    const galleryInputRef = React.useRef(null);
 
     // Temp string fields for comma-separated lists
     const [locationsStr, setLocationsStr] = useState('');
@@ -119,6 +123,7 @@ const TravelPackages = () => {
                     nights: Number(form.duration.nights) || 1,
                     days: Number(form.duration.days) || 2,
                 },
+                galleryImages: form.galleryImages || []
             };
 
             if (editingPkg) {
@@ -135,6 +140,43 @@ const TravelPackages = () => {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleImageUpload = async (e, type = 'hero') => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(prev => ({ ...prev, [type]: true }));
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('destName', form.title || 'package');
+
+            const res = await api.post('/upload/image', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            if (type === 'hero') {
+                setForm(prev => ({ ...prev, imageUrl: res.data.url }));
+            } else {
+                setForm(prev => ({
+                    ...prev,
+                    galleryImages: [...(prev.galleryImages || []), res.data.url]
+                }));
+            }
+        } catch (err) {
+            console.error('Upload failed:', err);
+            alert('Upload failed: ' + (err.response?.data?.error || err.message));
+        } finally {
+            setUploading(prev => ({ ...prev, [type]: false }));
+        }
+    };
+
+    const removeGalleryImage = (idx) => {
+        setForm(prev => ({
+            ...prev,
+            galleryImages: prev.galleryImages.filter((_, i) => i !== idx)
+        }));
     };
 
     const handleDelete = async (id) => {
@@ -418,16 +460,94 @@ const TravelPackages = () => {
                                 />
                             </div>
 
-                            {/* Image URL */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 mb-1.5">Image URL *</label>
-                                <input
-                                    type="text"
-                                    value={form.imageUrl}
-                                    onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:border-indigo-500 outline-none transition"
-                                    placeholder="https://images.unsplash.com/..."
-                                />
+                            {/* Image Upload & URL */}
+                            <div className="space-y-4">
+                                <label className="block text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wider">Package Hero Image</label>
+                                
+                                {form.imageUrl ? (
+                                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-950">
+                                        <img src={form.imageUrl} className="w-full h-full object-cover" alt="Hero Preview" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => heroInputRef.current?.click()}
+                                                className="p-2 bg-indigo-600 rounded-lg text-white hover:bg-indigo-500 transition"
+                                                title="Change Image"
+                                            >
+                                                <RefreshCw size={18} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setForm(prev => ({ ...prev, imageUrl: '' }))}
+                                                className="p-2 bg-red-600 rounded-lg text-white hover:bg-red-500 transition"
+                                                title="Remove Image"
+                                            >
+                                                <TrashIcon size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div 
+                                        onClick={() => heroInputRef.current?.click()}
+                                        className="aspect-video w-full rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/50 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-indigo-500/50 hover:bg-slate-950/80 transition"
+                                    >
+                                        {uploading.hero ? (
+                                            <Loader2 size={32} className="text-indigo-500 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <UploadCloud size={32} className="text-slate-600" />
+                                                <p className="text-xs font-bold text-slate-500 uppercase">Click to upload hero image</p>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                                <input ref={heroInputRef} type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'hero')} />
+                                
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={form.imageUrl}
+                                        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 pl-10 text-white text-sm focus:border-indigo-500 outline-none transition"
+                                        placeholder="Or paste image URL directly..."
+                                    />
+                                    <ExternalLink size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                                </div>
+                            </div>
+
+                            {/* Gallery Management */}
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Image Gallery</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => galleryInputRef.current?.click()}
+                                        className="text-[10px] font-black text-indigo-400 uppercase border border-indigo-400/20 px-3 py-1.5 rounded-lg hover:bg-indigo-400/10 transition"
+                                    >
+                                        {uploading.gallery ? 'Uploading...' : '+ Add Image'}
+                                    </button>
+                                    <input ref={galleryInputRef} type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'gallery')} />
+                                </div>
+                                
+                                <div className="grid grid-cols-4 gap-3">
+                                    {form.galleryImages?.map((img, idx) => (
+                                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-800 group">
+                                            <img src={img} className="w-full h-full object-cover" alt={`Gallery ${idx}`} />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeGalleryImage(idx)}
+                                                className="absolute top-1.5 right-1.5 p-1.5 bg-red-600 rounded-lg text-white opacity-0 group-hover:opacity-100 transition"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {(!form.galleryImages || form.galleryImages.length === 0) && (
+                                        <div className="col-span-4 py-8 text-center bg-slate-950/30 border border-slate-800/50 rounded-xl border-dashed">
+                                            <p className="text-[10px] font-bold text-slate-600 uppercase">No gallery images added</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Duration, Price, Tag, Category */}

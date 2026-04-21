@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const VlogSchema = new mongoose.Schema({
     title: { type: String, required: true, trim: true },
-    video_url: { type: String, default: null },        // Cloudinary / Firebase / direct URL
-    thumbnail: { type: String, default: null },         // Auto-generated or user-provided
-    location: { type: String, required: true },         // e.g. "Hampi, Karnataka"
-    destination_id: { type: String, default: null },    // Links to a Place document _id
-    user: { type: String, required: true },             // Display name
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    video_url: { type: String, required: true },
+    thumbnail: { type: String, default: null },
+    location: { type: String, required: true },
+    destination_id: { type: String, default: null },
+    user: { type: String, required: true },             // User display name
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     description: { type: String, default: '' },
     category: {
         type: String,
@@ -16,14 +16,14 @@ const VlogSchema = new mongoose.Schema({
     },
     likes: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
-    likedBy:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    savedBy:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending'
+        enum: ['pending', 'approved', 'rejected', 'flagged'],
+        default: 'approved' // Option A: Upload -> Directly visible
     },
-    flaggedReason: { type: String, default: null }, // e.g. "Fake", "Inappropriate"
+    flaggedReason: { type: String, default: null },
     duration: { type: String, default: null },
 }, { timestamps: true });
 

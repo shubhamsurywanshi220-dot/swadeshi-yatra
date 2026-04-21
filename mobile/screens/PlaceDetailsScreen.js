@@ -4,7 +4,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+// Conditional import for MapView to prevent web bundling errors
+let MapView, Marker;
+if (Platform.OS !== 'web') {
+    const Maps = require('react-native-maps');
+    MapView = Maps.default;
+    Marker = Maps.Marker;
+} else {
+    // Web Fallback Component
+    MapView = ({ children, style }) => (
+        <View style={[style, { backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }]}>
+            <MaterialCommunityIcons name="map-outline" size={48} color="#ccc" />
+            <Text style={{ color: '#999', marginTop: 10, fontSize: 12 }}>Map interactive view available on Mobile</Text>
+        </View>
+    );
+    MapView.prototype = { fitToCoordinates: () => {} }; // Mock ref method
+    Marker = () => null;
+}
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
 import { FavoritesManager } from '../utils/favoritesManager';

@@ -1,45 +1,53 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { NativeModules } from 'react-native';
-
-// START CONFIGURATION
-// Production backend URL (deployed on Render)
+// 🌐 BASE CONFIGURATION
 const PRODUCTION_URL = 'https://swadeshi-yatra.onrender.com/api';
+
+// 🚀 RECOVERY LOGIC: If you see a new URL in your tunnel terminal, paste it here!
+const CURRENT_TUNNEL = 'https://slimy-hotels-smell.loca.lt/api'; 
+const LOCAL_DEV_IP = '10.161.202.131'; 
 
 let BASE_URL = PRODUCTION_URL;
 
 if (__DEV__) {
-    // 🚀 We are forcing the local IP address because loopback (10.0.2.2) doesn't work on physical Wi-Fi devices.
-    // If your internet IP changes, you need to update this to match your laptop's current IPv4 address.
-    BASE_URL = 'http://10.230.101.131:5000/api';
-    console.log('✅ [API] Hardcoded physical device IP:', BASE_URL);
+    // We prioritize the tunnel as it's the most reliable for physical devices
+    BASE_URL = CURRENT_TUNNEL;
+    
+    console.log('📡 [API] ATTEMPTING CONNECTION:', BASE_URL);
 }
-
-console.log('[API] Using Base URL:', BASE_URL);
 
 const api = axios.create({
     baseURL: BASE_URL,
-    timeout: 15000,
+    timeout: 20000, // Increased timeout for slow tunnels
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Bypass-Tunnel-Reminder': 'true',
+        'ngrok-skip-browser-warning': 'true',
+        'User-Agent': 'SwadeshiYatra-Mobile'
     }
 });
 
-// Add a request interceptor to attach the token
-api.interceptors.request.use(
-    async (config) => {
-        const token = await AsyncStorage.getItem('@auth_token');
-        if (token) {
-            config.headers['x-auth-token'] = token;
+// Interceptor for debugging and tokens
+api.interceptors.request.use(async (config) => {
+    const token = await AsyncStorage.getItem('@auth_token');
+    if (token) config.headers['x-auth-token'] = token;
+    return config;
+});
+
+// Response interceptor to catch specific network errors
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (!error.response) {
+            console.log('🛑 [NETWORK ERROR] No response from server. Is the tunnel window open? URL:', BASE_URL);
+        } else {
+            console.log('🛑 [SERVER ERROR]', error.response.status, error.response.data);
         }
-        return config;
-    },
-    (error) => {
         return Promise.reject(error);
     }
 );
 
+export { BASE_URL };
 export default api;

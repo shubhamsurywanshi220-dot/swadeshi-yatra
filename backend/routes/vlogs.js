@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Vlog = require('../models/Vlog');
 const auth = require('../middleware/auth');
+const { upload, cloudinary } = require('../services/cloudinary');
 
 // ──────────────────────────────────────────────────────────────
 // PUBLIC ROUTES
@@ -69,47 +70,78 @@ router.post('/:id/view', async (req, res) => {
 // ──────────────────────────────────────────────────────────────
 
 // @route   POST /api/vlogs
-// @desc    Submit a new vlog (status = pending)
+// @desc    Submit a new vlog with file upload
 // @access  Private
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.single('video'), async (req, res) => {
     try {
-        const { title, video_url, thumbnail, location, destination_id, description, category, duration } = req.body;
+        const { title, location, destination_id, description, category } = req.body;
 
         if (!title || !location) {
             return res.status(400).json({ msg: 'Title and location are required.' });
         }
 
-        // Prevent exact duplicate uploads by same user
-        const existing = await Vlog.findOne({ title, user: req.user?.name, location });
+        // 1. Spam Detection: Check if user has uploaded in the last 2 minutes
+        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+        const recentUpload = await Vlog.findOne({
+            userId: req.user.id,
+            createdAt: { $gte: twoMinutesAgo }
+        });
+
+        if (recentUpload) {
+            // Delete file if already uploaded to Cloudinary by multer
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename, { resource_type: 'video' });
+            }
+            return res.status(429).json({ msg: 'Please wait 2 minutes between uploads to prevent spam.' });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ msg: 'No video file uploaded.' });
+        }
+
+        // 2. Duplicate Check: Prevent exact same title + user + location
+        const existing = await Vlog.findOne({ 
+            title: { $regex: new RegExp(`^${title.trim()}$`, 'i') }, 
+            userId: req.user.id, 
+            location 
+        });
+
         if (existing) {
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename, { resource_type: 'video' });
+            }
             return res.status(400).json({ msg: 'You have already uploaded a vlog with this title and location.' });
         }
 
+        // Generate thumbnail from video (Cloudinary helper)
+        const videoUrl = req.file.path;
+        // Cloudinary automatically generates thumbnails if you change extension to .jpg
+        const thumbnail = videoUrl.replace(/\.[^/.]+$/, ".jpg"); 
+
         const vlog = new Vlog({
-            title,
-            video_url: video_url || null,
-            thumbnail: thumbnail || null,
-            location,
+            title: title.trim(),
+            video_url: videoUrl,
+            thumbnail: thumbnail,
+            location: location.trim(),
             destination_id: destination_id || null,
             user: req.user?.name || 'Anonymous',
-            userId: req.user?.id || null,
+            userId: req.user.id,
             description: description || '',
             category: category || 'General',
-            duration: duration || null,
-            status: 'pending', // Requires admin approval
+            status: 'approved', // Directly visible as per user recommendation
         });
 
         await vlog.save();
 
-        // Notify admin via Socket.io
+        // Notify all clients via Socket.io for real-time update
         if (req.io) {
-            req.io.emit('vlog:new_pending', { id: vlog._id, title: vlog.title, user: vlog.user });
+            req.io.emit('vlog:new_public', vlog);
         }
 
-        res.json({ msg: 'Vlog submitted! It will appear after admin review.', vlog });
+        res.json({ msg: 'Vlog uploaded successfully!', vlog });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Vlog upload error:', err.message);
+        res.status(500).json({ msg: 'Server Error during upload', error: err.message });
     }
 });
 

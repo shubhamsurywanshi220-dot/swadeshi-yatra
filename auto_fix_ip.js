@@ -47,20 +47,20 @@ const apiFile = path.join(__dirname, 'mobile', 'utils', 'api.js');
 try {
     let content = fs.readFileSync(apiFile, 'utf8');
     
-    // Replace everything between if (__DEV__) { ... } with a direct IP assignment
-    const rx = /if\s*\(__DEV__\)\s*\{[\s\S]*?\}(?=\s*console\.log\('\[API\])/;
+    // Search for the if (__DEV__) block using a more robust pattern
+    const rx = /if\s*\(__DEV__\)\s*\{[\s\S]*?\}/;
     
     const newBlock = `if (__DEV__) {
     // 🚀 Auto-configured IP address for local network testing
-    BASE_URL = 'http://${ip}:5000/api';
+    BASE_URL = 'http://${ip}:5005/api';
     console.log('✅ [API] Hardcoded local dev IP:', '${ip}');
-}\n`;
+}`;
 
     if (rx.test(content)) {
         content = content.replace(rx, newBlock);
         fs.writeFileSync(apiFile, content, 'utf8');
         console.log(`✅ SUCCESS: Updated mobile/utils/api.js with ${ip}`);
-        console.log(`📱 Your Expo app will now connect directly to http://${ip}:5000/api`);
+        console.log(`📱 Your Expo app will now connect directly to http://${ip}:5005/api`);
     } else {
         console.log(`⚠️ WARNING: Could not auto-replace IP in api.js. The structure might have changed.`);
     }

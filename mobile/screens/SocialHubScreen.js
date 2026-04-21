@@ -19,6 +19,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import api from '../utils/api';
+import * as ImagePicker from 'expo-image-picker';
+import io from 'socket.io-client';
+import { BASE_URL } from '../utils/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -257,7 +260,9 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
     const [location, setLocation] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('General');
+    const [videoFile, setVideoFile] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const bg = isDarkMode ? '#161B22' : '#FFFFFF';
     const inputBg = isDarkMode ? '#21262D' : '#F2F2F7';
@@ -267,35 +272,83 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
 
     const CATS = ['Nature', 'Heritage', 'Adventure', 'Food', 'Culture', 'General'];
 
+    const pickVideo = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'We need access to your library to upload videos.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const video = result.assets[0];
+            // Basic size check (approx 100MB)
+            if (video.fileSize > 100 * 1024 * 1024) {
+                Alert.alert('File too large', 'Please select a video smaller than 100MB.');
+                return;
+            }
+            setVideoFile(video);
+        }
+    };
+
     const handleSubmit = async () => {
         if (!title.trim() || !location.trim()) {
             Alert.alert('Required', 'Please add a title and location.');
             return;
         }
+        if (!videoFile) {
+            Alert.alert('Required', 'Please select a video to upload.');
+            return;
+        }
+
         setSubmitting(true);
+        setUploadProgress(0);
+
         try {
-            await api.post('/vlogs', {
-                title: title.trim(),
-                location: location.trim(),
-                description: description.trim(),
-                category,
-                video_url: null,    // Will be replaced with Cloudinary URL after upload
-                thumbnail: null,    // Same
-                status: 'pending',
+            const formData = new FormData();
+            formData.append('title', title.trim());
+            formData.append('location', location.trim());
+            formData.append('description', description.trim());
+            formData.append('category', category);
+            
+            const uri = videoFile.uri;
+            const filename = uri.split('/').pop();
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `video/${match[1]}` : `video/mp4`;
+
+            formData.append('video', {
+                uri,
+                name: filename,
+                type
             });
+
+            const response = await api.post('/vlogs', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(percentCompleted);
+                }
+            });
+
             Alert.alert(
-                '🎉 Submitted!',
-                'Your vlog has been submitted for admin review. It will appear in the feed once approved.',
-                [{ text: 'Got it!', onPress: () => {
-                    setTitle(''); setLocation(''); setDescription(''); setCategory('General');
+                '🎉 Success!',
+                'Your vlog has been uploaded and is now live!',
+                [{ text: 'Great!', onPress: () => {
+                    setTitle(''); setLocation(''); setDescription(''); setCategory('General'); setVideoFile(null);
                     onClose();
                 }}]
             );
         } catch (err) {
-            const msg = err.response?.data?.msg || 'Upload failed. Please try again.';
+            const msg = err.response?.data?.msg || 'Upload failed. Please check your connection.';
             Alert.alert('Error', msg);
         } finally {
             setSubmitting(false);
+            setUploadProgress(0);
         }
     };
 
@@ -309,15 +362,38 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
                     </TouchableOpacity>
                 </View>
 
-                {/* Video picker placeholder */}
+                {/* Video picker implementation */}
                 <TouchableOpacity
-                    style={[styles.videoPicker, { backgroundColor: inputBg, borderColor }]}
-                    onPress={() => Alert.alert('Video Upload', 'Video file upload via Cloudinary/Firebase will be integrated here.\n\nFor now, submit the vlog metadata for admin review.')}
+                    style={[styles.videoPicker, { 
+                        backgroundColor: inputBg, 
+                        borderColor: videoFile ? theme.colors.primary : borderColor,
+                        borderStyle: videoFile ? 'solid' : 'dashed'
+                    }]}
+                    onPress={pickVideo}
                 >
-                    <MaterialCommunityIcons name="video-plus" size={40} color={theme.colors.primary} />
-                    <Text style={[styles.videoPickerText, { color: textColor }]}>Tap to select video</Text>
-                    <Text style={[styles.videoPickerSub, { color: placeholderColor }]}>MP4, MOV · Max 500MB · HD preferred</Text>
+                    {videoFile ? (
+                        <View style={{ alignItems: 'center' }}>
+                            <Ionicons name="checkmark-circle" size={40} color="#4CAF50" />
+                            <Text style={[styles.videoPickerText, { color: textColor }]}>Video Selected</Text>
+                            <Text style={[styles.videoPickerSub, { color: placeholderColor }]}>{videoFile.duration ? `${Math.round(videoFile.duration / 1000)}s` : ''} · Change Video</Text>
+                        </View>
+                    ) : (
+                        <View style={{ alignItems: 'center' }}>
+                            <MaterialCommunityIcons name="video-plus" size={40} color={theme.colors.primary} />
+                            <Text style={[styles.videoPickerText, { color: textColor }]}>Tap to select video</Text>
+                            <Text style={[styles.videoPickerSub, { color: placeholderColor }]}>MP4, MOV · Max 100MB · HD preferred</Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
+
+                {submitting && (
+                    <View style={{ marginBottom: 16 }}>
+                        <View style={{ height: 4, backgroundColor: borderColor, borderRadius: 2, overflow: 'hidden' }}>
+                            <View style={{ width: `${uploadProgress}%`, height: '100%', backgroundColor: theme.colors.primary }} />
+                        </View>
+                        <Text style={{ fontSize: 11, color: placeholderColor, marginTop: 4, textAlign: 'right' }}>{uploadProgress}% Uploaded</Text>
+                    </View>
+                )}
 
                 <TextInput
                     style={[styles.modalInput, { backgroundColor: inputBg, color: textColor }]}
@@ -346,7 +422,7 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
 
                 {/* Category selector */}
                 <Text style={[{ color: placeholderColor, fontSize: 12, marginBottom: 8, marginLeft: 4 }]}>Category</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16, flexGrow: 0 }}>
                     {CATS.map(cat => (
                         <TouchableOpacity
                             key={cat}
@@ -367,7 +443,7 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
                 <View style={[styles.pendingNote, { backgroundColor: isDarkMode ? '#1C2A1C' : '#F0FFF0', borderColor: '#4CAF50' }]}>
                     <Ionicons name="information-circle-outline" size={16} color="#4CAF50" />
                     <Text style={{ color: isDarkMode ? '#81C784' : '#2E7D32', fontSize: 12, flex: 1, marginLeft: 8 }}>
-                        Your vlog will be reviewed by an admin before appearing publicly.
+                        Your vlog will be visible to all users instantly upon successful upload.
                     </Text>
                 </View>
 
@@ -380,7 +456,7 @@ function UploadModal({ visible, onClose, theme, isDarkMode }) {
                         ? <ActivityIndicator size="small" color="#FFF" />
                         : <Ionicons name="cloud-upload-outline" size={20} color="#FFF" />
                     }
-                    <Text style={styles.submitBtnText}>{submitting ? 'Submitting...' : 'Submit for Review'}</Text>
+                    <Text style={styles.submitBtnText}>{submitting ? `Uploading... ${uploadProgress}%` : 'Post Vlog'}</Text>
                 </TouchableOpacity>
             </View>
         </Modal>
@@ -427,7 +503,44 @@ export default function SocialHubScreen({ route, navigation }) {
         }
     }, [locationFilter, activeCategory]);
 
-    useEffect(() => { fetchVlogs(); }, [fetchVlogs]);
+    useEffect(() => {
+        fetchVlogs();
+
+        // ── Real-time Feed Sync via Socket.io
+        // Important: Socket.io needs the root URL, not the /api endpoint
+        const ROOT_URL = BASE_URL.replace('/api', '');
+        const socket = io(ROOT_URL, {
+            transports: ['websocket'],
+            forceNew: true
+        });
+        
+        socket.on('connect', () => {
+            console.log('🔌 [SocialHub] Connected to Real-time Feed');
+        });
+
+        socket.on('connect_error', (err) => {
+            console.log('❌ [SocialHub] Socket Error:', err.message);
+        });
+        socket.on('vlog:new_public', (newVlog) => {
+            setVlogs(prev => {
+                // Prevent duplicate if already fetched
+                if (prev.find(v => v._id === newVlog._id)) return prev;
+                return [{ ...newVlog, liked: false, saved: false }, ...prev];
+            });
+        });
+
+        socket.on('vlog:deleted', ({ id }) => {
+            setVlogs(prev => prev.filter(v => v._id !== id));
+        });
+
+        socket.on('vlog:status_changed', ({ id, status }) => {
+            if (status !== 'approved') {
+                setVlogs(prev => prev.filter(v => v._id !== id));
+            }
+        });
+
+        return () => socket.disconnect();
+    }, [fetchVlogs]);
 
     const onRefresh = () => {
         setRefreshing(true);
